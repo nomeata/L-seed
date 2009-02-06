@@ -51,9 +51,10 @@ initRenderer = do
 render :: Garden -> Render ()
 render garden = do
 	renderGround
-	-- mapM_ (renderPlanted) garden
+	-- mapM_ renderLightedLine (lightenLines (pi/3) (gardenToLines garden))
+	mapM_ renderLightedPoly (lightPolygons (pi/3) (gardenToLines garden))
 	-- mapM_ renderLine (gardenToLines garden)
-	mapM_ renderLightedLine (lightenLines (pi/2) (gardenToLines garden))
+	mapM_ (renderPlanted) garden
 
 renderPlanted :: Planted -> Render ()
 renderPlanted planted = preserve $ do
@@ -95,6 +96,15 @@ renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
 	setLineWidth (0.5*stipeWidth)
 	stroke
 	
+renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
+	when (intensity > 0) $ do
+		moveTo x1 (y1+groundLevel)
+		lineTo x2 (y2+groundLevel)
+		lineTo x3 (y3+groundLevel)
+		lineTo x4 (y4+groundLevel)
+		closePath
+		setSourceRGBA 1 1 0 intensity
+		fill
 
 renderGround :: Render ()
 renderGround = do
