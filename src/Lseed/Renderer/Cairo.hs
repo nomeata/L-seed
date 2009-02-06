@@ -66,15 +66,15 @@ renderPlant :: Plant -> Render ()
 renderPlant Bud = do
 	arc 0 0 budSize 0 (2*pi)
 	fill
-renderPlant (Stipe p) = do
+renderPlant (Stipe len p) = do
 	moveTo 0 0
-	lineTo 0 stipeLength
+	lineTo 0 (len * stipeLength)
 	stroke
-	translate 0 stipeLength
+	translate 0 (len * stipeLength)
 	renderPlant p
-renderPlant (Fork p1 p2) = do
-	preserve $ rotate (-pi/4) >> renderPlant p1
-	preserve $ rotate (pi/4) >> renderPlant p2
+renderPlant (Fork angle p1 p2) = do
+	preserve $ rotate angle >> renderPlant p1
+	renderPlant p2
 		
 renderLine (l@((x1,y1),(x2,y2)), _) = do
 	setSourceRGB 0 1 0 

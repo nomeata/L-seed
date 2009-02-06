@@ -14,8 +14,10 @@ data Planted = Planted
 -- | A plant, which is
 data Plant 
 	= Bud -- ^ a bud, i.e. the end of a sprout
-	| Stipe Plant -- ^ a stipe with more of the plant next
-	| Fork Plant Plant -- ^ a fork with two successing pieces of a plant
+	| Stipe Double Plant -- ^ a stipe with a length (factor of stipeLength)
+                             --   and more of the plant next
+	| Fork Double Plant Plant -- ^ a fork with a sidewise offspring at a radial angle,
+                                  --   and a straing continuation 
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function and a weight

@@ -46,10 +46,10 @@ plantedToLines planted = runGeometryGenerator (plantPosition planted, 0) 0 $
 
 plantToGeometry :: Plant -> GeometryGenerator ()
 plantToGeometry Bud = return ()
-plantToGeometry (Stipe p) = addLine ((0,0),(0,stipeLength)) >>
-			    translated (0,stipeLength) (plantToGeometry p)
-plantToGeometry (Fork p1 p2) = rotated (-pi/4) (plantToGeometry p1) >>
-                               rotated ( pi/4) (plantToGeometry p2)
+plantToGeometry (Stipe len p) = addLine ((0,0),(0,len * stipeLength)) >>
+			        translated (0,len * stipeLength) (plantToGeometry p)
+plantToGeometry (Fork angle p1 p2) = rotated angle (plantToGeometry p1) >>
+                                                   (plantToGeometry p2)
 
 -- | Lines are annotated with its plant, identified by the position
 gardenToLines :: Garden -> [(Line, Double)]
