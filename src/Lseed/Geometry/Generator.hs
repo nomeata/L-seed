@@ -34,7 +34,7 @@ translated p (GeometryGenerator act) = do
 
 rotated :: Double -> GeometryGenerator a -> GeometryGenerator a
 rotated r (GeometryGenerator act) = 
-	GeometryGenerator $ local (\(p,r') -> (p, r' * r)) act
+	GeometryGenerator $ local (\(p,r') -> (p, r' + r)) act
 
 addLine :: Line -> GeometryGenerator ()
 addLine (p1,p2) = do

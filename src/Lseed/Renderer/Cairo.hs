@@ -2,10 +2,12 @@ module Lseed.Renderer.Cairo where
 
 import Graphics.UI.Gtk hiding (fill)
 import Graphics.Rendering.Cairo
+import Control.Monad
 import Control.Concurrent
 import Data.IORef
 import Lseed.Data
 import Lseed.Constants
+import Lseed.Geometry
 
 initRenderer :: IO (Garden -> IO ())
 initRenderer = do
@@ -49,7 +51,9 @@ initRenderer = do
 render :: Garden -> Render ()
 render garden = do
 	renderGround
-	mapM_ (renderPlanted) garden
+	-- mapM_ (renderPlanted) garden
+	-- mapM_ renderLine (gardenToLines garden)
+	mapM_ renderLightedLine (lightenLines (pi/2) (gardenToLines garden))
 
 renderPlanted :: Planted -> Render ()
 renderPlanted planted = preserve $ do
@@ -71,6 +75,26 @@ renderPlant (Fork p1 p2) = do
 	preserve $ rotate (-pi/4) >> renderPlant p1
 	preserve $ rotate (pi/4) >> renderPlant p2
 		
+renderLine (l@((x1,y1),(x2,y2)), _) = do
+	setSourceRGB 0 1 0 
+	setLineWidth (0.5*stipeWidth)
+	moveTo x1 (y1+groundLevel)
+	lineTo x2 (y2+groundLevel)
+	stroke
+	
+renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
+	moveTo x1 (y1+groundLevel)
+	lineTo x2 (y2+groundLevel)
+	let normalized = intensity / lineLength l
+	when (normalized > 0) $ do
+		liftIO $ print normalized
+		setLineWidth (3*stipeWidth)
+		setSourceRGBA 1 1 0 normalized
+		strokePreserve
+	setSourceRGB 0 1 0 
+	setLineWidth (0.5*stipeWidth)
+	stroke
+	
 
 renderGround :: Render ()
 renderGround = do
