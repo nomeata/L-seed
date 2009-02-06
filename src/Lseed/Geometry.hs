@@ -162,7 +162,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
                                              p4 = unprojectPoint x2 l1
 					 in (p1,p2,p3,p4)) sorted (tail sorted)
 			polys' = [firstPoly] ++ polys ++ [lastPoly]
-			lightedPolys = snd $ mapAccumL shine (1*lightFalloff) polys'
+			lightedPolys = snd $ mapAccumL shine 1 polys'
 			shine intensity (p1,p2,p3,p4) = ( intensity * lightFalloff
 							, (p1,p2,p3,p4,intensity))
 
