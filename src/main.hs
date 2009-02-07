@@ -34,8 +34,8 @@ testLSystem1 = [
 	]
 testLSystem2 = [
 	(3, \x -> case x of Bud -> Just (Stipe 2 Bud); _ -> Nothing ),
-	(2, \x -> case x of Bud -> Just (Fork ( pi/3) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing ),
-	(1, \x -> case x of Bud -> Just (Fork (-pi/3) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing )
+	(2, \x -> case x of Bud -> Just (Fork ( pi/4) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing ),
+	(1, \x -> case x of Bud -> Just (Fork (-pi/4) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing )
 	]
 testLSystem3 = [
 	(1, \x -> case x of Bud -> Just (Stipe 3 Bud); _ -> Nothing ),

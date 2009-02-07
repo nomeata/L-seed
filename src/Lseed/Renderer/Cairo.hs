@@ -39,6 +39,7 @@ initRenderer = do
 					translate 0 (fromIntegral h)
 					scale 1 (-1)
 					scale (fromIntegral w) (fromIntegral (w))
+					translate 0 groundLevel
 					
 					setLineWidth stipeWidth
 					render garden
@@ -58,8 +59,8 @@ render garden = do
 
 renderPlanted :: Planted -> Render ()
 renderPlanted planted = preserve $ do
-	translate (plantPosition planted) groundLevel
-	setSourceRGB 0 1 0
+	translate (plantPosition planted) 0
+	setSourceRGB 0 0.8 0
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant -> Render ()	
@@ -79,13 +80,13 @@ renderPlant (Fork angle p1 p2) = do
 renderLine (l@((x1,y1),(x2,y2)), _) = do
 	setSourceRGB 0 1 0 
 	setLineWidth (0.5*stipeWidth)
-	moveTo x1 (y1+groundLevel)
-	lineTo x2 (y2+groundLevel)
+	moveTo x1 y1
+	lineTo x2 y2
 	stroke
 	
 renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
-	moveTo x1 (y1+groundLevel)
-	lineTo x2 (y2+groundLevel)
+	moveTo x1 y1
+	lineTo x2 y2
 	let normalized = intensity / lineLength l
 	when (normalized > 0) $ do
 		liftIO $ print normalized
@@ -98,22 +99,22 @@ renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
 	
 renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 	when (intensity > 0) $ do
-		moveTo x1 (y1+groundLevel)
-		lineTo x2 (y2+groundLevel)
-		lineTo x3 (y3+groundLevel)
-		lineTo x4 (y4+groundLevel)
+		moveTo x1 y1
+		lineTo x2 y2
+		lineTo x3 y3
+		lineTo x4 y4
 		closePath
-		setSourceRGB intensity intensity 0
+		setSourceRGB 0 0 intensity
 		fill
 
 renderGround :: Render ()
 renderGround = do
 	-- Clear Background
 	rectangle 0 0 1 100
-	setSourceRGB  1 1 0
+	setSourceRGB  0 0 1
 	fill
-	setSourceRGB (180/255) (120/255) (61/255)
-	rectangle 0 0 1 groundLevel
+	setSourceRGB (140/255) (80/255) (21/255)
+	rectangle 0 0 1 (-groundLevel)
         fill
 
 -- | Wrapper that calls 'save' and 'restore' before and after the argument
