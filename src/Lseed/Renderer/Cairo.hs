@@ -103,15 +103,16 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		lineTo x3 (y3+groundLevel)
 		lineTo x4 (y4+groundLevel)
 		closePath
-		setSourceRGBA 1 1 0 intensity
+		setSourceRGB intensity intensity 0
 		fill
 
 renderGround :: Render ()
 renderGround = do
 	-- Clear Background
-	setSourceRGB  0 1 1
+	rectangle 0 0 1 100
+	setSourceRGB  1 1 0
 	fill
-	setSourceRGB  0.6 0.3 0.3
+	setSourceRGB (180/255) (120/255) (61/255)
 	rectangle 0 0 1 groundLevel
         fill
 
