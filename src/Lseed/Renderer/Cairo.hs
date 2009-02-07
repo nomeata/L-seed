@@ -9,6 +9,7 @@ import Lseed.Data
 import Lseed.Constants
 import Lseed.Geometry
 import Text.Printf
+import System.Time
 
 initRenderer :: IO (Garden -> IO ())
 initRenderer = do
@@ -32,33 +33,38 @@ initRenderer = do
 	forkIO $ mainGUI
 
 	-- The actual drawing function
-	onExpose canvas (\e -> do garden <- readIORef currentGardenRef
+	onExpose canvas$ \e -> do garden <- readIORef currentGardenRef
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
+				  -- Sun rotation based on time for now
+				  TOD s p <- getClockTime
+				  let angle = fromIntegral (s * 1000*1000*1000*1000 + p `mod` (30*1000*1000*1000*1000)) * pi/(30*1000*1000*1000*1000)
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
 					translate 0 (fromIntegral h)
 					scale 1 (-1)
 					scale (fromIntegral w) (fromIntegral (w))
 					translate 0 groundLevel
-					
 					setLineWidth stipeWidth
-					render garden
-		                  return (eventSent e))
+
+					render angle garden
+		                  return (eventSent e)
+
+	timeoutAdd (widgetQueueDraw canvas >> return True) 20
 
 	return $ \garden -> do
 		writeIORef currentGardenRef garden
 		widgetQueueDraw canvas
 
-render :: Garden -> Render ()
-render garden = do
+render :: Double -> Garden -> Render ()
+render angle garden = do
 	renderGround
 	-- mapM_ renderLightedLine (lightenLines (pi/3) (gardenToLines garden))
-	mapM_ renderLightedPoly (lightPolygons (pi/3) (gardenToLines garden))
+	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 	-- mapM_ renderLine (gardenToLines garden)
 	mapM_ (renderPlanted) garden
 
-	mapM_ (renderInfo) (totalLight (pi/3) (gardenToLines garden))
+	mapM_ (renderInfo) (totalLight angle (gardenToLines garden))
 
 renderPlanted :: Planted -> Render ()
 renderPlanted planted = preserve $ do
