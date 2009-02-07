@@ -8,6 +8,7 @@ import Data.IORef
 import Lseed.Data
 import Lseed.Constants
 import Lseed.Geometry
+import Text.Printf
 
 initRenderer :: IO (Garden -> IO ())
 initRenderer = do
@@ -56,6 +57,8 @@ render garden = do
 	mapM_ renderLightedPoly (lightPolygons (pi/3) (gardenToLines garden))
 	-- mapM_ renderLine (gardenToLines garden)
 	mapM_ (renderPlanted) garden
+
+	mapM_ (renderInfo) (totalLight (pi/3) (gardenToLines garden))
 
 renderPlanted :: Planted -> Render ()
 renderPlanted planted = preserve $ do
@@ -106,6 +109,15 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		closePath
 		setSourceRGB 0 0 intensity
 		fill
+
+renderInfo (x,amount) = do
+	let text = printf "%.2f" amount
+	preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		setFontSize (groundLevel/2)
+		moveTo x (0.75*groundLevel)
+		showText text
 
 renderGround :: Render ()
 renderGround = do

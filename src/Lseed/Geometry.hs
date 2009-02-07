@@ -6,6 +6,7 @@ import Lseed.Constants
 import Lseed.Geometry.Generator
 import Data.List
 import Data.Maybe
+import qualified Data.Map as M
 
 import Debug.Trace
 
@@ -59,6 +60,11 @@ gardenToLines = concatMap (\planted -> map (\line -> (line, plantPosition plante
 lightenLines :: (Ord a, Show a) => Double -> [(Line, a)] -> [(Line, a, Double)]
 lightenLines angle lines = let (lighted,_) = allKindsOfStuffWithAngle angle lines
                            in lighted
+
+totalLight :: (Ord a, Show a) => Double -> [(Line, a)] -> [(a, Double)]
+totalLight angle lines = M.toList (foldl add M.empty lighted)
+  where lighted = lightenLines angle lines
+        add m (_,i,a) = M.insertWith (+) i a m
 
 lightPolygons :: (Ord a, Show a) => Double -> [(Line, a)] -> [(Point,Point,Point,Point,Double)]
 lightPolygons angle lines = let (_,polygons) = allKindsOfStuffWithAngle angle lines
