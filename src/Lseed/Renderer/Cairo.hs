@@ -100,7 +100,7 @@ renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
 	when (normalized > 0) $ do
 		liftIO $ print normalized
 		setLineWidth (3*stipeWidth)
-		setSourceRGBA 1 1 0 normalized
+		setSourceRGB normalized normalized 0
 		strokePreserve
 	setSourceRGB 0 1 0 
 	setLineWidth (0.5*stipeWidth)
