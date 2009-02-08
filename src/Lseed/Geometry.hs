@@ -117,7 +117,8 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 		in (x1 + t * (x2-x1), y1 + t * (y2-y1))
 
 	lineAtRay x l = let (x1',x2') = projectLine l
-                      in x1' <= x && x <= x2' || x2' <= x && x <= x1'
+                      in abs (x1' - x2') > eps && -- avoid lines that parallel to the rays
+		         (x1' <= x && x <= x2' || x2' <= x && x <= x1')
 
 	aboveFirst x l1 l2 =
 		let (_,y1) = unprojectPoint x l1
