@@ -5,15 +5,15 @@ import Data.Monoid
 
 -- | Puts the length of the current segment in the additional information field
 --   Pieces without length ('Bud', 'Fork') receive a zero.
-plantPieceLengths :: Plant () -> Plant Double
-plantPieceLengths (Bud ()) =
+plantPieceLengths :: Plant a -> Plant Double
+plantPieceLengths (Bud _) =
 	Bud 0
-plantPieceLengths (Stipe () len p1) =
+plantPieceLengths (Stipe _ len p1) =
 	Stipe len len (plantPieceLengths p1)
-plantPieceLengths (Fork () angle p1 p2) =
+plantPieceLengths (Fork _ angle p1 p2) =
 	Fork 0 angle (plantPieceLengths p1) (plantPieceLengths p2)
 
-plantSubpieceLength :: Plant () -> Plant Double
+plantSubpieceLength :: Plant a -> Plant Double
 plantSubpieceLength = fmap getSum . subPieceAccumulate . fmap Sum . plantPieceLengths
 
 extractOutmost :: Plant a -> a
