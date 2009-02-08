@@ -100,7 +100,6 @@ renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
 	lineTo x2 y2
 	let normalized = intensity / lineLength l
 	when (normalized > 0) $ do
-		liftIO $ print normalized
 		setLineWidth (3*stipeWidth)
 		setSourceRGB normalized normalized 0
 		strokePreserve
