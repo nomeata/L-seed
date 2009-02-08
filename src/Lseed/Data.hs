@@ -17,7 +17,7 @@ data Plant
 	| Stipe Double Plant -- ^ a stipe with a length (factor of stipeLength)
                              --   and more of the plant next
 	| Fork Double Plant Plant -- ^ a fork with a sidewise offspring at a radial angle,
-                                  --   and a straing continuation 
+                                  --   and a straight continuation 
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function and a weight
