@@ -5,7 +5,9 @@ import Graphics.Rendering.Cairo
 import Control.Monad
 import Control.Concurrent
 import Data.IORef
+import Data.Maybe
 import Lseed.Data
+import Lseed.Data.Functions
 import Lseed.Constants
 import Lseed.Geometry
 import Text.Printf
@@ -64,7 +66,7 @@ render angle garden = do
 	-- mapM_ renderLine (gardenToLines garden)
 	mapM_ (renderPlanted) garden
 
-	mapM_ (renderInfo) (totalLight angle (gardenToLines garden))
+	renderInfo angle garden
 
 renderPlanted :: Planted a -> Render ()
 renderPlanted planted = preserve $ do
@@ -116,14 +118,22 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		setSourceRGB 0 0 intensity
 		fill
 
-renderInfo (x,amount) = do
-	let text = printf "%.2f" amount
-	preserve $ do
-		scale 1 (-1)
-		setSourceRGB 0 0 0
-		setFontSize (groundLevel/2)
-		moveTo x (0.75*groundLevel)
-		showText text
+renderInfo angle garden = do
+	let withLight = totalLight angle (gardenToLines garden)
+	forM_ garden $ \planted -> do
+		let x = plantPosition planted
+		let text1 = printf "Light: %.2f" $
+				fromMaybe 0 (lookup x withLight)
+		let text2 = printf "Size: %.2f" $
+				extractOutmost $ plantSubpieceLength (phenotype planted)
+		preserve $ do
+			scale 1 (-1)
+			setSourceRGB 0 0 0
+			setFontSize (groundLevel/2)
+			moveTo x (0.9*groundLevel)
+			showText text1
+			moveTo x (0.5*groundLevel)
+			showText text2
 
 renderGround :: Render ()
 renderGround = do
