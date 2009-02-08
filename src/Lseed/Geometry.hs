@@ -130,7 +130,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 		  where -- Calculation based on the ray at the mid point
 			mid = (x1 + x2) / 2
 			-- Light intensity
-			width = (x2 - x1) * sin angle
+			width = abs ((x2 - x1) * sin angle)
 			(curlines, otherlines) = partition (\(l,_,_) -> lineAtRay mid l)
 							   llines
 			sorted = sortBy (\(l1,_,_) (l2,_,_) -> aboveFirst mid l1 l2)
