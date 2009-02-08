@@ -2,6 +2,8 @@
 module Lseed.Data where 
 
 import Data.Foldable (Foldable, fold)
+import Data.Traversable (Traversable, sequenceA)
+import Control.Applicative ((<$>),(<*>),pure)
 import Data.Monoid
 
 -- | A list of plants, together with their position in the garden, in the interval [0,1]
@@ -42,6 +44,15 @@ instance Foldable Plant where
 	fold (Bud x) = x
 	fold (Stipe x len p1) = x `mappend` fold p1
 	fold (Fork x angle p1 p2) = x `mappend` fold p1 `mappend` fold p2
+
+instance Traversable Plant where
+	sequenceA (Bud x) =
+		Bud <$> x
+	sequenceA (Stipe x len p1) =
+		Stipe <$> x <*> pure len <*> sequenceA p1
+	sequenceA (Fork x angle p1 p2) =
+		Fork <$> x <*> pure angle <*> sequenceA p1 <*> sequenceA p2
+	
 
 instance Functor Planted where
 	fmap f planted = planted { phenotype = fmap f (phenotype planted) }
