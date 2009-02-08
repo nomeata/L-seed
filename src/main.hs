@@ -22,27 +22,27 @@ growPlanted rgen planted =
 	planted { phenotype = applyLSystem rgen (genome planted) (phenotype planted) }
 
 testGarden =
-	[ Planted 0.1 testLSystem1 Bud
-	, Planted 0.3 testLSystem2 Bud
-	, Planted 0.5 testLSystem3 Bud
-	, Planted 0.7 testLSystem2 Bud
-	, Planted 0.9 testLSystem1 Bud
+	[ Planted 0.1 testLSystem1 (Bud ())
+	, Planted 0.3 testLSystem2 (Bud ())
+	, Planted 0.5 testLSystem3 (Bud ())
+	, Planted 0.7 testLSystem2 (Bud ())
+	, Planted 0.9 testLSystem1 (Bud ())
 	]
 
 testLSystem1 = [
-	(1, \x -> case x of Bud -> Just (Stipe 1 Bud); _ -> Nothing )
+	(1, \x -> case x of Bud () -> Just (Stipe () 1 (Bud ())); _ -> Nothing )
 	]
 testLSystem2 = [
-	(3, \x -> case x of Bud -> Just (Stipe 2 Bud); _ -> Nothing ),
-	(2, \x -> case x of Bud -> Just (Fork ( pi/4) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing ),
-	(1, \x -> case x of Bud -> Just (Fork (-pi/4) (Stipe 1 Bud) (Stipe 1 Bud)); _ -> Nothing )
+	(3, \x -> case x of Bud () -> Just (Stipe () 2 (Bud ())); _ -> Nothing ),
+	(2, \x -> case x of Bud () -> Just (Fork () ( pi/4) (Stipe () 1 (Bud ())) (Stipe () 1 (Bud ()))); _ -> Nothing ),
+	(1, \x -> case x of Bud () -> Just (Fork () (-pi/4) (Stipe () 1 (Bud ())) (Stipe () 1 (Bud ()))); _ -> Nothing )
 	]
 testLSystem3 = [
-	(1, \x -> case x of Bud -> Just (Stipe 3 Bud); _ -> Nothing ),
-	(1, \x -> case x of Bud -> Just (
-					Fork (-2*pi/5) (Stipe 1 Bud) $
-					Fork (-1*pi/5) (Stipe 1 Bud) $
-					Fork ( 1*pi/5) (Stipe 1 Bud) $
-					Fork ( 2*pi/5) (Stipe 1 Bud) $
-					Stipe 1 Bud); _ -> Nothing )
+	(1, \x -> case x of Bud () -> Just (Stipe () 3 (Bud ())); _ -> Nothing ),
+	(1, \x -> case x of Bud () -> Just (
+					Fork () (-2*pi/5) (Stipe () 1 (Bud ())) $
+					Fork () (-1*pi/5) (Stipe () 1 (Bud ())) $
+					Fork () ( 1*pi/5) (Stipe () 1 (Bud ())) $
+					Fork () ( 2*pi/5) (Stipe () 1 (Bud ())) $
+					Stipe () 1 (Bud ())); _ -> Nothing )
 	]

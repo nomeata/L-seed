@@ -11,7 +11,7 @@ import Lseed.Geometry
 import Text.Printf
 import System.Time
 
-initRenderer :: IO (Garden -> IO ())
+initRenderer :: IO (Garden a -> IO ())
 initRenderer = do
 	initGUI
 
@@ -56,7 +56,7 @@ initRenderer = do
 		writeIORef currentGardenRef garden
 		widgetQueueDraw canvas
 
-render :: Double -> Garden -> Render ()
+render :: Double -> Garden a -> Render ()
 render angle garden = do
 	renderGround
 	-- mapM_ renderLightedLine (lightenLines (pi/3) (gardenToLines garden))
@@ -66,23 +66,23 @@ render angle garden = do
 
 	mapM_ (renderInfo) (totalLight angle (gardenToLines garden))
 
-renderPlanted :: Planted -> Render ()
+renderPlanted :: Planted a -> Render ()
 renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
 	setSourceRGB 0 0.8 0
 	renderPlant (phenotype planted)
 
-renderPlant :: Plant -> Render ()	
-renderPlant Bud = do
+renderPlant :: Plant a -> Render ()	
+renderPlant (Bud _) = do
 	arc 0 0 budSize 0 (2*pi)
 	fill
-renderPlant (Stipe len p) = do
+renderPlant (Stipe _ len p) = do
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	stroke
 	translate 0 (len * stipeLength)
 	renderPlant p
-renderPlant (Fork angle p1 p2) = do
+renderPlant (Fork _ angle p1 p2) = do
 	preserve $ rotate angle >> renderPlant p1
 	renderPlant p2
 		

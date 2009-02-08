@@ -41,19 +41,19 @@ crossPoint ((x1,y1),(x2,y2)) ((x3,y3),(x4,y4)) =
            else Nothing
 
 
-plantedToLines :: Planted -> [Line]
+plantedToLines :: Planted a -> [Line]
 plantedToLines planted = runGeometryGenerator (plantPosition planted, 0) 0 $
 		plantToGeometry (phenotype planted)
 
-plantToGeometry :: Plant -> GeometryGenerator ()
-plantToGeometry Bud = return ()
-plantToGeometry (Stipe len p) = addLine ((0,0),(0,len * stipeLength)) >>
-			        translated (0,len * stipeLength) (plantToGeometry p)
-plantToGeometry (Fork angle p1 p2) = rotated angle (plantToGeometry p1) >>
-                                                   (plantToGeometry p2)
+plantToGeometry :: Plant a -> GeometryGenerator ()
+plantToGeometry (Bud _) = return ()
+plantToGeometry (Stipe _ len p) = addLine ((0,0),(0,len * stipeLength)) >>
+			          translated (0,len * stipeLength) (plantToGeometry p)
+plantToGeometry (Fork _ angle p1 p2) = rotated angle (plantToGeometry p1) >>
+                                                     (plantToGeometry p2)
 
 -- | Lines are annotated with its plant, identified by the position
-gardenToLines :: Garden -> [(Line, Double)]
+gardenToLines :: Garden a -> [(Line, Double)]
 gardenToLines = concatMap (\planted -> map (\line -> (line, plantPosition planted)) (plantedToLines planted))
 
 -- | Add lightning from a given angle

@@ -5,7 +5,7 @@ import Data.Maybe
 import Data.Monoid
 import System.Random
 
-applyLSystem :: RandomGen g => g -> LSystem -> Plant -> Plant
+applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> Plant ()
 applyLSystem rgen rules plant = if null choices
 		           then plant
                            else chooseWeighted rgen choices
@@ -14,10 +14,13 @@ applyLSystem rgen rules plant = if null choices
 
  	go p prev = applyLocal p prev `mappend`
 		    case p of
-			Bud -> mempty
-			Stipe len p' -> go p' (prev . (Stipe len))
-			Fork angle p1 p2 -> go p1 (prev . (\x -> Fork angle x p2)) `mappend`
-				            go p2 (prev . (\x -> Fork angle p1 x))
+			Bud () ->
+				mempty
+			Stipe () len p' ->
+				go p' (prev . (Stipe () len))
+			Fork () angle p1 p2 ->
+				go p1 (prev . (\x -> Fork () angle x p2)) `mappend`
+				go p2 (prev . (\x -> Fork () angle p1 x))
 
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list
