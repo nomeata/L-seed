@@ -28,3 +28,12 @@ type LRule = (Int, Plant () -> Maybe (Plant ()))
 
 -- | An complete LSystem 
 type LSystem = [LRule]
+
+-- Instances
+instance Functor Plant where
+	fmap f (Bud x) = Bud (f x)
+	fmap f (Stipe x len p1) = Stipe (f x) len (fmap f p1)
+	fmap f (Fork x angle p1 p2) = Fork (f x) angle (fmap f p1) (fmap f p2)
+
+instance Functor Planted where
+	fmap f planted = planted { phenotype = fmap f (phenotype planted) }
