@@ -28,6 +28,10 @@ testGarden =
 	, Planted 0.7 testLSystem2 (Bud ())
 	, Planted 0.9 testLSystem1 (Bud ())
 	]
+testGarden2 =
+	[ Planted 0.4 testLSystem1 (Bud ())
+	, Planted 0.6 testLSystem1 (Bud ())
+	]
 
 testLSystem1 = [
 	(1, \x -> case x of Bud () -> Just (Stipe () 1 (Bud ())); _ -> Nothing )
