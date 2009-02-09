@@ -14,12 +14,15 @@ plantPieceLengths (Fork _ angle p1 p2) =
 	Fork 0 angle (plantPieceLengths p1) (plantPieceLengths p2)
 
 plantSubpieceLength :: Plant a -> Plant Double
-plantSubpieceLength = fmap getSum . subPieceAccumulate . fmap Sum . plantPieceLengths
+plantSubpieceLength = subPieceSum . plantPieceLengths
 
 extractOutmost :: Plant a -> a
 extractOutmost (Bud x) = x
 extractOutmost (Stipe x _ _) = x
 extractOutmost (Fork x _ _ _) = x
+
+subPieceSum :: Plant Double -> Plant Double
+subPieceSum = fmap getSum . subPieceAccumulate . fmap Sum 
 
 subPieceAccumulate :: Monoid m => Plant m -> Plant m
 subPieceAccumulate p = go p

@@ -56,3 +56,9 @@ instance Traversable Plant where
 
 instance Functor Planted where
 	fmap f planted = planted { phenotype = fmap f (phenotype planted) }
+
+instance Foldable Planted where
+	fold planted = fold (phenotype planted)
+
+instance Traversable Planted where
+	sequenceA planted = (\x -> planted { phenotype = x }) <$> sequenceA (phenotype planted)

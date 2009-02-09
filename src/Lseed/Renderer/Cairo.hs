@@ -61,10 +61,11 @@ initRenderer = do
 render :: Double -> Garden a -> Render ()
 render angle garden = do
 	renderGround
-	-- mapM_ renderLightedLine (lightenLines (pi/3) (gardenToLines garden))
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
+	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
 	-- mapM_ renderLine (gardenToLines garden)
-	mapM_ (renderPlanted) garden
+	mapM_ renderLightedPlanted (lightenGarden angle garden)
+	mapM_ renderPlanted garden
 
 	renderInfo angle garden
 
@@ -88,6 +89,30 @@ renderPlant (Fork _ angle p1 p2) = do
 	preserve $ rotate angle >> renderPlant p1
 	renderPlant p2
 		
+renderLightedPlanted :: Planted Double -> Render ()
+renderLightedPlanted planted = preserve $ do
+	translate (plantPosition planted) 0
+	renderLightedPlant (phenotype planted)
+
+renderLightedPlant :: Plant Double -> Render ()	
+renderLightedPlant (Bud _) = return ()
+renderLightedPlant (Stipe intensity len p) = do
+	moveTo 0 0
+	lineTo 0 (len * stipeLength)
+	let normalized = intensity / (len * stipeLength)
+	when (normalized > 0) $ do
+		liftIO $ print normalized
+		setLineWidth (2*stipeWidth)
+		setSourceRGBA 1 1 0 normalized
+		stroke
+	translate 0 (len * stipeLength)
+	renderPlant p
+renderLightedPlant (Fork _ angle p1 p2) = do
+	preserve $ rotate angle >> renderLightedPlant p1
+	renderLightedPlant p2
+		
+{- Line based rendering deprecated
+
 renderLine (l@((x1,y1),(x2,y2)), _) = do
 	setSourceRGB 0 1 0 
 	setLineWidth (0.5*stipeWidth)
@@ -100,12 +125,13 @@ renderLightedLine (l@((x1,y1),(x2,y2)), _, intensity) = do
 	lineTo x2 y2
 	let normalized = intensity / lineLength l
 	when (normalized > 0) $ do
-		setLineWidth (3*stipeWidth)
-		setSourceRGB normalized normalized 0
+		setLineWidth (1.5*stipeWidth)
+		setSourceRGBA 1 1 0 normalized
 		strokePreserve
 	setSourceRGB 0 1 0 
 	setLineWidth (0.5*stipeWidth)
 	stroke
+-}
 	
 renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 	when (intensity > 0) $ do
@@ -118,11 +144,11 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		fill
 
 renderInfo angle garden = do
-	let withLight = totalLight angle (gardenToLines garden)
-	forM_ garden $ \planted -> do
+	let gardenWithLight = lightenGarden angle garden
+	forM_ gardenWithLight $ \planted -> do
 		let x = plantPosition planted
 		let text1 = printf "Light: %.2f" $
-				fromMaybe 0 (lookup x withLight)
+				extractOutmost (subPieceSum (phenotype planted))
 		let text2 = printf "Size: %.2f" $
 				extractOutmost $ plantSubpieceLength (phenotype planted)
 		preserve $ do

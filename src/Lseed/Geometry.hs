@@ -6,7 +6,13 @@ import Lseed.Constants
 import Lseed.Geometry.Generator
 import Data.List
 import Data.Maybe
+import Data.Ord
 import qualified Data.Map as M
+import Control.Monad hiding (mapM,forM)
+import Data.Traversable (mapM,forM)
+import Prelude hiding (mapM)
+import Control.Monad.ST
+import Data.STRef
 
 import Debug.Trace
 
@@ -41,37 +47,32 @@ crossPoint ((x1,y1),(x2,y2)) ((x3,y3),(x4,y4)) =
            else Nothing
 
 
-plantedToLines :: Planted a -> [Line]
+plantedToLines :: Planted a -> [(Line, a)]
 plantedToLines planted = runGeometryGenerator (plantPosition planted, 0) 0 $
 		plantToGeometry (phenotype planted)
 
-plantToGeometry :: Plant a -> GeometryGenerator ()
+plantToGeometry :: Plant a -> GeometryGenerator a ()
 plantToGeometry (Bud _) = return ()
-plantToGeometry (Stipe _ len p) = addLine ((0,0),(0,len * stipeLength)) >>
+plantToGeometry (Stipe x len p) = addLine x ((0,0),(0,len * stipeLength)) >>
 			          translated (0,len * stipeLength) (plantToGeometry p)
 plantToGeometry (Fork _ angle p1 p2) = rotated angle (plantToGeometry p1) >>
                                                      (plantToGeometry p2)
 
--- | Lines are annotated with its plant, identified by the position
-gardenToLines :: Garden a -> [(Line, Double)]
-gardenToLines = concatMap (\planted -> map (\line -> (line, plantPosition planted)) (plantedToLines planted))
+-- | Lines are annotated with its plant, identified by the extra data
+gardenToLines :: Garden a -> [(Line, a)]
+gardenToLines = concatMap (\planted -> plantedToLines planted)
 
 -- | Add lightning from a given angle
-lightenLines :: (Ord a, Show a) => Double -> [(Line, a)] -> [(Line, a, Double)]
+lightenLines :: Double -> [(Line, a)] -> [(Line, a, Double)]
 lightenLines angle lines = let (lighted,_) = allKindsOfStuffWithAngle angle lines
                            in lighted
 
-totalLight :: (Ord a, Show a) => Double -> [(Line, a)] -> [(a, Double)]
-totalLight angle lines = M.toList (foldl add M.empty lighted)
-  where lighted = lightenLines angle lines
-        add m (_,i,a) = M.insertWith (+) i a m
-
-lightPolygons :: (Ord a, Show a) => Double -> [(Line, a)] -> [(Point,Point,Point,Point,Double)]
+lightPolygons :: Double -> [(Line, a)] -> [(Point,Point,Point,Point,Double)]
 lightPolygons angle lines = let (_,polygons) = allKindsOfStuffWithAngle angle lines
 			    in polygons
 
-allKindsOfStuffWithAngle :: forall a. (Ord a, Show a) => Double -> [(Line, a)] ->
-			    (  [(Line, a, Double)]
+allKindsOfStuffWithAngle :: forall a. Double -> [(Line, a)] ->
+			    ( [(Line, a, Double)]
 	                    , [(Point,Point,Point,Point,Double)] )
 allKindsOfStuffWithAngle angle lines = (lighted, polygons)
   where projectLine :: Line -> (Double, Double)
@@ -81,7 +82,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 	
 	-- False means Beginning of Line
 	sweepPoints :: [(Double, Bool, (Line, a))]
-	sweepPoints = sort $ concatMap (\l@((p1,p2),i) -> 
+	sweepPoints = sortBy (comparing (\(a,b,_)->(a,b))) $ concatMap (\l@((p1,p2),i) -> 
 			if projectPoint p1 == projectPoint p2
 			then []
 			else if projectPoint p1 < projectPoint p2
@@ -173,19 +174,13 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 			shine intensity (p1,p2,p3,p4) = ( intensity * lightFalloff
 							, (p1,p2,p3,p4,intensity))
 
-
-		      
-{-
--- Yay, this is a sweep-line-algorithm from Kognitive Systeme, whe would have guessed
-mergeLines lines = catMaybes $ snd $ mapAccumL step (Nothing, 0) points
- where points = sort $ concatMap (
-                \(p1,p2) -> if p1 < p2 then [(p1,False),(p2,True)] else [(p2,False),(p1,True)]
-                ) lines
-       step (Nothing, 0) (p, False) = ((Just p, 1),    Nothing)
-       step (Nothing, 0) (p, True)  = error $ "End before start, point " ++ show p
-       step (Just p1, 1) (p2,True)  = ((Nothing, 0),   Just (p1,p2))
-       step (Just p1, n) (_, False) = ((Just p1, n+1), Nothing)
-       step (Just p1, n) (_, True)  = ((Just p1, n-1), Nothing)
-
-
--}
+-- | Annotates each piece of the garden with the amount of line it attacts
+lightenGarden :: Double -> Garden a -> Garden Double
+lightenGarden angle garden = runST $ do
+	gardenWithPointers <- mapM (mapM (const (newSTRef 0))) garden
+	let linesWithPointers = gardenToLines gardenWithPointers
+	let lightedLines = lightenLines angle linesWithPointers
+	-- Update intensity via the STRef
+	forM_ lightedLines $ \(_,stRef,intencity) -> modifySTRef stRef (+ intencity)
+	-- Undo the STRefs
+	mapM (mapM readSTRef) gardenWithPointers
