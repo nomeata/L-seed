@@ -1,7 +1,8 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, Rank2Types #-}
 module Lseed.Geometry where
 
 import Lseed.Data
+import Lseed.Data.Functions
 import Lseed.Constants
 import Lseed.Geometry.Generator
 import Data.List
@@ -13,8 +14,6 @@ import Data.Traversable (mapM,forM)
 import Prelude hiding (mapM)
 import Control.Monad.ST
 import Data.STRef
-
-import Debug.Trace
 
 type Point = (Double, Double)
 type Line  = (Point, Point)
@@ -176,11 +175,18 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 
 -- | Annotates each piece of the garden with the amount of line it attacts
 lightenGarden :: Double -> Garden a -> Garden Double
-lightenGarden angle garden = runST $ do
-	gardenWithPointers <- mapM (mapM (const (newSTRef 0))) garden
+lightenGarden angle = mapLine (lightenLines angle) 0 (+) 
+
+
+-- | Helper to apply a function that works on lines to a garden
+mapLine :: (forall b. [(Line, b)] -> [(Line, b, c)]) ->
+           c -> (c -> c -> c) -> Garden a -> Garden c
+mapLine process init combine garden = runST $ do
+	gardenWithPointers <- mapM (mapM (const (newSTRef init))) garden
 	let linesWithPointers = gardenToLines gardenWithPointers
-	let lightedLines = lightenLines angle linesWithPointers
-	-- Update intensity via the STRef
-	forM_ lightedLines $ \(_,stRef,intencity) -> modifySTRef stRef (+ intencity)
+	let processedLines = process linesWithPointers
+	-- Update values via the STRef
+	forM_ processedLines $ \(_,stRef,result) -> modifySTRef stRef (combine result)
 	-- Undo the STRefs
 	mapM (mapM readSTRef) gardenWithPointers
+
