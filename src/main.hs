@@ -18,6 +18,11 @@ timeSpanFraction (TOD sa pa) (TOD sb pb) =
 	(fromIntegral $ (sb - sa) * 1000000000000 + (pb-pa)) /
         (fromIntegral $ dayLength * 1000000000000 )
 
+formatTimeInfo :: Integer -> Double -> String
+formatTimeInfo day frac = let minutes = floor (frac * 12 * 60) :: Integer
+			      (hour, minute) = divMod minutes 60
+                          in  printf "Day %d %2d:%02d" day (6+hour) minute
+
 main = do
 	renderGarden <- initRenderer
 	-- mapM_ (\g -> threadDelay (500*1000) >> renderGarden g) (inits testGarden)
@@ -28,7 +33,7 @@ main = do
 
 		renderGarden $ \later -> 
 			let timeDiff = timeSpanFraction now later
-                            timeInfo = printf "Day %d (%2.0f%%)" day (timeDiff*100)
+                            timeInfo = formatTimeInfo day timeDiff
 		            angle = pi/100 + timeDiff * (98*pi/100)
 			    gardenNow = applyGrowth timeDiff garden'
 			in ScreenContent gardenNow angle timeInfo
