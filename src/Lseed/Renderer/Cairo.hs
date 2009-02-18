@@ -63,8 +63,8 @@ render angle garden = do
 	renderGround
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
-	-- mapM_ renderLine (gardenToLines garden)
-	mapM_ renderLightedPlanted (lightenGarden angle garden)
+	--mapM_ renderLine (gardenToLines garden)
+	--mapM_ renderLightedPlanted (lightenGarden angle garden)
 	mapM_ renderPlanted garden
 
 	renderInfo angle garden
@@ -73,12 +73,14 @@ renderPlanted :: Planted a -> Render ()
 renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
 	setSourceRGB 0 0.8 0
+	setLineCap LineCapRound
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant a -> Render ()	
 renderPlant (Bud _) = do
-	arc 0 0 budSize 0 (2*pi)
-	fill
+	-- arc 0 0 budSize 0 (2*pi)
+	-- fill
+	return ()
 renderPlant (Stipe _ len p) = do
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
