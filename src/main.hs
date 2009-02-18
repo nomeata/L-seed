@@ -47,7 +47,7 @@ growPlanted :: (RandomGen g) => g -> Planted () -> Planted (Maybe Double)
 growPlanted rgen planted =
 	planted { phenotype = applyLSystem rgen (genome planted) (phenotype planted) }
 
--- | Finishes Growth by reading lenght from the 
+-- | Finishes Growth by reading lenght from the additional information field
 finishGrowth :: Garden (Maybe Double) -> Garden ()
 finishGrowth = applyGrowth' (flip const)
 
