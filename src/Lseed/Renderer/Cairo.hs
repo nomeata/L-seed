@@ -101,7 +101,7 @@ renderLightedPlant (Stipe intensity len p) = do
 	lineTo 0 (len * stipeLength)
 	let normalized = intensity / (len * stipeLength)
 	when (normalized > 0) $ do
-		liftIO $ print normalized
+		--liftIO $ print normalized
 		setLineWidth (2*stipeWidth)
 		setSourceRGBA 1 1 0 normalized
 		stroke
