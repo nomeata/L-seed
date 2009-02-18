@@ -13,12 +13,12 @@ import Lseed.Geometry
 import Text.Printf
 import System.Time
 
-initRenderer :: IO (Garden a -> IO ())
+initRenderer :: IO ((ClockTime -> ScreenContent) -> IO ())
 initRenderer = do
 	initGUI
 
 	-- global renderer state
-	currentGardenRef <- newIORef []
+	currentGardenRef <- newIORef (const (ScreenContent [] (pi/2) "No time yet"))
 
 	-- widgets
 	canvas <- drawingAreaNew
@@ -35,12 +35,11 @@ initRenderer = do
 	forkIO $ mainGUI
 
 	-- The actual drawing function
-	onExpose canvas$ \e -> do garden <- readIORef currentGardenRef
+	onExpose canvas$ \e -> do scGen <- readIORef currentGardenRef
+				  ScreenContent garden angle timeInfo <-
+						scGen `fmap` getClockTime 
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
-				  -- Sun rotation based on time for now
-				  TOD s p <- getClockTime
-				  let angle = fromIntegral (s * 1000*1000*1000*1000 + p `mod` (30*1000*1000*1000*1000)) * pi/(30*1000*1000*1000*1000)
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
 					translate 0 (fromIntegral h)
@@ -50,12 +49,13 @@ initRenderer = do
 					setLineWidth stipeWidth
 
 					render angle garden
+					renderTimeInfo timeInfo
 		                  return (eventSent e)
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
 
-	return $ \garden -> do
-		writeIORef currentGardenRef garden
+	return $ \scGen -> do
+		writeIORef currentGardenRef scGen
 		widgetQueueDraw canvas
 
 render :: Double -> Garden a -> Render ()
@@ -159,6 +159,14 @@ renderInfo angle garden = do
 			showText text1
 			moveTo x (0.5*groundLevel)
 			showText text2
+
+renderTimeInfo timeStr = do
+	preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		setFontSize (groundLevel/2)
+		moveTo 0 (0.5*groundLevel)
+		showText timeStr
 
 renderGround :: Render ()
 renderGround = do

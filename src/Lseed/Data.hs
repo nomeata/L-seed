@@ -12,8 +12,8 @@ type Garden a = [ Planted a ]
 -- | A plant with metainformatoin
 data Planted a = Planted
 	{ plantPosition :: Double -- ^ Position in the garden, interval [0,1]
-	, genome :: LSystem  -- ^ Lsystem in use
-	, phenotype :: Plant a -- ^ Actual current form of the plant
+	, genome        :: LSystem  -- ^ Lsystem in use
+	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}
 
 -- | A plant, which is
@@ -29,10 +29,17 @@ data Plant a
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function and a weight
-type LRule = (Int, Plant () -> Maybe (Plant ()))
+type LRule = (Int, Plant () -> Maybe (Plant (Maybe Double)))
 
 -- | An complete LSystem 
 type LSystem = [LRule]
+
+-- | Representation of what is on screen
+data ScreenContent = ScreenContent
+	{ scGarden     :: Garden ()
+	, scLightAngle :: Double
+	, scTime       :: String
+	}
 
 -- Instances
 instance Functor Plant where
