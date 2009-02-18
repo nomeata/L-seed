@@ -76,13 +76,15 @@ allKindsOfStuffWithAngle :: forall a. Double -> [(Line, a)] ->
 allKindsOfStuffWithAngle angle lines = (lighted, polygons)
   where projectLine :: Line -> (Double, Double)
         projectLine (p1, p2) = (projectPoint p1, projectPoint p2)
+	projectTan :: Double
+	projectTan = 1 / tan (pi-angle)
 	projectPoint :: Point -> Double
-	projectPoint (x,y) = x + y * 1 / tan (pi-angle)
+	projectPoint (x,y) = x + y * projectTan
 	
 	-- False means Beginning of Line
 	sweepPoints :: [(Double, Bool, (Line, a))]
 	sweepPoints = sortBy (comparing (\(a,b,_)->(a,b))) $ concatMap (\l@((p1,p2),i) -> 
-			if projectPoint p1 == projectPoint p2
+			if abs (projectPoint p1 - projectPoint p2) < eps
 			then []
 			else if projectPoint p1 < projectPoint p2
 			     then [(projectPoint p1,False,l), (projectPoint p2,True,l)]

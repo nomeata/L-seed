@@ -29,7 +29,7 @@ main = do
 		renderGarden $ \later -> 
 			let timeDiff = timeSpanFraction now later
                             timeInfo = printf "Day %d (%2.0f%%)" day (timeDiff*100)
-		            angle = timeDiff * pi
+		            angle = pi/100 + timeDiff * (98*pi/100)
 			    gardenNow = applyGrowth timeDiff garden'
 			in ScreenContent gardenNow angle timeInfo
 
