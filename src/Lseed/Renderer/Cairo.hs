@@ -50,7 +50,7 @@ initRenderer = do
 
 					render angle garden
 					renderTimeInfo timeInfo
-		                  return (eventSent e)
+		                  return True
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
 
