@@ -77,7 +77,7 @@ renderPlanted planted = preserve $ do
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant a -> Render ()	
-renderPlant (Bud _) = do
+renderPlant Bud = do
 	-- arc 0 0 budSize 0 (2*pi)
 	-- fill
 	return ()
@@ -87,7 +87,7 @@ renderPlant (Stipe _ len p) = do
 	stroke
 	translate 0 (len * stipeLength)
 	renderPlant p
-renderPlant (Fork _ angle p1 p2) = do
+renderPlant (Fork angle p1 p2) = do
 	preserve $ rotate angle >> renderPlant p1
 	renderPlant p2
 		
@@ -97,7 +97,7 @@ renderLightedPlanted planted = preserve $ do
 	renderLightedPlant (phenotype planted)
 
 renderLightedPlant :: Plant Double -> Render ()	
-renderLightedPlant (Bud _) = return ()
+renderLightedPlant Bud = return ()
 renderLightedPlant (Stipe intensity len p) = do
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
@@ -109,7 +109,7 @@ renderLightedPlant (Stipe intensity len p) = do
 		stroke
 	translate 0 (len * stipeLength)
 	renderPlant p
-renderLightedPlant (Fork _ angle p1 p2) = do
+renderLightedPlant (Fork angle p1 p2) = do
 	preserve $ rotate angle >> renderLightedPlant p1
 	renderLightedPlant p2
 		
@@ -150,9 +150,9 @@ renderInfo angle garden = do
 	forM_ gardenWithLight $ \planted -> do
 		let x = plantPosition planted
 		let text1 = printf "Light: %.2f" $
-				extractOutmost (subPieceSum (phenotype planted))
+				plantTotalSum (phenotype planted)
 		let text2 = printf "Size: %.2f" $
-				extractOutmost $ plantSubpieceLength (phenotype planted)
+				plantLength (phenotype planted)
 		preserve $ do
 			scale 1 (-1)
 			setSourceRGB 0 0 0

@@ -22,17 +22,16 @@ applyLSystem rgen rules plant = go plant
                                     | otherwise -- Fork in the middle
                                     = (Stipe Nothing (oldSize * pos),
 		                       Stipe Nothing (oldSize * (1-pos)))
-		forks = flip $ foldr (\(angle, newSize) -> Fork Nothing angle (Stipe (Just newSize) 0 (Bud Nothing)))
+		forks = flip $ foldr (\(angle, newSize) -> Fork angle (Stipe (Just newSize) 0 Bud))
 	applyAction _ _ = error "Unknown Action or applied to wrong part of a plant"
 
  	go p = case p of
-			Bud () ->
-				Bud Nothing
+			Bud -> Bud
 			Stipe () _ _ ->
 				let choices = mapMaybe (\r -> r p) rules 
 				in  applyAction (chooseWeighted rgen choices) p
-			Fork () angle p1 p2 ->
-				Fork Nothing angle (go p1) (go p2)
+			Fork angle p1 p2 ->
+				Fork angle (go p1) (go p2)
 
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list

@@ -25,13 +25,13 @@ type GrowingPlanted = Planted (Maybe Double)
 -- | A plant, which is
 data Plant a 
 	-- | a bud, i.e. the end of a sprout
-	= Bud a
+	= Bud
 	-- | a stipe with a length (factor of stipeLength)
 	--   and more of the plant next
 	| Stipe a Double (Plant a)
 	-- ^ a fork with a sidewise offspring at a radial angle,
 	--   and a straight continuation 
-	| Fork a Double (Plant a) (Plant a)
+	| Fork Double (Plant a) (Plant a)
 	deriving (Show)
 
 -- | Named variants of a Plant, for more expressive type signatures
@@ -60,22 +60,22 @@ type Angle = Double
 
 -- Instances
 instance Functor Plant where
-	fmap f (Bud x) = Bud (f x)
+	fmap f Bud = Bud
 	fmap f (Stipe x len p1) = Stipe (f x) len (fmap f p1)
-	fmap f (Fork x angle p1 p2) = Fork (f x) angle (fmap f p1) (fmap f p2)
+	fmap f (Fork angle p1 p2) = Fork angle (fmap f p1) (fmap f p2)
 
 instance Foldable Plant where
-	fold (Bud x) = x
+	fold Bud  = mempty
 	fold (Stipe x len p1) = x `mappend` fold p1
-	fold (Fork x angle p1 p2) = x `mappend` fold p1 `mappend` fold p2
+	fold (Fork angle p1 p2) = fold p1 `mappend` fold p2
 
 instance Traversable Plant where
-	sequenceA (Bud x) =
-		Bud <$> x
+	sequenceA Bud =
+		pure Bud
 	sequenceA (Stipe x len p1) =
 		Stipe <$> x <*> pure len <*> sequenceA p1
-	sequenceA (Fork x angle p1 p2) =
-		Fork <$> x <*> pure angle <*> sequenceA p1 <*> sequenceA p2
+	sequenceA (Fork angle p1 p2) =
+		Fork <$> pure angle <*> sequenceA p1 <*> sequenceA p2
 	
 
 instance Functor Planted where

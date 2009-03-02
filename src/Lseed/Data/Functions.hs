@@ -6,36 +6,33 @@ import Data.Monoid
 -- | Puts the length of the current segment in the additional information field
 --   Pieces without length ('Bud', 'Fork') receive a zero.
 plantPieceLengths :: Plant a -> Plant Double
-plantPieceLengths (Bud _) =
-	Bud 0
+plantPieceLengths Bud =
+	Bud
 plantPieceLengths (Stipe _ len p1) =
 	Stipe len len (plantPieceLengths p1)
-plantPieceLengths (Fork _ angle p1 p2) =
-	Fork 0 angle (plantPieceLengths p1) (plantPieceLengths p2)
+plantPieceLengths (Fork angle p1 p2) =
+	Fork angle (plantPieceLengths p1) (plantPieceLengths p2)
 
-plantSubpieceLength :: Plant a -> Plant Double
-plantSubpieceLength = subPieceSum . plantPieceLengths
+plantLength :: Plant a -> Double
+plantLength = plantTotalSum . plantPieceLengths
 
-extractOutmost :: Plant a -> a
-extractOutmost (Bud x) = x
+plantTotalSum :: Plant Double -> Double
+plantTotalSum = getSum . extractOutmost . subPieceAccumulate . fmap Sum 
+
+extractOutmost :: Monoid a =>  Plant a -> a
+extractOutmost Bud = mempty
 extractOutmost (Stipe x _ _) = x
-extractOutmost (Fork x _ _ _) = x
-
-subPieceSum :: Plant Double -> Plant Double
-subPieceSum = fmap getSum . subPieceAccumulate . fmap Sum 
+extractOutmost (Fork _ p1 p2) = extractOutmost p1 `mappend` extractOutmost p2
 
 subPieceAccumulate :: Monoid m => Plant m -> Plant m
 subPieceAccumulate p = go p
-  where go (Bud x) = (Bud x)
+  where go Bud = Bud
         go (Stipe x len p1) = let p1' = go p1
                                   x' = x `mappend` extractOutmost p1'
                               in  Stipe x' len p1'
-        go (Fork x angle p1 p2) = let p1' = go p1
-                                      p2' = go p2
-                                      x' = x `mappend`
-                                           extractOutmost p1' `mappend`
-	                                   extractOutmost p2'
-                                  in  Fork x' angle p1' p2'
+        go (Fork angle p1 p2) = let p1' = go p1
+                                    p2' = go p2
+                                in  Fork angle p1' p2'
 
 -- | Apply a function to each Planted in a Garden
 mapGarden :: (Planted a -> Planted b) -> Garden a -> Garden b

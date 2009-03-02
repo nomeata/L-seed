@@ -56,16 +56,14 @@ main = do
 -- | Calculates the length to be grown
 remainingGrowth :: GrowingPlanted -> Double
 remainingGrowth planted = go (phenotype planted)
-  where go (Bud Nothing) = 0
+  where go Bud = 0
+        go (Fork _ p1 p2) = go p1 + go p2
         go (Stipe Nothing _ p) = go p
-        go (Fork Nothing _ p1 p2) = go p1 + go p2
 	go (Stipe (Just l2) l1 p) = (l2 - l1) +  go p
-	go p                    = error $ "Unexpected data in growing plant: " ++ show p
-
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith3 growPlanted rgens garden lightings
-  where lightings = map (extractOutmost . subPieceSum . phenotype) $ lightenGarden angle garden
+  where lightings = map (plantTotalSum . phenotype) $ lightenGarden angle garden
         rgens = unfoldr (Just . split) rgen
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
@@ -80,7 +78,7 @@ growPlanted rgen planted light =
                        else planted
 	    remainingLength = remainingGrowth planted'
 	in  if remainingLength > eps
-            then let sizeOfPlant = extractOutmost $ plantSubpieceLength (phenotype planted)
+            then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
                      allowedGrowths = max 0 $
                                       (growthPerDayAndLight * lightAvailable + growthPerDay) /
@@ -100,22 +98,21 @@ applyGrowth r = mapPlanted (applyGrowth' (\a b -> a * (1-r) + b * r))
 
 applyGrowth' :: (Double -> Double -> Double) -> GrowingPlant -> GrowingPlant
 applyGrowth' f = go
-  where go (Bud Nothing) = Bud Nothing
+  where go Bud = Bud
         go (Stipe Nothing l p) = Stipe Nothing l (go p)
-        go (Fork Nothing a p1 p2) = Fork Nothing a (go p1) (go p2)
+        go (Fork a p1 p2) = Fork a (go p1) (go p2)
 	go (Stipe (Just l2) l1 p) = Stipe (Just l2) (f l1 l2) (go p)
-	go p                    = error $ "Unexpected data in growing plant: " ++ show p
 
 testGarden =
-	[ Planted 0.1 testLSystem1 (Stipe () 0 (Bud ()))
-	, Planted 0.3 testLSystem2 (Stipe () 0 (Bud ()))
-	, Planted 0.5 testLSystem3 (Stipe () 0 (Bud ()))
-	, Planted 0.7 testLSystem2 (Stipe () 0 (Bud ()))
-	, Planted 0.9 testLSystem1 (Stipe () 0 (Bud ()))
+	[ Planted 0.1 testLSystem1 (Stipe () 0 Bud)
+	, Planted 0.3 testLSystem2 (Stipe () 0 Bud)
+	, Planted 0.5 testLSystem3 (Stipe () 0 Bud)
+	, Planted 0.7 testLSystem2 (Stipe () 0 Bud)
+	, Planted 0.9 testLSystem1 (Stipe () 0 Bud)
 	]
 testGarden2 =
-	[ Planted 0.4 testLSystem1 (Stipe () 0 (Bud ()))
-	, Planted 0.6 testLSystem1 (Stipe () 0 (Bud ()))
+	[ Planted 0.4 testLSystem1 (Stipe () 0 Bud)
+	, Planted 0.6 testLSystem1 (Stipe () 0 Bud)
 	]
 
 testLSystem1 = [
