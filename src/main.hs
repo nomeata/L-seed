@@ -42,13 +42,13 @@ main = do
 		nextDay (succ day,finishGrowth garden')
 	nextDay (0::Integer,testGarden)
 
-growGarden :: (RandomGen g) => g -> Garden () -> Garden (Maybe Double)
+growGarden :: (RandomGen g) => g -> Garden () -> GrowingGarden
 growGarden rgen = snd . mapAccumL go rgen 
   where go rgen planted = let (rgen1,rgen2) = split rgen in (rgen2, growPlanted rgen1 planted)
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
-growPlanted :: (RandomGen g) => g -> Planted () -> Planted (Maybe Double)
+growPlanted :: (RandomGen g) => g -> Planted () -> GrowingPlanted
 growPlanted rgen planted =
 	planted { phenotype = applyLSystem rgen (genome planted) (phenotype planted) }
 
@@ -57,10 +57,10 @@ finishGrowth :: Garden (Maybe Double) -> Garden ()
 finishGrowth = applyGrowth' (flip const)
 
 -- | Applies Growth at given fraction
-applyGrowth :: Double -> Garden (Maybe Double) -> Garden ()
+applyGrowth :: Double -> GrowingGarden -> Garden ()
 applyGrowth r = applyGrowth' (\a b -> a * (1-r) + b * r)
 
-applyGrowth' :: (Double -> Double -> Double) -> Garden (Maybe Double) -> Garden ()
+applyGrowth' :: (Double -> Double -> Double) -> GrowingGarden -> Garden ()
 applyGrowth' f = map (\planted -> planted { phenotype = go (phenotype planted) })
   where go (Bud Nothing) = Bud ()
         go (Stipe Nothing l p) = Stipe () l (go p)

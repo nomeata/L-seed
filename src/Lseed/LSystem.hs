@@ -5,7 +5,7 @@ import Data.Maybe
 import Data.Monoid
 import System.Random
 
-applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> Plant (Maybe Double)
+applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> GrowingPlant
 applyLSystem rgen rules plant = if null choices
 		           then unmodified plant
                            else chooseWeighted rgen choices

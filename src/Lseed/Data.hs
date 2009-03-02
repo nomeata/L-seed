@@ -9,12 +9,18 @@ import Data.Monoid
 -- | A list of plants, together with their position in the garden, in the interval [0,1]
 type Garden a = [ Planted a ]
 
+-- | Named variants of a garden, for more expressive type signatures
+type GrowingGarden = Garden (Maybe Double)
+
 -- | A plant with metainformatoin
 data Planted a = Planted
 	{ plantPosition :: Double -- ^ Position in the garden, interval [0,1]
 	, genome        :: LSystem  -- ^ Lsystem in use
 	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}
+
+-- | Named variants of a Planted, for more expressive type signatures
+type GrowingPlanted = Planted (Maybe Double)
 
 -- | A plant, which is
 data Plant a 
@@ -27,6 +33,9 @@ data Plant a
 	--   and a straight continuation 
 	| Fork a Double (Plant a) (Plant a)
 	deriving (Show)
+
+-- | Named variants of a Plant, for more expressive type signatures
+type GrowingPlant = Plant (Maybe Double)
 
 -- | A (compiled) rule of an L-system, with a matching function and a weight
 type LRule = (Int, Plant () -> Maybe (Plant (Maybe Double)))
