@@ -80,7 +80,10 @@ growPlanted rgen planted light =
                        else planted
 	    remainingLength = remainingGrowth planted'
 	in  if remainingLength > eps
-            then let allowedGrowths = (growthPerDayAndLight * light + growthPerDay) /
+            then let sizeOfPlant = extractOutmost $ plantSubpieceLength (phenotype planted)
+                     lightAvailable = light - costPerLength * sizeOfPlant^2
+                     allowedGrowths = max 0 $
+                                      (growthPerDayAndLight * lightAvailable + growthPerDay) /
                                       (fromIntegral ticksPerDay) 
 		     growthThisTick = min remainingLength allowedGrowths
 		     growthFraction = growthThisTick / remainingLength 
