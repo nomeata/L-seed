@@ -37,8 +37,13 @@ data Plant a
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant (Maybe Double)
 
--- | A (compiled) rule of an L-system, with a matching function and a weight
-type LRule = (Int, Plant () -> Maybe (Plant (Maybe Double)))
+-- | Possible action to run on a Stipe in a Rule
+data LRuleAction
+	= EnlargeStipe Double -- ^ Extend this Stipe to the given length
+        | ForkStipe Double [(Angle, Double)] -- ^ Branch this stipe at the given fraction and angle and let it grow to the given lengths
+
+-- | A (compiled) rule of an L-system, with a matching function returning an action and weight
+type LRule = (Plant () -> Maybe (Int, LRuleAction))
 
 -- | An complete LSystem 
 type LSystem = [LRule]

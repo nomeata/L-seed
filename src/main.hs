@@ -107,31 +107,28 @@ applyGrowth' f = go
 	go p                    = error $ "Unexpected data in growing plant: " ++ show p
 
 testGarden =
-	[ Planted 0.1 testLSystem1 (Bud ())
-	, Planted 0.3 testLSystem2 (Bud ())
-	, Planted 0.5 testLSystem3 (Bud ())
-	, Planted 0.7 testLSystem2 (Bud ())
-	, Planted 0.9 testLSystem1 (Bud ())
+	[ Planted 0.1 testLSystem1 (Stipe () 0 (Bud ()))
+	, Planted 0.3 testLSystem2 (Stipe () 0 (Bud ()))
+	, Planted 0.5 testLSystem3 (Stipe () 0 (Bud ()))
+	, Planted 0.7 testLSystem2 (Stipe () 0 (Bud ()))
+	, Planted 0.9 testLSystem1 (Stipe () 0 (Bud ()))
 	]
 testGarden2 =
-	[ Planted 0.4 testLSystem1 (Bud ())
-	, Planted 0.6 testLSystem1 (Bud ())
+	[ Planted 0.4 testLSystem1 (Stipe () 0 (Bud ()))
+	, Planted 0.6 testLSystem1 (Stipe () 0 (Bud ()))
 	]
 
 testLSystem1 = [
-	(1, \x -> case x of Bud () -> Just (Stipe (Just 1) 0 (Bud Nothing)); _ -> Nothing )
+	(\(Stipe () l _) -> Just (1, EnlargeStipe (l+1)))
 	]
 testLSystem2 = [
-	(3, \x -> case x of Bud () -> Just (Stipe (Just 2) 0 (Bud Nothing)); _ -> Nothing ),
-	(2, \x -> case x of Bud () -> Just (Fork Nothing ( pi/4) (Stipe (Just 1) 0 (Bud Nothing)) (Stipe (Just 1) 0 (Bud Nothing))); _ -> Nothing ),
-	(1, \x -> case x of Bud () -> Just (Fork Nothing (-pi/4) (Stipe (Just 1) 0 (Bud Nothing)) (Stipe (Just 1) 0 (Bud Nothing))); _ -> Nothing )
+	(\(Stipe () l _) -> Just (2, EnlargeStipe (l+2))),
+	(\(Stipe () l _) -> Just (1, ForkStipe (0.5) [(pi/4,1)])),
+	(\(Stipe () l _) -> Just (1, ForkStipe (1) [(-pi/4,1)]))
 	]
 testLSystem3 = [
-	(1, \x -> case x of Bud () -> Just (Stipe (Just 3) 0 (Bud Nothing)); _ -> Nothing ),
-	(1, \x -> case x of Bud () -> Just (
-					Fork Nothing (-2*pi/5) (Stipe (Just 1) 0 (Bud Nothing)) $
-					Fork Nothing (-1*pi/5) (Stipe (Just 1) 0 (Bud Nothing)) $
-					Fork Nothing ( 1*pi/5) (Stipe (Just 1) 0 (Bud Nothing)) $
-					Fork Nothing ( 2*pi/5) (Stipe (Just 1) 0 (Bud Nothing)) $
-					Stipe (Just 1) 0 (Bud Nothing)); _ -> Nothing )
+	(\(Stipe () l _) -> Just (1, EnlargeStipe (l+2))),
+	(\(Stipe () l _) -> if l >= 1
+                            then Just (1, ForkStipe 1 [ (x * pi/5, 1) | x <- [-2,-1,1,2] ])
+                            else Nothing)
 	]
