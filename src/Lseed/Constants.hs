@@ -5,3 +5,24 @@ groundLevel = 0.03
 budSize     = 0.01
 stipeLength = 0.05
 stipeWidth  = 0.01
+
+-- | Light and growths interpolation frequency
+ticksPerDay = 9
+
+-- | Plant length growth per Day and Light
+--
+-- 1 means: Can grow one stipeLength during one day, when catching the sunlight with one branch of (projected) length screenwidth
+growthPerDayAndLight = 15.0
+
+-- | Default growth (for plants without light)
+growthPerDay = 0.5
+
+-- | Length of one day, in seconds
+dayLength = 10 
+
+-- | ε
+eps = 1e-9
+
+
+-- | Derived constants
+tickLength = fromIntegral dayLength / fromIntegral ticksPerDay

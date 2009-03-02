@@ -20,8 +20,6 @@ type Line  = (Point, Point)
 
 lightFalloff = 0.7
 
-eps = 1e-9
-
 lineLength ((x1,y1),(x2,y2)) = sqrt ((x1-x2)^2 + (y1-y2)^2)
 
 -- | from http://www.pdas.com/lineint.htm

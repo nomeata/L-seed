@@ -50,6 +50,9 @@ data ScreenContent = ScreenContent
 	, scTime       :: String
 	}
 
+-- | Light angle
+type Angle = Double
+
 -- Instances
 instance Functor Plant where
 	fmap f (Bud x) = Bud (f x)
