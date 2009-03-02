@@ -42,6 +42,16 @@ main = do
 		nextDay (succ day,finishGrowth garden')
 	nextDay (0::Integer,testGarden)
 
+-- | Calculates the length to be grown
+remainingGrowth :: GrowingPlanted -> Double
+remainingGrowth planted = go (phenotype planted)
+  where go (Bud Nothing) = 0
+        go (Stipe Nothing _ p) = go p
+        go (Fork Nothing _ p1 p2) = go p1 + go p2
+	go (Stipe (Just l2) l1 p) = (l2 - l1) +  go p
+	go p                    = error $ "Unexpected data in growing plant: " ++ show p
+
+
 growGarden :: (RandomGen g) => g -> Garden () -> GrowingGarden
 growGarden rgen = snd . mapAccumL go rgen 
   where go rgen planted = let (rgen1,rgen2) = split rgen in (rgen2, growPlanted rgen1 planted)
