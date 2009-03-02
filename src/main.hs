@@ -1,5 +1,6 @@
 import Lseed.Renderer.Cairo
 import Lseed.Data
+import Lseed.Data.Functions
 import Lseed.LSystem
 import Data.List
 import Control.Concurrent
@@ -53,8 +54,8 @@ remainingGrowth planted = go (phenotype planted)
 
 
 growGarden :: (RandomGen g) => g -> Garden () -> GrowingGarden
-growGarden rgen = snd . mapAccumL go rgen 
-  where go rgen planted = let (rgen1,rgen2) = split rgen in (rgen2, growPlanted rgen1 planted)
+growGarden rgen garden = zipWithGarden (flip growPlanted) garden rgens
+  where rgens = unfoldr (Just . split) rgen
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
@@ -71,7 +72,7 @@ applyGrowth :: Double -> GrowingGarden -> Garden ()
 applyGrowth r = applyGrowth' (\a b -> a * (1-r) + b * r)
 
 applyGrowth' :: (Double -> Double -> Double) -> GrowingGarden -> Garden ()
-applyGrowth' f = map (\planted -> planted { phenotype = go (phenotype planted) })
+applyGrowth' f = mapGarden (mapPlanted go)
   where go (Bud Nothing) = Bud ()
         go (Stipe Nothing l p) = Stipe () l (go p)
         go (Fork Nothing a p1 p2) = Fork () a (go p1) (go p2)

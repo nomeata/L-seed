@@ -37,3 +37,16 @@ subPieceAccumulate p = go p
 	                                   extractOutmost p2'
                                   in  Fork x' angle p1' p2'
 
+-- | Apply a function to each Planted in a Garden
+mapGarden :: (Planted a -> Planted b) -> Garden a -> Garden b
+mapGarden = map
+
+-- | Apply a function to each Planted in a Garden, with an extra argument from a list
+--   
+--   You need to make sure that the list is long enough!
+zipWithGarden :: (Planted a -> x -> Planted b) -> Garden a -> [x] -> Garden b
+zipWithGarden = zipWith
+
+-- | Apply a function to the Plant in a Planted
+mapPlanted :: (Plant a -> Plant b) -> Planted a -> Planted b
+mapPlanted f planted = planted { phenotype = f (phenotype planted) }
