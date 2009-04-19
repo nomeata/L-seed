@@ -120,10 +120,10 @@ testGarden2 =
 testLSystem1 = compileGrammarFile [
 	GrammarRule "" 1 1 (Always True) (SetLength (Additional 1) Nothing)
 	]
-testLSystem2 = [
-	(\(Stipe () l _) -> Just (2, EnlargeStipe (l+2))),
-	(\(Stipe () l _) -> Just (1, ForkStipe (0.5) [(pi/4,1)])),
-	(\(Stipe () l _) -> Just (1, ForkStipe (1) [(-pi/4,1)]))
+testLSystem2 = compileGrammarFile [
+	GrammarRule "Grow" 1 2 (Always True) (SetLength (Additional 2) Nothing),
+	GrammarRule "Branch Left" 1 1 (Always True) (AddBranch (0.5) (pi/4) 1 Nothing),
+	GrammarRule "Branch Right" 1 1 (Always True) (AddBranch 1 (-pi/4) 1 Nothing)
 	]
 testLSystem3 = [
 	(\(Stipe () l _) -> Just (1, EnlargeStipe (l+2))),

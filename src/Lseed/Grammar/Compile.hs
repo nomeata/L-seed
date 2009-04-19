@@ -34,6 +34,8 @@ conformsTo (Stipe () l _) = go
 grToLAction :: GrammarAction -> Plant () -> LRuleAction
 grToLAction (SetLength ld _) (Stipe () l _)
 	= EnlargeStipe (calcLengthDescr ld l)
+grToLAction (AddBranch frac angle length _) (Stipe () l _)
+	= ForkStipe frac [(angle, length)]
 
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double

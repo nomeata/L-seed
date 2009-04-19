@@ -1,6 +1,8 @@
 -- | Grammer-like representation for a plant genome
 module Lseed.Grammar where
 
+import Lseed.Data
+
 -- | A complete grammar file
 type GrammarFile = [ GrammarRule ]
 
@@ -53,7 +55,7 @@ data Condition
 	 
 data GrammarAction
 	= SetLength LengthDescr (Maybe UserTag)
--- TODO	| AddBranch Double Angle (Maybe (UserTag, UserTag, UserTag))
+	| AddBranch Double Angle Double (Maybe (UserTag, UserTag, UserTag))
 	deriving (Read,Show)
 
 data LengthDescr = Absolute Double
