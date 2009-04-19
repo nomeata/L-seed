@@ -41,6 +41,7 @@ type GrowingPlant = Plant (Maybe Double)
 data LRuleAction
 	= EnlargeStipe Double -- ^ Extend this Stipe to the given length
         | ForkStipe Double [(Angle, Double)] -- ^ Branch this stipe at the given fraction and angle and let it grow to the given lengths
+	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function returning an action and weight
 type LRule = (Plant () -> Maybe (Int, LRuleAction))

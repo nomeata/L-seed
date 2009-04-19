@@ -1,6 +1,8 @@
 import Lseed.Renderer.Cairo
 import Lseed.Data
 import Lseed.Data.Functions
+import Lseed.Grammar
+import Lseed.Grammar.Compile
 import Lseed.LSystem
 import Lseed.Constants
 import Lseed.Geometry
@@ -115,8 +117,8 @@ testGarden2 =
 	, Planted 0.6 testLSystem1 (Stipe () 0 Bud)
 	]
 
-testLSystem1 = [
-	(\(Stipe () l _) -> Just (1, EnlargeStipe (l+1)))
+testLSystem1 = compileGrammarFile [
+	GrammarRule "" 1 1 (Always True) (SetLength (Additional 1) Nothing)
 	]
 testLSystem2 = [
 	(\(Stipe () l _) -> Just (2, EnlargeStipe (l+2))),
