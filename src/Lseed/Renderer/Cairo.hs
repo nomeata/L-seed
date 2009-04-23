@@ -82,6 +82,8 @@ renderPlant Bud = do
 	-- fill
 	return ()
 renderPlant (Stipe _ len p) = do
+	let l = len + plantLength p
+	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt l))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	stroke
