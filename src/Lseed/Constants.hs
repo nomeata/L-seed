@@ -15,7 +15,8 @@ ticksPerDay = 9
 growthPerDayAndLight = 15.0
 
 -- | Default growth (for plants without light)
-growthPerDay = 0.5
+--growthPerDay = 0.5
+growthPerDay = 3.0
 
 -- | Cost (in light units) per (length for maintaining the plant)^2, to limit the growth of the plants
 costPerLength = 0.002
