@@ -3,6 +3,7 @@ import Lseed.Data
 import Lseed.Data.Functions
 import Lseed.Grammar
 import Lseed.Grammar.Compile
+import Lseed.Grammar.Parse
 import Lseed.LSystem
 import Lseed.Constants
 import Lseed.Geometry
@@ -13,6 +14,7 @@ import System.Random
 import System.Time
 import Text.Printf
 import Debug.Trace
+import System.Environment
 
 timeSpanFraction :: Double -> ClockTime -> ClockTime -> Double
 timeSpanFraction spanLenght (TOD sa pa) (TOD sb pb) = 
@@ -29,8 +31,25 @@ formatTimeInfo day frac = let minutes = floor (frac * 12 * 60) :: Integer
 lightAngle :: Double -> Angle
 lightAngle diff = pi/100 + diff * (98*pi/100)
 
+parseFile filename = do
+	content <- readFile filename
+	let result = parseGrammar filename content
+	return $ either (error.show) compileGrammarFile result
 
-main = do
+readArgs doit = do
+	args <- getArgs
+	if null args
+	  then	do
+		putStrLn "L-Seed Demo application."
+		putStrLn "Please pass L-Seed files on the command line."
+	  else	do
+		plants <- mapM parseFile args
+		doit (spread plants)
+  where	spread gs = zipWith (\g p -> Planted ((p + 0.5) / l) g (Stipe () 0 Bud)) gs [0..]
+	  where l = fromIntegral (length gs)
+	      
+		
+main = readArgs $ \garden -> do
 	renderGarden <- initRenderer
 	-- mapM_ (\g -> threadDelay (500*1000) >> renderGarden g) (inits testGarden)
 	let nextDay (tick, garden) = do
@@ -53,7 +72,7 @@ main = do
 
 		threadDelay (round (tickLength * 1000 * 1000))
 		nextDay (succ tick, growingGarden 1)
-	nextDay (0::Integer, mapGarden (fmap (const Nothing)) testGarden)
+	nextDay (0::Integer, mapGarden (fmap (const Nothing)) garden)
 
 -- | Calculates the length to be grown
 remainingGrowth :: GrowingPlanted -> Double

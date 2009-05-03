@@ -1,0 +1,4 @@
+// This is the trivial plant, which just grows and grows
+
+RULE "Very simple Rule"
+GROW BY 1

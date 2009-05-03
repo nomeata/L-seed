@@ -1,0 +1,15 @@
+// Another quite trivial plant. It tends to grow right (at the middle of a branch),
+// but sometimes goes left (at the end of a branch)
+
+Rule "Growing"
+Grow by 2
+Weight 2
+
+Rule "Right"
+Branch At 50% Angle = 45°, Length = 1
+Weight 1
+
+Rule "Left"
+Branch At 100% Angle = -45°, Length = 1
+Weight 1
+

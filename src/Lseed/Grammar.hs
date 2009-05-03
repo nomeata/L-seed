@@ -55,7 +55,7 @@ data Condition
 	 
 data GrammarAction
 	= SetLength LengthDescr (Maybe UserTag)
-	| AddBranch Double Angle Double (Maybe (UserTag, UserTag, UserTag))
+	| AddBranch Double Angle Double (Maybe UserTag)
 	deriving (Read,Show)
 
 data LengthDescr = Absolute Double
