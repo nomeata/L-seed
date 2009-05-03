@@ -51,7 +51,6 @@ readArgs doit = do
 		
 main = readArgs $ \garden -> do
 	renderGarden <- initRenderer
-	-- mapM_ (\g -> threadDelay (500*1000) >> renderGarden g) (inits testGarden)
 	let nextDay (tick, garden) = do
 		let (day, tickOfDay) = tick `divMod` ticksPerDay
 
@@ -123,30 +122,3 @@ applyGrowth' f = go
         go (Stipe Nothing l p) = Stipe Nothing l (go p)
         go (Fork a p1 p2) = Fork a (go p1) (go p2)
 	go (Stipe (Just l2) l1 p) = Stipe (Just l2) (f l1 l2) (go p)
-
-testGarden =
-	[ Planted 0.1 testLSystem1 (Stipe () 0 Bud)
-	, Planted 0.3 testLSystem2 (Stipe () 0 Bud)
-	, Planted 0.5 testLSystem3 (Stipe () 0 Bud)
-	, Planted 0.7 testLSystem2 (Stipe () 0 Bud)
-	, Planted 0.9 testLSystem1 (Stipe () 0 Bud)
-	]
-testGarden2 =
-	[ Planted 0.4 testLSystem1 (Stipe () 0 Bud)
-	, Planted 0.6 testLSystem1 (Stipe () 0 Bud)
-	]
-
-testLSystem1 = compileGrammarFile [
-	GrammarRule "" 1 1 (Always True) (SetLength (Additional 1) Nothing)
-	]
-testLSystem2 = compileGrammarFile [
-	GrammarRule "Grow" 1 2 (Always True) (SetLength (Additional 2) Nothing),
-	GrammarRule "Branch Left" 1 1 (Always True) (AddBranch (0.5) (pi/4) 1 Nothing),
-	GrammarRule "Branch Right" 1 1 (Always True) (AddBranch 1 (-pi/4) 1 Nothing)
-	]
-testLSystem3 = [
-	(\(Stipe () l _) -> Just (1, EnlargeStipe (l+2))),
-	(\(Stipe () l _) -> if l >= 1
-                            then Just (1, ForkStipe 1 [ (x * pi/5, 1) | x <- [-2,-1,1,2] ])
-                            else Nothing)
-	]
