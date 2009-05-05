@@ -24,8 +24,4 @@ invalid error = encode $ makeObj
                     errorMessages $ error)
 	]
 
-main = do
-	file <- getContents
-	case parseGrammar "stdin" file of
-	  Left error -> putStrLn $ invalid error
-	  Right _ -> putStrLn valid
+main = interact $ either invalid (const valid) . parseGrammar "stdin"
