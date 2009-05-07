@@ -77,21 +77,14 @@ renderPlanted planted = preserve $ do
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant a -> Render ()	
-renderPlant Bud = do
-	-- arc 0 0 budSize 0 (2*pi)
-	-- fill
-	return ()
-renderPlant (Stipe _ len p) = do
-	let l = len + plantLength p
+renderPlant (Stipe _ len ps) = do
+	let l = len + sum (map (plantLength.snd) ps)
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt l))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	stroke
 	translate 0 (len * stipeLength)
-	renderPlant p
-renderPlant (Fork angle p1 p2) = do
-	preserve $ rotate angle >> renderPlant p1
-	renderPlant p2
+	forM_ ps $ \(angle, p) -> preserve $ rotate angle >> renderPlant p
 		
 renderLightedPlanted :: Planted Double -> Render ()
 renderLightedPlanted planted = preserve $ do
@@ -99,8 +92,7 @@ renderLightedPlanted planted = preserve $ do
 	renderLightedPlant (phenotype planted)
 
 renderLightedPlant :: Plant Double -> Render ()	
-renderLightedPlant Bud = return ()
-renderLightedPlant (Stipe intensity len p) = do
+renderLightedPlant (Stipe intensity len ps) = do
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	let normalized = intensity / (len * stipeLength)
@@ -110,10 +102,7 @@ renderLightedPlant (Stipe intensity len p) = do
 		setSourceRGBA 1 1 0 normalized
 		stroke
 	translate 0 (len * stipeLength)
-	renderPlant p
-renderLightedPlant (Fork angle p1 p2) = do
-	preserve $ rotate angle >> renderLightedPlant p1
-	renderLightedPlant p2
+	forM_ ps $ \(angle, p) -> preserve $ rotate angle >> renderLightedPlant p
 		
 {- Line based rendering deprecated
 

@@ -8,36 +8,30 @@ import System.Random
 
 applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> GrowingPlant
 applyLSystem rgen rules plant = go plant
-  where applyAction (EnlargeStipe newSize) (Stipe () oldSize p')
+  where applyAction (EnlargeStipe newSize) (Stipe () oldSize ps)
 		= Stipe (Just newSize) oldSize $
-                  go p'
-	applyAction (ForkStipe pos []) (Stipe () oldSize p') -- No branches
-		= Stipe Nothing oldSize $ go p'
-	applyAction (ForkStipe pos branchSpecs) (Stipe () oldSize p')
-		= preFork . forks branchSpecs . postFork $ go p'
-	  where (preFork, postFork) | pos < eps -- Fork at the beginning
-			            = (id, Stipe Nothing oldSize)
-                                    | 1-pos < eps -- Fork at the end
-				    = (Stipe Nothing oldSize, id)
-                                    | otherwise -- Fork in the middle
-                                    = (Stipe Nothing (oldSize * pos),
-		                       Stipe Nothing (oldSize * (1-pos)))
-		forks = flip $ foldr (\(angle, newSize) -> Fork angle (Stipe (Just newSize) 0 Bud))
-	applyAction _ _ = error "Unknown Action or applied to wrong part of a plant"
+                  mapSprouts go ps
+	applyAction (ForkStipe pos []) (Stipe () oldSize ps) -- No branches
+		= Stipe Nothing oldSize $
+		  mapSprouts go ps
+	applyAction (ForkStipe pos branchSpecs) (Stipe () oldSize ps)
+		| 1-pos < eps -- Fork at the end
+		= Stipe Nothing oldSize $
+			ps' ++
+			newForks
+		| otherwise -- Fork not at the end
+		= Stipe Nothing (oldSize * pos) $
+			[ (0, Stipe Nothing (oldSize * (1-pos)) ps') ] ++
+			newForks
+	  where newForks = map (\(angle, newSize) -> (angle, Stipe (Just newSize) 0 [])) branchSpecs
+		ps' = mapSprouts go ps
 
-	noAction (Stipe () oldSize p')
-		= Stipe Nothing oldSize $ go p'
-	noAction _ = error "Unknown Action or applied to wrong part of a plant"
+	noAction (Stipe () oldSize ps)
+		= Stipe Nothing oldSize $ mapSprouts go ps
 
- 	go p = case p of
-			Bud -> Bud
-			Stipe () _ _ ->
-				let choices = mapMaybe (\r -> r p) rules 
-				in  if null choices
-                                    then noAction p
-                                    else applyAction (chooseWeighted rgen choices) p
-			Fork angle p1 p2 ->
-				Fork angle (go p1) (go p2)
+ 	go p = case mapMaybe (\r -> r p) rules of
+		[]      -> noAction p
+		choices -> applyAction (chooseWeighted rgen choices) p
 
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list

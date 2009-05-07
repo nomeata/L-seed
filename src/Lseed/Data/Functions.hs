@@ -4,14 +4,9 @@ import Lseed.Data
 import Data.Monoid
 
 -- | Puts the length of the current segment in the additional information field
---   Pieces without length ('Bud', 'Fork') receive a zero.
 plantPieceLengths :: Plant a -> Plant Double
-plantPieceLengths Bud =
-	Bud
-plantPieceLengths (Stipe _ len p1) =
-	Stipe len len (plantPieceLengths p1)
-plantPieceLengths (Fork angle p1 p2) =
-	Fork angle (plantPieceLengths p1) (plantPieceLengths p2)
+plantPieceLengths (Stipe _ len ps) =
+	Stipe len len (mapSprouts plantPieceLengths ps)
 
 plantLength :: Plant a -> Double
 plantLength = plantTotalSum . plantPieceLengths
@@ -19,20 +14,14 @@ plantLength = plantTotalSum . plantPieceLengths
 plantTotalSum :: Plant Double -> Double
 plantTotalSum = getSum . extractOutmost . subPieceAccumulate . fmap Sum 
 
-extractOutmost :: Monoid a =>  Plant a -> a
-extractOutmost Bud = mempty
+extractOutmost :: Plant a -> a
 extractOutmost (Stipe x _ _) = x
-extractOutmost (Fork _ p1 p2) = extractOutmost p1 `mappend` extractOutmost p2
 
 subPieceAccumulate :: Monoid m => Plant m -> Plant m
 subPieceAccumulate p = go p
-  where go Bud = Bud
-        go (Stipe x len p1) = let p1' = go p1
-                                  x' = x `mappend` extractOutmost p1'
-                              in  Stipe x' len p1'
-        go (Fork angle p1 p2) = let p1' = go p1
-                                    p2' = go p2
-                                in  Fork angle p1' p2'
+  where go (Stipe x len ps) = let ps' = mapSprouts go ps
+                                  x' = x `mappend` (mconcat $ map (extractOutmost.snd) ps')
+                              in  Stipe x' len ps'
 
 -- | Apply a function to each Planted in a Garden
 mapGarden :: (Planted a -> Planted b) -> Garden a -> Garden b

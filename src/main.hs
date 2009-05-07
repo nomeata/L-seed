@@ -45,7 +45,7 @@ readArgs doit = do
 	  else	do
 		plants <- mapM parseFile args
 		doit (spread plants)
-  where	spread gs = zipWith (\g p -> Planted ((p + 0.5) / l) g (Stipe () 0 Bud)) gs [0..]
+  where	spread gs = zipWith (\g p -> Planted ((p + 0.5) / l) g (Stipe () 0 [])) gs [0..]
 	  where l = fromIntegral (length gs)
 	      
 		
@@ -76,10 +76,8 @@ main = readArgs $ \garden -> do
 -- | Calculates the length to be grown
 remainingGrowth :: GrowingPlanted -> Double
 remainingGrowth planted = go (phenotype planted)
-  where go Bud = 0
-        go (Fork _ p1 p2) = go p1 + go p2
-        go (Stipe Nothing _ p) = go p
-	go (Stipe (Just l2) l1 p) = (l2 - l1) +  go p
+  where go (Stipe Nothing _    ps) = sum (map (go.snd) ps)
+	go (Stipe (Just l2) l1 ps) = (l2 - l1) + sum (map (go.snd) ps)
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith3 growPlanted rgens garden lightings
@@ -118,7 +116,5 @@ applyGrowth r = mapPlanted (applyGrowth' (\a b -> a * (1-r) + b * r))
 
 applyGrowth' :: (Double -> Double -> Double) -> GrowingPlant -> GrowingPlant
 applyGrowth' f = go
-  where go Bud = Bud
-        go (Stipe Nothing l p) = Stipe Nothing l (go p)
-        go (Fork a p1 p2) = Fork a (go p1) (go p2)
-	go (Stipe (Just l2) l1 p) = Stipe (Just l2) (f l1 l2) (go p)
+  where go (Stipe Nothing l ps)    = Stipe Nothing l (mapSprouts go ps)
+	go (Stipe (Just l2) l1 ps) = Stipe (Just l2) (f l1 l2) (mapSprouts go ps)

@@ -4,6 +4,7 @@ module Lseed.Data where
 import Data.Foldable (Foldable, fold)
 import Data.Traversable (Traversable, sequenceA)
 import Control.Applicative ((<$>),(<*>),pure)
+import Control.Arrow (second)
 import Data.Monoid
 
 -- | A list of plants, together with their position in the garden, in the interval [0,1]
@@ -24,15 +25,13 @@ type GrowingPlanted = Planted (Maybe Double)
 
 -- | A plant, which is
 data Plant a 
-	-- | a bud, i.e. the end of a sprout
-	= Bud
 	-- | a stipe with a length (factor of stipeLength)
-	--   and more of the plant next
-	| Stipe a Double (Plant a)
-	-- ^ a fork with a sidewise offspring at a radial angle,
-	--   and a straight continuation 
-	| Fork Double (Plant a) (Plant a)
+	--   and a list of plants sprouting at the end, at a given radial angle.
+	= Stipe a Double [ (Double, Plant a) ]
 	deriving (Show)
+
+mapSprouts :: (Plant a -> Plant b) -> [ (Double, Plant a) ] -> [ (Double, Plant b) ]
+mapSprouts = map . second
 
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant (Maybe Double)
@@ -40,7 +39,7 @@ type GrowingPlant = Plant (Maybe Double)
 -- | Possible action to run on a Stipe in a Rule
 data LRuleAction
 	= EnlargeStipe Double -- ^ Extend this Stipe to the given length
-        | ForkStipe Double [(Angle, Double)] -- ^ Branch this stipe at the given fraction and angle and let it grow to the given lengths
+        | ForkStipe Double [(Angle, Double)] -- ^ Branch this stipe at the given fraction and angles and let it grow to the given lengths
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function returning an action and weight
@@ -61,23 +60,14 @@ type Angle = Double
 
 -- Instances
 instance Functor Plant where
-	fmap f Bud = Bud
-	fmap f (Stipe x len p1) = Stipe (f x) len (fmap f p1)
-	fmap f (Fork angle p1 p2) = Fork angle (fmap f p1) (fmap f p2)
+	fmap f (Stipe x len ps) = Stipe (f x) len (map (second (fmap f)) ps)
 
 instance Foldable Plant where
-	fold Bud  = mempty
-	fold (Stipe x len p1) = x `mappend` fold p1
-	fold (Fork angle p1 p2) = fold p1 `mappend` fold p2
+	fold (Stipe x len ps) = x `mappend` (mconcat $ map (fold.snd) ps)
 
 instance Traversable Plant where
-	sequenceA Bud =
-		pure Bud
-	sequenceA (Stipe x len p1) =
-		Stipe <$> x <*> pure len <*> sequenceA p1
-	sequenceA (Fork angle p1 p2) =
-		Fork <$> pure angle <*> sequenceA p1 <*> sequenceA p2
-	
+	sequenceA (Stipe x len ps) =
+		Stipe <$> x <*> pure len <*> sequenceA (map (\(a,p) -> (,) a <$> sequenceA p) ps)
 
 instance Functor Planted where
 	fmap f planted = planted { phenotype = fmap f (phenotype planted) }
