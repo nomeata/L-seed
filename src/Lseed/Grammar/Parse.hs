@@ -83,6 +83,8 @@ pBranch = do
 	reserved "BRANCH"
 	reserved "AT"
 	fraction <- pFloat
+	unless (0 <= fraction && fraction <= 100) $
+		fail "Fork position has to be in between 0% and 100%."
 	reservedOp "%"
 	reserved "ANGLE"
 	reservedOp "="
@@ -96,7 +98,7 @@ pBranch = do
 		reserved "TAG"
 		reservedOp "="
 		pString
-	return (AddBranch fraction angle length mTag)
+	return (AddBranch (fraction/100) angle length mTag)
 
 pGrow :: Parser GrammarAction
 pGrow = do

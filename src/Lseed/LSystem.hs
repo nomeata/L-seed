@@ -5,16 +5,19 @@ import Lseed.Data
 import Data.Maybe
 import Data.Monoid
 import System.Random
+import Control.Arrow (second)
+import Data.List
 
 applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> GrowingPlant
 applyLSystem rgen rules plant = go plant
-  where applyAction (EnlargeStipe newSize) (Stipe () oldSize ps)
+  where applyAction :: Plant () -> LRuleAction -> GrowingPlant
+	applyAction (Stipe () oldSize ps) (EnlargeStipe newSize) 
 		= Stipe (Just newSize) oldSize $
                   mapSprouts go ps
-	applyAction (ForkStipe pos []) (Stipe () oldSize ps) -- No branches
+	applyAction (Stipe () oldSize ps) (ForkStipe pos [])-- No branches
 		= Stipe Nothing oldSize $
 		  mapSprouts go ps
-	applyAction (ForkStipe pos branchSpecs) (Stipe () oldSize ps)
+	applyAction (Stipe () oldSize ps) (ForkStipe pos branchSpecs)
 		| 1-pos < eps -- Fork at the end
 		= Stipe Nothing oldSize $
 			ps' ++
@@ -29,9 +32,18 @@ applyLSystem rgen rules plant = go plant
 	noAction (Stipe () oldSize ps)
 		= Stipe Nothing oldSize $ mapSprouts go ps
 
- 	go p = case mapMaybe ($ p) rules of
+	go :: Plant () -> GrowingPlant
+ 	go p = case filter (isValid.snd) $ map (second (applyAction p)) $ mapMaybe ($ p) rules of
 		[]      -> noAction p
-		choices -> applyAction (chooseWeighted rgen choices) p
+		choices -> chooseWeighted rgen choices
+
+	-- Some general checks to rule out unwanted rules
+	isValid :: GrowingPlant -> Bool
+	isValid (Stipe newSize oldSize ps) = anglesOk
+	  where angles = sort $ map fst ps
+		-- Are all angles directed forward and not too close to each other?
+                anglesOk = all (\a -> -pi/2 <= a && a <= pi/2) angles &&
+                           all (> minAngle) (zipWith (flip (-)) angles (tail angles))
 
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list

@@ -27,6 +27,8 @@ dayLength = 10
 -- | ε
 eps = 1e-9
 
+-- | Minimum radial angular distance between two branches
+minAngle = pi/20
 
 -- | Derived constants
 tickLength = fromIntegral dayLength / fromIntegral ticksPerDay
