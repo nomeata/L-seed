@@ -53,7 +53,7 @@ pRule = do
 		reserved "WEIGHT"
 		fromIntegral `fmap` natural
 	skipMany nl
-	return $ GrammarRule name priority weight condition (head actions)
+	return $ GrammarRule name priority weight condition actions
 
 pCondition :: Parser Condition
 pCondition = buildExpressionParser table term

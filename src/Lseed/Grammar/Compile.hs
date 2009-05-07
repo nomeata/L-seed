@@ -3,6 +3,7 @@ module Lseed.Grammar.Compile where
 
 import Lseed.Data
 import Lseed.Grammar
+import Data.List (nub)
 
 compileGrammarFile :: GrammarFile -> LSystem
 compileGrammarFile = map compileGrammarRule
@@ -10,7 +11,7 @@ compileGrammarFile = map compileGrammarRule
 compileGrammarRule :: GrammarRule -> LRule
 compileGrammarRule rule plant = 
 	if   plant `conformsTo` grCondition rule
-	then Just ({- grPriority rule, -}grWeight rule, grToLAction (grAction rule) plant)
+	then Just ({- grPriority rule, -}grWeight rule, grToLAction (grActions rule) plant)
 	else Nothing
 
 
@@ -31,11 +32,21 @@ conformsTo (Stipe () l _) = go
 	doCompare Greater = (>)
 	doCompare GE = (>=)
 
-grToLAction :: GrammarAction -> Plant () -> LRuleAction
-grToLAction (SetLength ld _) (Stipe () l _)
+grToLAction :: [GrammarAction] -> Plant () -> LRuleAction
+grToLAction [SetLength ld _] (Stipe () l _)
 	= EnlargeStipe (calcLengthDescr ld l)
-grToLAction (AddBranch frac angle length _) (Stipe () l _)
-	= ForkStipe frac [(angle, length)]
+grToLAction acts  (Stipe () l _)
+	| all isAddBranch acts
+	= case nub (map addBranchAngle acts) of
+	    [frac] -> ForkStipe frac $ map (\(AddBranch _ angle length _) -> (angle, length)) acts
+	    _ -> error "Can not branch at different points at the same time"
+	| otherwise
+	= error "Can not grow and branch at the same time"
+
+isAddBranch (AddBranch _ _ _ _) = True
+isAddBranch _ = False
+
+addBranchAngle (AddBranch angle _ _ _) = angle
 
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double

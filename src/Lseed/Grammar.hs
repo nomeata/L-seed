@@ -24,7 +24,7 @@ data GrammarRule = GrammarRule
 	, grPriority :: Priority
 	, grWeight :: Weight
 	, grCondition :: Condition
-	, grAction :: GrammarAction
+	, grActions :: [GrammarAction]
 	}
 	deriving (Read,Show)
 
