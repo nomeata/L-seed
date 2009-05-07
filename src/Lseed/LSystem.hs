@@ -29,7 +29,7 @@ applyLSystem rgen rules plant = go plant
 	noAction (Stipe () oldSize ps)
 		= Stipe Nothing oldSize $ mapSprouts go ps
 
- 	go p = case mapMaybe (\r -> r p) rules of
+ 	go p = case mapMaybe ($ p) rules of
 		[]      -> noAction p
 		choices -> applyAction (chooseWeighted rgen choices) p
 
