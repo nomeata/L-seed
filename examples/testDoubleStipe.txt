@@ -1,0 +1,7 @@
+RULE "start"
+WHEN Length < 1
+GROW TO 2
+
+RULE "invalid"
+WHEN Length > 1
+BRANCH AT 50% ANGLE=0°, LENGTH=1
