@@ -10,7 +10,7 @@ import Lseed.Grammar
 -- The lexer
 lexer       = P.makeTokenParser $ javaStyle
 	{ P.reservedNames = ["RULE", "WHEN", "Tag", "Light", "Branch", "At", "Length", "Angle",
-                             "IMPORTANCE", "WEIGHT"]
+			     "BY", "TO", "IMPORTANCE", "WEIGHT"]
 	}
 
 parens      = P.parens lexer
@@ -45,8 +45,7 @@ pRule = do
 	condition <- option (Always True) $ do
 		reserved "WHEN"
 		pCondition
-	-- actions <- sepBy1 pAction nl
-	action <- pAction
+	actions <- many1 pAction
 	priority <- option 1 $ do
 		reserved "IMPORTANCE"
 		fromIntegral `fmap` natural
@@ -54,7 +53,7 @@ pRule = do
 		reserved "WEIGHT"
 		fromIntegral `fmap` natural
 	skipMany nl
-	return $ GrammarRule name priority weight condition action
+	return $ GrammarRule name priority weight condition (head actions)
 
 pCondition :: Parser Condition
 pCondition = buildExpressionParser table term
@@ -108,7 +107,7 @@ pGrow = do
 		(reservedOp "%" >> return (AdditionalRelative value)) <|>
 		                   return (Additional value)
 	to = do
-		reserved "BY"
+		reserved "TO"
 		value <- pFloat
 		return (Absolute value)
 		
