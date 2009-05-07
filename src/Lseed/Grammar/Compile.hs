@@ -43,11 +43,6 @@ grToLAction acts  (Stipe () l _)
 	| otherwise
 	= error "Can not grow and branch at the same time"
 
-isAddBranch (AddBranch _ _ _ _) = True
-isAddBranch _ = False
-
-addBranchAngle (AddBranch angle _ _ _) = angle
-
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double
 calcLengthDescr (Absolute val) l  = max l val

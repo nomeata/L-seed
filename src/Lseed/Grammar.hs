@@ -2,6 +2,7 @@
 module Lseed.Grammar where
 
 import Lseed.Data
+import Data.List
 
 -- | A complete grammar file
 type GrammarFile = [ GrammarRule ]
@@ -62,3 +63,18 @@ data LengthDescr = Absolute Double
 	         | Additional Double
                  | AdditionalRelative Double -- ^ in Percent
 	deriving (Read,Show)
+
+actionsAreInvalid :: [GrammarAction] -> Maybe String
+actionsAreInvalid [_] = Nothing
+actionsAreInvalid acts
+	= if all isAddBranch acts 
+          then case nub (map addBranchAngle acts) of
+	    [frac] -> Nothing
+	    _      -> Just "Can not branch at different points at the same time."
+	  else        Just "Can not grow and branch at the same time."
+
+isAddBranch (AddBranch _ _ _ _) = True
+isAddBranch _ = False
+
+addBranchAngle (AddBranch angle _ _ _) = angle
+

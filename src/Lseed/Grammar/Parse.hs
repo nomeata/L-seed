@@ -4,6 +4,7 @@ import Text.Parsec
 import qualified Text.Parsec.Token as P
 import Text.Parsec.Language (javaStyle)
 import Text.Parsec.Expr
+import Control.Monad
 
 import Lseed.Grammar
 
@@ -46,6 +47,7 @@ pRule = do
 		reserved "WHEN"
 		pCondition
 	actions <- many1 pAction
+	maybe (return ()) fail (actionsAreInvalid actions)
 	priority <- option 1 $ do
 		reserved "IMPORTANCE"
 		fromIntegral `fmap` natural
