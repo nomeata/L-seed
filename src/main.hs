@@ -7,6 +7,7 @@ import Lseed.Grammar.Parse
 import Lseed.LSystem
 import Lseed.Constants
 import Lseed.Geometry
+import Lseed.StipeInfo
 import Data.List
 import Control.Concurrent
 import Control.Monad
@@ -82,16 +83,19 @@ remainingGrowth planted = go (phenotype planted)
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
   where lightings = map (plantTotalSum . phenotype) $ lightenGarden angle garden'
-	garden' = applyGenome rgen garden
+	garden' = applyGenome angle rgen garden
 
 -- | For all Growing plants that are done, find out the next step
-applyGenome :: (RandomGen g) => g -> GrowingGarden -> GrowingGarden 
-applyGenome rgen garden = zipWith applyGenome' rgens garden
+applyGenome :: (RandomGen g) => Angle -> g -> GrowingGarden -> GrowingGarden 
+applyGenome angle rgen garden = zipWith3 applyGenome' rgens garden lGarden
   where rgens = unfoldr (Just . split) rgen
-	applyGenome' rgen planted =
+	lGarden = lightenGarden angle garden
+	applyGenome' rgen planted lPlanted =
 		if   remainingGrowth planted < eps
-		then planted { phenotype = applyLSystem rgen (genome planted)
-							     (finishGrowth (phenotype planted))
+		then planted { phenotype = applyLSystem rgen
+							(genome planted)
+							(annotatePlant (phenotype lPlanted))
+		     -- here, we throw away the last eps of growth. Is that a problem?
 			     }
 	 	else planted
 

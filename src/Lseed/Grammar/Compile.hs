@@ -15,16 +15,20 @@ compileGrammarRule rule plant =
 	else Nothing
 
 
-conformsTo :: Plant () -> Condition -> Bool
-conformsTo (Stipe () l _) = go
+conformsTo :: AnnotatedPlant -> Condition -> Bool
+conformsTo (Stipe si l _) = go
   where go (Always b)     = b
 	go (c1 `And` c2)  = go c1 && go c2
 	go (c1 `Or` c2)   = go c1 || go c2
 	go (UserTagIs ut) = error "UserTags are not supported yet"
 	go (NumCond what how val) = doCompare how (getMatchable what) val
 	
-	getMatchable MatchLength = l
-	getMatchable m		 = error $ "Matchable " ++ show m ++ " not supported yet"
+	getMatchable MatchLength    = siLength si
+	getMatchable MatchSubLength = siSubLength si
+	getMatchable MatchLight     = siLight si
+	getMatchable MatchSubLight  = siSubLight si
+	getMatchable MatchDirection = siDirection si
+	getMatchable MatchAngle     = siAngle si
 
 	doCompare LE = (<=)
 	doCompare Less = (<)
@@ -32,10 +36,10 @@ conformsTo (Stipe () l _) = go
 	doCompare Greater = (>)
 	doCompare GE = (>=)
 
-grToLAction :: [GrammarAction] -> Plant () -> LRuleAction
-grToLAction [SetLength ld _] (Stipe () l _)
+grToLAction :: [GrammarAction] -> AnnotatedPlant -> LRuleAction
+grToLAction [SetLength ld _] (Stipe _ l _)
 	= EnlargeStipe (calcLengthDescr ld l)
-grToLAction acts  (Stipe () l _)
+grToLAction acts  (Stipe _ l _)
 	| all isAddBranch acts
 	= case nub (map addBranchAngle acts) of
 	    [frac] -> ForkStipe frac $ map (\(AddBranch _ angle length _) -> (angle, length)) acts

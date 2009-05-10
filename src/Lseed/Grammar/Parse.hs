@@ -10,7 +10,8 @@ import Lseed.Grammar
 
 -- The lexer
 lexer       = P.makeTokenParser $ javaStyle
-	{ P.reservedNames = ["RULE", "WHEN", "Tag", "Light", "Branch", "At", "Length", "Angle",
+	{ P.reservedNames = ["RULE", "WHEN", "Tag", "Light", "Branch", "At",
+			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle",
 			     "BY", "TO", "IMPORTANCE", "WEIGHT"]
 	}
 
@@ -88,7 +89,7 @@ pBranch = do
 	reservedOp "%"
 	reserved "ANGLE"
 	reservedOp "="
-	angle <- pAngle
+	angle <- pFloat
 	comma
 	reserved "LENGTH"
 	reservedOp "="
@@ -115,16 +116,15 @@ pGrow = do
 		value <- pFloat
 		return (Absolute value)
 		
--- \194\176 is a utf8-°
-pAngle :: Parser Double
-pAngle = do
-	value <- pFloat
-	(reservedOp "\194\176" >> return (value / 180 * pi)) <|> return value
 
 pMatchable =
 	choice $ map (\(a,b) -> const b `fmap` reserved a) $
 		[ ("LIGHT", MatchLight)
 		, ("LENGTH", MatchLength)
+		, ("SUBLENGTH", MatchSubLength)
+		, ("SUBLIGHT", MatchSubLight)
+		, ("ANGLE", MatchAngle)
+		, ("DIRECTION", MatchDirection)
 		]
 
 pCmp = 
@@ -137,6 +137,14 @@ pCmp =
 		]
 
 pString = identifier <|> stringLiteral
-pFloat = try (fromIntegral `fmap` integer) <|> float
+
+pFloat = do value <- try (do 
+			i <- fromIntegral `fmap` integer
+			notFollowedBy (char '.')
+			return i
+		     )  <|> float
+	    (deg >> return (value / 180 * pi)) <|> return value
+
+deg = reservedOp "\194\176"
 	
 nl = char '\n'

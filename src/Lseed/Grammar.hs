@@ -31,9 +31,9 @@ data GrammarRule = GrammarRule
 
 data Matchable
 	= MatchLight
-	| MatchTotalLight
+	| MatchSubLight
 	| MatchLength
-	| MatchTotalLength
+	| MatchSubLength
 	| MatchDirection
 	| MatchAngle
 	deriving (Read,Show)

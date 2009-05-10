@@ -8,16 +8,16 @@ import System.Random
 import Control.Arrow (second)
 import Data.List
 
-applyLSystem :: RandomGen g => g -> LSystem -> Plant () -> GrowingPlant
+applyLSystem :: RandomGen g => g -> LSystem -> AnnotatedPlant -> GrowingPlant
 applyLSystem rgen rules plant = go plant
-  where applyAction :: Plant () -> LRuleAction -> GrowingPlant
-	applyAction (Stipe () oldSize ps) (EnlargeStipe newSize) 
+  where applyAction :: AnnotatedPlant -> LRuleAction -> GrowingPlant
+	applyAction (Stipe _ oldSize ps) (EnlargeStipe newSize) 
 		= Stipe (Just newSize) oldSize $
                   mapSprouts go ps
-	applyAction (Stipe () oldSize ps) (ForkStipe pos [])-- No branches
+	applyAction (Stipe _ oldSize ps) (ForkStipe pos [])-- No branches
 		= Stipe Nothing oldSize $
 		  mapSprouts go ps
-	applyAction (Stipe () oldSize ps) (ForkStipe pos branchSpecs)
+	applyAction (Stipe _ oldSize ps) (ForkStipe pos branchSpecs)
 		| 1-pos < eps -- Fork at the end
 		= Stipe Nothing oldSize $
 			ps' ++
@@ -29,10 +29,10 @@ applyLSystem rgen rules plant = go plant
 	  where newForks = map (\(angle, newSize) -> (angle, Stipe (Just newSize) 0 [])) branchSpecs
 		ps' = mapSprouts go ps
 
-	noAction (Stipe () oldSize ps)
+	noAction (Stipe _ oldSize ps)
 		= Stipe Nothing oldSize $ mapSprouts go ps
 
-	go :: Plant () -> GrowingPlant
+	go :: AnnotatedPlant -> GrowingPlant
  	go p = case filter (isValid.snd) $ map (second (applyAction p)) $ mapMaybe ($ p) rules of
 		[]      -> noAction p
 		choices -> chooseWeighted rgen choices

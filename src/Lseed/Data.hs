@@ -12,6 +12,7 @@ type Garden a = [ Planted a ]
 
 -- | Named variants of a garden, for more expressive type signatures
 type GrowingGarden = Garden (Maybe Double)
+type AnnotatedGarden = Garden StipeInfo
 
 -- | A plant with metainformatoin
 data Planted a = Planted
@@ -36,6 +37,18 @@ mapSprouts = map . second
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant (Maybe Double)
 
+data StipeInfo = StipeInfo
+	{ siLength    :: Double -- ^ a bit redundant, but what shells
+	, siSubLength :: Double
+	, siLight     :: Double
+	, siSubLight  :: Double
+	, siAngle     :: Angle
+	, siDirection :: Angle
+	}
+	deriving (Show)
+
+type AnnotatedPlant = Plant StipeInfo
+
 -- | Possible action to run on a Stipe in a Rule
 data LRuleAction
 	= EnlargeStipe Double -- ^ Extend this Stipe to the given length
@@ -43,7 +56,7 @@ data LRuleAction
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function returning an action and weight
-type LRule = (Plant () -> Maybe (Int, LRuleAction))
+type LRule = (AnnotatedPlant -> Maybe (Int, LRuleAction))
 
 -- | An complete LSystem 
 type LSystem = [LRule]
