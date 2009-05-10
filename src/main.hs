@@ -80,21 +80,26 @@ remainingGrowth planted = go (phenotype planted)
 	go (Stipe (Just l2) l1 ps) = (l2 - l1) + sum (map (go.snd) ps)
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
-growGarden angle rgen garden = sequence $ zipWith3 growPlanted rgens garden lightings
-  where lightings = map (plantTotalSum . phenotype) $ lightenGarden angle garden
-        rgens = unfoldr (Just . split) rgen
+growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
+  where lightings = map (plantTotalSum . phenotype) $ lightenGarden angle garden'
+	garden' = applyGenome rgen garden
+
+-- | For all Growing plants that are done, find out the next step
+applyGenome :: (RandomGen g) => g -> GrowingGarden -> GrowingGarden 
+applyGenome rgen garden = zipWith applyGenome' rgens garden
+  where rgens = unfoldr (Just . split) rgen
+	applyGenome' rgen planted =
+		if   remainingGrowth planted < eps
+		then planted { phenotype = applyLSystem rgen (genome planted)
+							     (finishGrowth (phenotype planted))
+			     }
+	 	else planted
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
-growPlanted :: (RandomGen g) => g -> GrowingPlanted -> Double -> (Double -> GrowingPlanted)
-growPlanted rgen planted light = 
-	let planted' = if remainingGrowth planted < eps
-                       then planted { phenotype =
-				applyLSystem rgen (genome planted)
-                                                  (finishGrowth (phenotype planted))
-				}
-                       else planted
-	    remainingLength = remainingGrowth planted'
+growPlanted :: GrowingPlanted -> Double -> (Double -> GrowingPlanted)
+growPlanted planted light = 
+	let remainingLength = remainingGrowth planted
 	in  if remainingLength > eps
             then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
@@ -103,8 +108,8 @@ growPlanted rgen planted light =
                                       (fromIntegral ticksPerDay) 
 		     growthThisTick = min remainingLength allowedGrowths
 		     growthFraction = growthThisTick / remainingLength 
-		 in \tickDiff -> applyGrowth (tickDiff * growthFraction) planted'
-	    else const planted' 
+		 in \tickDiff -> applyGrowth (tickDiff * growthFraction) planted
+	    else const planted
 
 -- | Finishes Growth by reading lenght from the additional information field
 finishGrowth :: GrowingPlant -> Plant ()
