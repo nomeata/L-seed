@@ -1,0 +1,22 @@
+Rule "Start"
+WHEN Length <= 0
+BRANCH AT 100% ANGLE = 30°, LENGTH = 0.5
+BRANCH AT 100% ANGLE = -30°, LENGTH = 0.5
+
+RULE "Links"
+WHEN Direction > 0 AND Direction < 140°
+BRANCH AT 100% ANGLE = 30°, LENGTH = 0.5
+
+RULE "Zurück"
+WHEN Direction >= 140°
+BRANCH AT 100% ANGLE = -120°, LENGTH = 0.5
+
+RULE "Rechts"
+WHEN Direction < 0 AND Direction > -140°
+BRANCH AT 100% ANGLE = -30°, LENGTH = 0.5
+
+RULE "Zurück"
+WHEN Direction <= -140°
+BRANCH AT 100% ANGLE = 120°, LENGTH = 0.5
+
+
