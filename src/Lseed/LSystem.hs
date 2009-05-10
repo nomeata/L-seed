@@ -41,9 +41,8 @@ applyLSystem rgen rules plant = go plant
 	isValid :: GrowingPlant -> Bool
 	isValid (Stipe newSize oldSize ps) = anglesOk
 	  where angles = sort $ map fst ps
-		-- Are all angles directed forward and not too close to each other?
-                anglesOk = all (\a -> -pi/2 <= a && a <= pi/2) angles &&
-                           all (> minAngle) (zipWith (flip (-)) angles (tail angles))
+		-- Are all angles not too close to each other?
+                anglesOk = all (> minAngle) (zipWith (flip (-)) angles (tail angles))
 
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list
