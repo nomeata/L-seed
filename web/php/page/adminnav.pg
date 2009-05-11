@@ -1,0 +1,25 @@
+{
+	expanded: true
+	,children:
+	[{
+		id: 'start'
+		,text: "Start"
+		,leaf: true
+	},{
+		id: 'createplant'
+		,text: "Neue Pflanze erstellen"
+		,leaf: true
+	},{
+		id: 'myplants'
+		,text: "Meine Pflanzen"
+		,leaf: true
+	},{
+		id: 'testplant'
+		,text: "Pflanze testen"
+		,leaf: true
+	},{
+		id: 'debug'
+		,text: "Debug"
+		,leaf: true
+	}]
+}

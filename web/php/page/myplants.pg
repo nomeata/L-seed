@@ -1,0 +1,121 @@
+{
+	id: 'ContentPanel_myplants'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Meine Pflanzen'
+	,layout: 'fit'
+	,items: [{
+		id: "plantlistgrid"
+		,title: "Mein Pflanzen"
+		,xtype: 'grid'
+		,autoExpandColumn: 'Code'
+		,plugins: [new Ext.ux.RowEditor({
+			id: 'plantlistgridEditor'
+			,saveText: 'Update'
+		})]
+		,view: new Ext.grid.GroupingView({
+			markDirty: false  
+		})
+		,tbar: [{
+			id: 'plantlistDeletePlant'
+			,text: 'Delete'
+			,icon: 'img/icons/cross.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: function(){
+				Ext.getCmp("plantlistgridEditor").stopEditing();
+				var grid = Ext.getCmp("plantlistgrid");
+				var s = grid.getSelectionModel().getSelections();
+				for(var i = 0, r; r = s[i]; i++) {
+				    grid.getStore().remove(r);
+				}
+			}
+		},{
+			id: 'plantlistTestPlant'
+			,text: 'Test'
+			,icon: 'img/icons/magnifier.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: editor.Test.createDelegate(editor, ['plantlistgrid'], true)
+		},{
+			id: 'plantlistRefresh'
+			,text: 'Refresh'
+			,icon: 'img/icons/arrow_refresh.png'
+			,cls: 'x-btn-text-icon'
+			,handler: communication.GetPlantList.createDelegate(communication)
+		}]
+		,store: new Ext.data.GroupingStore({
+			reader: new Ext.data.JsonReader({fields: Lseed.Plant})
+			,sortInfo: {field: 'Name', direction: 'ASC'}
+			,data: []
+			,listeners: {
+				add: function(sender, records, index) {
+				},
+				remove: function(sender, record, index) {
+					editor.Delete(record);
+				},
+				update: function(sender, record, operation) {
+					if (operation == Ext.data.Record.EDIT) {
+					} else if (Ext.data.Record.REJECT) {
+					} else if (Ext.data.Record.COMMIT) {
+					}
+				}
+			}
+		})
+		,columns: [
+			new Ext.grid.RowNumberer()
+			,{
+				id: 'ID'
+				,header: 'ID'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'ID'
+			},{
+				id: 'Name'
+				,header: 'Name'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'Name'
+				,editor: {
+					xtype: 'textfield'
+					,allowBlank: false
+				}
+			},{
+				id: 'Code'
+				,header: 'Code'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'Code'
+				,editor: {
+					xtype: 'textfield'
+					,allowBlank: true
+				}
+			},{
+				id: 'Active'
+				,header: 'Active'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'Active'
+				,editor: {
+					xtype: 'checkbox'
+				}
+			}
+		]
+		,sm: new Ext.grid.RowSelectionModel({
+			singleSelect:true
+			,listeners: {
+				rowselect: function() {
+					Ext.getCmp("plantlistDeletePlant").enable();
+					Ext.getCmp("plantlistTestPlant").enable();
+				}
+				,rowdeselect: function() {
+					Ext.getCmp("plantlistDeletePlant").disable();
+					Ext.getCmp("plantlistTestPlant").disable();
+				}
+			}
+		})
+	}]
+	,listeners: {
+		show: communication.GetPlantList.createDelegate(communication)
+	}
+}

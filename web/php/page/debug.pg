@@ -1,0 +1,7 @@
+{
+	id: 'ContentPanel_debug'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Debug'
+	,html: 'TODO'
+}

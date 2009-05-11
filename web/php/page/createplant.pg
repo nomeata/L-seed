@@ -1,0 +1,65 @@
+{
+	id: 'ContentPanel_createplant'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Neue Pflanze erstellen'
+	,layout: 'form'
+	,labelWidth: 100
+	,baseCls: 'x-plain'
+	,bodyStyle:'padding:5px;'
+	,defaults: {
+		bodyStyle:'padding:5px;'
+	}
+	,tbar: [{
+		text: "Save"
+		,icon: 'img/icons/disk.png'
+		,cls: 'x-btn-text-icon'
+		,handler: function() {
+			var namefield = Ext.getCmp("plantdefinitionnamefield");
+			var planteditor = Ext.getCmp("plantdefinitioneditor");
+			if (namefield.isValid()) {
+			
+				var plant = new Lseed.Plant({
+					Name: namefield.getValue() 
+					,Code: planteditor.getValue()
+				});
+				editor.Save(plant);
+			} else {
+				communication.showMessage("Ihre Pflanze benötigt einen Namen.", "error");
+			}
+		}
+	},{
+		text: "Test"
+		,icon: 'img/icons/magnifier.png'
+		,cls: 'x-btn-text-icon'
+		,handler: editor.Test.createDelegate(editor)
+	},{
+		text: "CheckSyntax"
+		,icon: 'img/icons/accept.png'
+		,cls: 'x-btn-text-icon'
+		,handler: editor.CheckSyntax.createDelegate(editor)
+	}]
+	,items: [{
+		id: "plantdefinitionnamefield"
+		,xtype: 'textfield'
+		,name: 'name'
+		,allowBlank: false
+		,fieldLabel: 'Name der Pflanze'
+		,anchor:'100%'
+		,enableKeyEvents: true
+		,listeners: {
+			keyup: editor.NameChanged.createDelegate(editor)
+		}
+	},{
+		id: "plantdefinitioneditor"
+		,xtype: 'textarea'
+		,name: 'code'
+		,fieldLabel: 'Pflanzendefinition'
+		,anchor:'100% -50'
+		,enableKeyEvents: true
+		,listeners: {
+			keyup: editor.DefinitionChanged.createDelegate(editor)
+		}
+		,value: 'RULE "MyRule"\nGROW BY 1'
+	}]
+}
