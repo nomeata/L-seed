@@ -462,6 +462,7 @@ Lseed.Communication = function() {
 		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
+		this.AddCallback("ValidatePlant", editor.CheckSyntaxCallback.createDelegate(editor));
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, {func: 'IsLoggedIn'});
 	};
@@ -498,11 +499,26 @@ Lseed.Editor = function() {
 	this.TestCallback = function() {
 	};
 	
+	this.CheckSyntaxCallback = null;
 	this.CheckSyntax = function(plant, callback) {
-		communication.showMessage("Diese Funktion ist leider momentan nicht verfügbar", "error");
+		this.CheckSyntaxCallback = callback;
+		
+		communication.sendMessage(Lseed.MessageCommands.RPC, { 
+			func: 'ValidatePlant'
+			,code: plant.data.Code
+		});
 	};
 	
-	this.CheckSyntaxCallback = function() {
+	this.CheckSyntaxCallback = function(data) {
+		if (!data.valid) {
+			if (this.CheckSyntaxCallback != null) {
+				this.CheckSyntaxCallback(data);
+			} else {
+				console.error("Lseed.Editor.CheckSyntaxCallback: no Callback given.");
+			}
+		} else {
+			console.info("Syntax is Valid.");
+		}
 	};
 	
 	this.Delete = function(plant) {
@@ -517,6 +533,22 @@ Lseed.Editor = function() {
 			communication.showMessage("Diese Pflanze konnte leider nicht gelöscht werden.", "error");
 		}
 		communication.GetPlantList();
+	};
+	
+	this.GetStartFromField = function(field, row, column) {
+		var result = 0;
+		var content = field.getValue();
+		var lines = content.split("\n");
+		if (lines.length >= row) {
+			for (var i=0; i<row; i++) {
+				result += lines[i].length + 1;
+			}
+		}
+		result += column;
+		
+		console.info("error in row: " + row + " column: " + column + " at: " + result);
+		
+		return result;
 	};
 };
 

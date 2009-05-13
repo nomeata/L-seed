@@ -37,7 +37,35 @@
 		text: "CheckSyntax"
 		,icon: 'img/icons/accept.png'
 		,cls: 'x-btn-text-icon'
-		,handler: editor.CheckSyntax.createDelegate(editor)
+		,handler: function() { 
+			var pdEditor = Ext.getCmp("plantdefinitioneditor");
+			if (pdEditor) {
+				var code = pdEditor.getValue();
+				editor.CheckSyntax({data:{Code:code}}, function(data) {
+					var pdEditor = Ext.getCmp("plantdefinitioneditor");
+					if (pdEditor) {
+						//TODO: mark error in code
+						
+						Ext.MessageBox.show({
+							title:'Fehler'
+							,msg: data.msg
+							,buttons: Ext.Msg.OK
+							,fn: function() {
+								var index = editor.GetStartFromField(pdEditor, data.line-1, data.column);
+								if (index != -1) {
+									pdEditor.selectText(index-1, index);
+								}
+							}
+							,icon: Ext.MessageBox.ERROR
+						});
+					} else {
+						console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
+					}
+				}); 
+			} else {
+				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
+			}
+		}.createDelegate(editor)
 	}]
 	,items: [{
 		id: "plantdefinitionnamefield"
@@ -48,7 +76,6 @@
 		,anchor:'100%'
 		,enableKeyEvents: true
 		,listeners: {
-			keyup: editor.NameChanged.createDelegate(editor)
 		}
 	},{
 		id: "plantdefinitioneditor"
@@ -58,7 +85,6 @@
 		,anchor:'100% -50'
 		,enableKeyEvents: true
 		,listeners: {
-			keyup: editor.DefinitionChanged.createDelegate(editor)
 		}
 		,value: 'RULE "MyRule"\nGROW BY 1'
 	}]

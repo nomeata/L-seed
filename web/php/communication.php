@@ -176,22 +176,75 @@
 		return $result;
 	}
 	
-	function DeletePlant($id) {
-		$result = "{ success: false }";
-
+	function GetPlantById($id) {
+		$result = null;
+		
 		$userid = GetUser($_SESSION['user'])->ID;
 		$list = GetPlantsForUser($userid);
-		
-		$plantToBeDeleted = null;
+
 		foreach ($list as $plant) {
 			if ($plant->ID == $id) {
-				$plantToBeDeleted = $plant;
+				$result = $plant;
 				break;
 			}
 		}
+		
+		return $result;
+	}
+	
+	function DeletePlant($id) {
+		$result = "{ success: false }";
+
+		$plantToBeDeleted = GetPlantById($id);
 		if ($plantToBeDeleted != null) {
 			if (DropPlant($plantToBeDeleted)) {
 				$result = "{ success: true }";
+			}
+		}
+
+		return $result;
+	}
+	
+	function ValidatePlant($id) {
+		$plantToBeValidated = GetPlantById($id);
+		
+		return ValidatePlantCode($plantToBeValidated->Code);
+	}
+	
+	function ValidatePlantCode($code) {
+		$result = "{valid: false, line: 0, column: 0, msg: 'Internal Server Error'}";
+		
+		$descriptorspec = array(
+		   0 => array("pipe", "r"),  // STDIN ist eine Pipe, von der das Child liest
+		   1 => array("pipe", "w"),  // STDOUT ist eine Pipe, in die das Child schreibt
+		   2 => array("pipe", "w")   // STDERR
+		);
+
+		$cwd = realpath("..\\cgi");
+
+
+		$process = proc_open('validate.exe', $descriptorspec, $pipes, $cwd, array());
+
+		if (is_resource($process)) {
+			// $pipes sieht nun so aus:
+			// 0 => Schreibhandle, das auf das Child STDIN verbunden ist
+			// 1 => Lesehandle, das auf das Child STDOUT verbunden ist
+			// Jedwede Fehlerausgaben werden an /tmp/error-output.txt angefügt
+
+			fwrite($pipes[0], $code);
+			fclose($pipes[0]);
+
+			$output = stream_get_contents($pipes[1]);
+			fclose($pipes[1]);
+
+			//echo stream_get_contents($pipes[2]);
+			fclose($pipes[2]);
+
+			$return_value = proc_close($process);
+			
+			//echo $return_value;
+			if ($return_value == 0) {
+				$result = $output;
 			}
 		}
 
@@ -347,6 +400,16 @@
 					break;
 
 				case "TestPlant":
+					break;
+
+				case "ValidatePlant":
+					$res = null;
+					if (isset($_POST["id"])) {
+						$res = ValidatePlant($_POST["id"]);
+					} else {
+						$res = ValidatePlantCode($_POST["code"]);
+					}
+					RPCAnswer($_POST["func"], $res);
 					break;
 			}
 			break;
