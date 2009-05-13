@@ -38,14 +38,14 @@
 		,icon: 'img/icons/accept.png'
 		,cls: 'x-btn-text-icon'
 		,handler: function() { 
+			communication.waitForPage();
 			var pdEditor = Ext.getCmp("plantdefinitioneditor");
 			if (pdEditor) {
 				var code = pdEditor.getValue();
 				editor.CheckSyntax({data:{Code:code}}, function(data) {
 					var pdEditor = Ext.getCmp("plantdefinitioneditor");
 					if (pdEditor) {
-						//TODO: mark error in code
-						
+						communication.stopWaitingForPage();
 						Ext.MessageBox.show({
 							title:'Fehler'
 							,msg: data.msg
