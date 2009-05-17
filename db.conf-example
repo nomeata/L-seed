@@ -1,0 +1,1 @@
+Driver=MySQL;Server=svenhecht.is-a-geek.org;Database=lseed;Uid=lseedbackend;Pwd=XXX;Port=3306;
