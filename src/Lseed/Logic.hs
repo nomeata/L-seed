@@ -1,6 +1,7 @@
 -- | This module is mostly a general dump...
 module Lseed.Logic where
 
+import Lseed.Renderer.Cairo
 import Lseed.Data
 import Lseed.Data.Functions
 import Lseed.Grammar
@@ -14,6 +15,7 @@ import System.Time
 import Text.Printf
 import System.Random
 import Data.List
+import Control.Concurrent
 
 timeSpanFraction :: Double -> ClockTime -> ClockTime -> Double
 timeSpanFraction spanLenght (TOD sa pa) (TOD sb pb) = 
@@ -82,3 +84,28 @@ applyGrowth' :: (Double -> Double -> Double) -> GrowingPlant -> GrowingPlant
 applyGrowth' f = go
   where go (Stipe Nothing l ps)    = Stipe Nothing l (mapSprouts go ps)
 	go (Stipe (Just l2) l1 ps) = Stipe (Just l2) (f l1 l2) (mapSprouts go ps)
+
+runGarden :: Garden a -> IO ()
+runGarden garden = do
+	renderGarden <- initRenderer
+	let nextDay (tick, garden) = do
+		let (day, tickOfDay) = tick `divMod` ticksPerDay
+
+		tickStart <- getClockTime
+		rgen <- newStdGen
+		let sampleAngle = lightAngle $ (fromIntegral tickOfDay + 0.5) /
+                                                fromIntegral ticksPerDay
+		let growingGarden = growGarden sampleAngle rgen garden
+
+		renderGarden $ \later -> 
+		        let tickDiff = timeSpanFraction tickLength tickStart later
+ 			    dayDiff = (fromIntegral tickOfDay + tickDiff) /
+                                      fromIntegral ticksPerDay
+                            timeInfo = formatTimeInfo day dayDiff
+		            visualizeAngle = lightAngle dayDiff
+			    gardenNow = mapGarden (fmap (const ())) $ growingGarden tickDiff
+			in ScreenContent gardenNow visualizeAngle timeInfo
+
+		threadDelay (round (tickLength * 1000 * 1000))
+		nextDay (succ tick, growingGarden 1)
+	nextDay (0::Integer, mapGarden (fmap (const Nothing)) garden)
