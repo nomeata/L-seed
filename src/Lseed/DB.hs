@@ -1,8 +1,7 @@
 module Lseed.DB 
-	( 
-	getCodeToRun
-	)
-	where
+	( DBCode(..)
+	, getCodeToRun
+	) where
 
 import Database.HDBC
 import Database.HDBC.ODBC
