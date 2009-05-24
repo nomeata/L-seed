@@ -3,12 +3,13 @@ import Lseed.Data.Functions
 import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.Constants
-import Lseed.Logic
+import Lseed.Mainloop
 import Control.Monad
 import Debug.Trace
 import System.Environment
 import System.Time
 import System.Random
+import Lseed.Renderer.Cairo
 
 parseFile filename = do
 	content <- readFile filename
@@ -28,4 +29,6 @@ readArgs doit = do
 	  where l = fromIntegral (length gs)
 	      
 		
-main = readArgs runGarden
+main = readArgs $ \garden -> do
+	obs <- cairoObserver
+	lseedMainLoop True obs 1 garden

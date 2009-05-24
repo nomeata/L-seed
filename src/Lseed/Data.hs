@@ -6,6 +6,7 @@ import Data.Traversable (Traversable, sequenceA)
 import Control.Applicative ((<$>),(<*>),pure)
 import Control.Arrow (second)
 import Data.Monoid
+import System.Time (ClockTime)
 
 -- | A list of plants, together with their position in the garden, in the interval [0,1]
 type Garden a = [ Planted a ]
@@ -70,6 +71,15 @@ data ScreenContent = ScreenContent
 
 -- | Light angle
 type Angle = Double
+
+-- | Main loop observers
+data Observer = Observer
+	{ obInit :: IO ()
+	, obState :: Integer -> GrowingGarden -> IO ()
+	, obGrowingState :: (ClockTime -> ScreenContent) -> IO ()
+	, obFinished :: GrowingGarden -> IO ()
+	}
+nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ())
 
 -- Instances
 instance Functor Plant where

@@ -13,8 +13,8 @@ import Lseed.Geometry
 import Text.Printf
 import System.Time
 
-initRenderer :: IO ((ClockTime -> ScreenContent) -> IO ())
-initRenderer = do
+cairoObserver :: IO Observer
+cairoObserver = do
 	initGUI
 
 	-- global renderer state
@@ -54,9 +54,13 @@ initRenderer = do
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
 
-	return $ \scGen -> do
-		writeIORef currentGardenRef scGen
-		widgetQueueDraw canvas
+	return $ nullObserver
+		{ obGrowingState = \scGen -> do
+			writeIORef currentGardenRef scGen
+			widgetQueueDraw canvas
+		, obFinished = \_ ->
+			mainQuit
+		}
 
 render :: Double -> Garden a -> Render ()
 render angle garden = do

@@ -3,6 +3,7 @@ import Lseed.DB
 import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.Logic
+import Lseed.Renderer.Cairo
 import Control.Applicative
 
 getGarden = spread <$> map (either (error.show) compileGrammarFile . parseGrammar "" . dbcCode)
@@ -12,4 +13,5 @@ getGarden = spread <$> map (either (error.show) compileGrammarFile . parseGramma
 
 main = do
 	garden <- getGarden
-	runGarden garden
+	obs <- cairoObserver
+	lseedMainLoop obs 1 garden
