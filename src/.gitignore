@@ -4,5 +4,6 @@
 main
 validate
 dbclient
+dbscorer
 fastScorer
 tags
