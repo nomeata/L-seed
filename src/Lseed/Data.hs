@@ -18,7 +18,8 @@ type AnnotatedGarden = Garden StipeInfo
 -- | A plant with metainformatoin
 data Planted a = Planted
 	{ plantPosition :: Double -- ^ Position in the garden, interval [0,1]
-	, genome        :: LSystem  -- ^ Lsystem in use
+	, plantOwner    :: Integer -- ^ Id of the user that owns this plant
+	, genome        :: LSystem -- ^ Lsystem in use
 	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}
 

@@ -9,7 +9,6 @@ import Debug.Trace
 import System.Environment
 import System.Time
 import System.Random
-import Lseed.Renderer.Cairo
 import Text.Printf
 
 parseFile filename = do
@@ -24,18 +23,20 @@ readArgs doit = do
 		putStrLn "L-Seed Demo application."
 		putStrLn "Please pass L-Seed files on the command line."
 	  else	do
-		plants <- mapM parseFile args
-		doit (spread plants)
-  where	spread gs = zipWith (\g p -> Planted ((p + 0.5) / l) g (Stipe () 0 [])) gs [0..]
+		genomes <- mapM parseFile args
+		doit (spread genomes)
+  where	spread gs = zipWith (\g p -> Planted ((fromIntegral p + 0.5) / l) p g (Stipe () 0 [])) gs [0..]
 	  where l = fromIntegral (length gs)
 	      
 
 scoringObs = nullObserver {
 	obFinished = \garden -> do
 		forM_ garden $ \planted -> do
-			printf "%f: %f\n" (plantPosition planted)
-					  (plantLength (phenotype planted))
+			printf "Plant from %d at %.4f: Total size %.4f\n"
+				(plantOwner planted)
+				(plantPosition planted)
+				(plantLength (phenotype planted))
 	}
 
 main = readArgs $ \garden -> do
-	lseedMainLoop False scoringObs 30 garden
+	lseedMainLoop False scoringObs 100 garden
