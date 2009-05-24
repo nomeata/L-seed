@@ -8,10 +8,15 @@ import Control.Applicative
 import Control.Monad
 import Text.Printf
 
-getGarden = spread <$> map (either (error.show) compileGrammarFile . parseGrammar "" . dbcCode)
+getGarden = spread <$> map compileDBCode
 		   <$> getCodeToRun
-  where spread gs = zipWith (\g p -> Planted ((fromIntegral p + 0.5) / l) p g (Stipe () 0 [])) gs [0..]
+  where spread gs = zipWith (\(u,g) p -> Planted ((fromIntegral p + 0.5) / l) u g (Stipe () 0 [])) gs [0..]
 	  where l = fromIntegral (length gs)
+
+compileDBCode dbc =
+	case  parseGrammar "" (dbcCode dbc) of
+		Left err          -> error (show err)
+		Right grammarFile -> (dbcUserID dbc, compileGrammarFile grammarFile)
 
 scoringObs = nullObserver {
 	obFinished = \garden -> do
@@ -20,6 +25,7 @@ scoringObs = nullObserver {
 				(plantOwner planted)
 				(plantPosition planted)
 				(plantLength (phenotype planted))
+		addFinishedSeasonResults garden
 	}
 
 main = do

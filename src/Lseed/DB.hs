@@ -1,17 +1,21 @@
 module Lseed.DB 
 	( DBCode(..)
 	, getCodeToRun
+	, addFinishedSeasonResults
 	) where
 
 import Database.HDBC
 import Database.HDBC.ODBC
 import Data.Map((!))
 
+import Lseed.Data
+import Lseed.Data.Functions
+
 data DBCode = DBCode
 	{ dbcUserName :: String
-	, dbcUserID :: Int
+	, dbcUserID :: Integer
 	, dbcPlantName :: String
-	, dbcPlantID :: Int
+	, dbcPlantID :: Integer
 	, dbcCode :: String
 	}
 	deriving (Show)
@@ -36,4 +40,16 @@ getCodeToRun = withLseedDB $ \conn -> do
 		       (fromSql (m ! "plantname"))
 		       (fromSql (m ! "plantid"))
 		       (fromSql (m ! "code"))
+
+addFinishedSeasonResults garden = withLseedDB $ \conn -> do 
+	run conn "INSERT INTO SEASON VALUES (NULL, False)" []
+	stmt <- prepare conn "SELECT LAST_INSERT_ID()"
+	execute stmt []
+	id <- (head . head) `fmap` fetchAllRows' stmt
+	stmt <- prepare conn "INSERT INTO seasonscore VALUES (NULL, ?, ?, ?)"
+	executeMany stmt $ map (\planted ->
+		[ toSql $ plantOwner planted
+		, id
+		, toSql $ plantLength (phenotype planted)]
+		) garden
 
