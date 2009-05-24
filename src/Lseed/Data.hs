@@ -74,9 +74,15 @@ type Angle = Double
 
 -- | Main loop observers
 data Observer = Observer
+	-- | Called once, before the main loop starts
 	{ obInit :: IO ()
+	-- | Called once per tick, with the current tick number and the current
+	-- state of the garden
 	, obState :: Integer -> GrowingGarden -> IO ()
+	-- | Also called once per tick, with a function that calculates the
+	-- information that should be displayed given a point in time
 	, obGrowingState :: (ClockTime -> ScreenContent) -> IO ()
+	-- | Called before the main loop quits, with the last state of the garden
 	, obFinished :: GrowingGarden -> IO ()
 	}
 nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ())
