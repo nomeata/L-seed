@@ -4,6 +4,7 @@ module Lseed.Grammar.Compile where
 import Lseed.Data
 import Lseed.Grammar
 import Data.List (nub)
+import Data.Maybe(fromMaybe)
 
 compileGrammarFile :: GrammarFile -> LSystem
 compileGrammarFile = map compileGrammarRule
@@ -37,10 +38,11 @@ conformsTo (Plant {pData = si}) = go
 	doCompare GE = (>=)
 
 grToLAction :: GrammarAction -> AnnotatedPlant -> LRuleAction
-grToLAction (SetLength _ ld) (Plant _ l _ _)
-	= EnlargeStipe (calcLengthDescr ld l)
-grToLAction (AddBranches _ frac branches) (Plant _ l _ _)
-	= ForkStipe frac $ map (\(angle,length,_) -> (angle, length)) branches
+grToLAction (SetLength mut ld) (Plant { pLength = l, pUserTag = oldUt })
+	= EnlargeStipe (fromMaybe oldUt mut) (calcLengthDescr ld l)
+grToLAction (AddBranches mut frac branches) (Plant { pLength = l, pUserTag = oldUt })
+	= ForkStipe (fromMaybe oldUt mut) frac $
+		map (\(a,b,c) -> (a,b,fromMaybe oldUt c)) branches
 
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double

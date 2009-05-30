@@ -10,8 +10,6 @@ type GrammarFile = [ GrammarRule ]
 type Priority = Int
 type Weight = Int
 
-type UserTag = String
-
 defaultPriority :: Priority
 defaultPriority = 0
 
@@ -56,7 +54,7 @@ data Condition
 	 
 data GrammarAction
 	= SetLength (Maybe UserTag) LengthDescr
-	| AddBranches (Maybe UserTag) Double [(Angle, Double, (Maybe UserTag))]
+	| AddBranches (Maybe UserTag) Double [(Angle, Double, Maybe UserTag)]
 	deriving (Read,Show)
 
 data LengthDescr = Absolute Double

@@ -49,7 +49,7 @@ plantedToLines planted = runGeometryGenerator (plantPosition planted, 0) 0 $
 		plantToGeometry (phenotype planted)
 
 plantToGeometry :: Plant a -> GeometryGenerator a ()
-plantToGeometry (Plant x len ang ps) = rotated ang $ do
+plantToGeometry (Plant x len ang _ ps) = rotated ang $ do
 		addLine x ((0,0),(0,len * stipeLength))
 		translated (0,len * stipeLength) $ mapM_ plantToGeometry ps
 

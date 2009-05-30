@@ -6,14 +6,14 @@ import Lseed.Geometry
 
 annotatePlant :: Plant Double -> AnnotatedPlant
 annotatePlant = go 0
-  where go d (Plant light len ang ps) = Plant (StipeInfo
+  where go d (Plant light len ang ut ps) = Plant (StipeInfo
 		{ siLength    = len
 		, siSubLength = len + sum (map (siSubLength . pData) ps')
 		, siLight     = light
 		, siSubLight  = light + sum (map (siSubLight . pData) ps')
 		, siAngle     = ang
 		, siDirection = normAngle d'
-		}) len ang ps'
+		}) len ang ut ps'
 	  where ps' = map (go d') ps
 	  	d' = (d+ang)
 

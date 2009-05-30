@@ -5,8 +5,8 @@ import Data.Monoid
 
 -- | Puts the length of the current segment in the additional information field
 plantPieceLengths :: Plant a -> Plant Double
-plantPieceLengths (Plant _ len ang ps) =
-	Plant len len ang (map plantPieceLengths ps)
+plantPieceLengths (Plant _ len ang ut ps) =
+	Plant len len ang ut (map plantPieceLengths ps)
 
 plantLength :: Plant a -> Double
 plantLength = plantTotalSum . plantPieceLengths
@@ -16,9 +16,9 @@ plantTotalSum = getSum . pData . subPieceAccumulate . fmap Sum
 
 subPieceAccumulate :: Monoid m => Plant m -> Plant m
 subPieceAccumulate p = go p
-  where go (Plant x len ang ps) = let ps' = map go ps
-                                      x' = x `mappend` (mconcat $ map pData ps')
-                                  in  Plant x' len ang ps'
+  where go (Plant x len ang ut ps) = let ps' = map go ps
+                                         x' = x `mappend` (mconcat $ map pData ps')
+                                     in  Plant x' len ang ut ps'
 
 -- | Apply a function to each Planted in a Garden
 mapGarden :: (Planted a -> Planted b) -> Garden a -> Garden b

@@ -33,9 +33,13 @@ data Plant a
 	= Plant { pData :: a
 		, pLength :: Double
 		, pAngle :: Angle
+		, pUserTag :: UserTag
 		, pBranches :: [ Plant a ]
 		}
 	deriving (Show)
+
+-- | A straight, untagged plant with length zero and no branches.
+inititalPlant = Plant () 0 0 "" []
 
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant (Maybe Double)
@@ -54,8 +58,8 @@ type AnnotatedPlant = Plant StipeInfo
 
 -- | Possible action to run on a Stipe in a Rule
 data LRuleAction
-	= EnlargeStipe Double -- ^ Extend this Stipe to the given length
-        | ForkStipe Double [(Angle, Double)] -- ^ Branch this stipe at the given fraction and angles and let it grow to the given lengths
+	= EnlargeStipe UserTag Double -- ^ Extend this Stipe to the given length
+        | ForkStipe UserTag Double [(Angle, Double, UserTag)] -- ^ Branch this stipe at the given fraction and angles and let it grow to the given lengths
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function returning an action and weight
@@ -74,6 +78,9 @@ data ScreenContent = ScreenContent
 -- | Light angle
 type Angle = Double
 
+-- | User Tag
+type UserTag = String
+
 -- | Main loop observers
 data Observer = Observer
 	-- | Called once, before the main loop starts
@@ -91,14 +98,16 @@ nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ ->
 
 -- Instances
 instance Functor Plant where
-	fmap f (Plant x len ang ps) = Plant (f x) len ang (map (fmap f) ps)
+	fmap f p = p { pData = f (pData p)
+		     , pBranches = map (fmap f) (pBranches p)
+		     }
 
 instance Foldable Plant where
-	fold (Plant x len ang ps) = x `mappend` (mconcat $ map fold ps)
+	fold p = pData p `mappend` (mconcat $ map fold (pBranches p))
 
 instance Traversable Plant where
-	sequenceA (Plant x len ang ps) =
-		Plant <$> x <*> pure len <*> pure ang <*>
+	sequenceA (Plant x len ang ut ps) =
+		Plant <$> x <*> pure len <*> pure ang <*> pure ut <*>
 			sequenceA (map sequenceA ps)
 
 instance Functor Planted where

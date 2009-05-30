@@ -10,7 +10,7 @@ import Text.Printf
 
 getGarden = spread <$> map compileDBCode
 		   <$> getCodeToRun
-  where spread gs = zipWith (\(u,g) p -> Planted ((fromIntegral p + 0.5) / l) u g (Stipe () 0 [])) gs [0..]
+  where spread gs = zipWith (\(u,g) p -> Planted ((fromIntegral p + 0.5) / l) u g inititalPlant) gs [0..]
 	  where l = fromIntegral (length gs)
 
 compileDBCode dbc =

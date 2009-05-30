@@ -81,7 +81,7 @@ renderPlanted planted = preserve $ do
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant a -> Render ()	
-renderPlant (Plant _ len ang ps) = preserve $ do
+renderPlant (Plant _ len ang ut ps) = preserve $ do
 	rotate ang
 	let l = len + sum (map plantLength ps)
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt l))
@@ -97,7 +97,7 @@ renderLightedPlanted planted = preserve $ do
 	renderLightedPlant (phenotype planted)
 
 renderLightedPlant :: Plant Double -> Render ()	
-renderLightedPlant (Plant intensity len ang ps) = preserve $ do
+renderLightedPlant (Plant intensity len ang ut ps) = preserve $ do
 	rotate ang
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)

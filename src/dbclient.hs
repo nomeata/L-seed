@@ -11,7 +11,7 @@ import Text.Printf
 
 getGarden = spread <$> map (either (error.show) compileGrammarFile . parseGrammar "" . dbcCode)
 		   <$> getCodeToRun
-  where spread gs = zipWith (\g p -> Planted ((fromIntegral p + 0.5) / l) p g (Stipe () 0 [])) gs [0..]
+  where spread gs = zipWith (\g p -> Planted ((fromIntegral p + 0.5) / l) p g inititalPlant) gs [0..]
 	  where l = fromIntegral (length gs)
 
 main = do
