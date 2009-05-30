@@ -12,7 +12,7 @@ import Lseed.Grammar
 lexer       = P.makeTokenParser $ javaStyle
 	{ P.reservedNames = ["RULE", "WHEN", "SET", "Tag", "Light", "Branch", "At",
 			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle",
-			     "BY", "TO", "IMPORTANCE", "WEIGHT"]
+			     "BY", "TO", "IMPORTANCE", "WEIGHT", "Blossom"]
 	}
 
 parens      = P.parens lexer
@@ -80,7 +80,7 @@ pTagTest = do
 	return (UserTagIs value)
 
 pAction :: Parser GrammarAction
-pAction = pBranch <|> pGrow
+pAction = pBranch <|> pGrow <|> pBlossom
 
 pBranch :: Parser GrammarAction
 pBranch = do
@@ -133,7 +133,12 @@ pGrow = do
 		reserved "TO"
 		value <- pFloat
 		return (Absolute value)
-		
+
+pBlossom :: Parser GrammarAction
+pBlossom = do
+	reserved "BLOSSOM"
+	return Blossom
+
 pMatchable =
 	choice $ map (\(a,b) -> const b `fmap` reserved a) $
 		[ ("LIGHT", MatchLight)

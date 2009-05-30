@@ -43,6 +43,8 @@ grToLAction (SetLength mut ld) (Plant { pLength = l, pUserTag = oldUt })
 grToLAction (AddBranches mut frac branches) (Plant { pLength = l, pUserTag = oldUt })
 	= ForkStipe (fromMaybe oldUt mut) frac $
 		map (\(a,b,c) -> (a,b,fromMaybe oldUt c)) branches
+grToLAction Blossom _ 
+	= DoBlossom
 
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double

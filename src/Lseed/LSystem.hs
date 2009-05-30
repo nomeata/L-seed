@@ -11,6 +11,9 @@ import Data.List
 applyLSystem :: RandomGen g => g -> LSystem -> AnnotatedPlant -> GrowingPlant
 applyLSystem rgen rules plant = go plant
   where applyAction :: AnnotatedPlant -> LRuleAction -> GrowingPlant
+	applyAction (Plant _ oldSize ang ut ps) DoBlossom
+		= Plant (GrowingSeed 0) oldSize ang ut $
+                  map go ps
 	applyAction (Plant _ oldSize ang _ ps) (EnlargeStipe ut newSize) 
 		= Plant (EnlargingTo newSize) oldSize ang ut $
                   map go ps

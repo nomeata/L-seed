@@ -64,6 +64,7 @@ type AnnotatedPlant = Plant StipeInfo
 data LRuleAction
 	= EnlargeStipe UserTag Double -- ^ Extend this Stipe to the given length
         | ForkStipe UserTag Double [(Angle, Double, UserTag)] -- ^ Branch this stipe at the given fraction and angles and let it grow to the given lengths
+	| DoBlossom -- ^ Start a to grow a new seed
 	deriving (Show)
 
 -- | A (compiled) rule of an L-system, with a matching function returning an action and weight
