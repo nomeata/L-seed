@@ -47,4 +47,4 @@ lseedMainLoop rt obs maxDays garden = do
 
 			threadDelay (round (tickLength * 1000 * 1000))
 		nextDay (succ tick, growingGarden 1)
-	nextDay (0::Integer, mapGarden (fmap (const Nothing)) garden)
+	nextDay (0::Integer, mapGarden (fmap (const NoGrowth)) garden)

@@ -29,11 +29,13 @@ formatTimeInfo day frac = let minutes = floor (frac * 12 * 60) :: Integer
 -- | Given the fraction of the time passed, returnes the angle of the sunlight
 lightAngle :: Double -> Angle
 lightAngle diff = pi/100 + diff * (98*pi/100)
+
 -- | Calculates the length to be grown
 remainingGrowth :: GrowingPlanted -> Double
 remainingGrowth planted = go (phenotype planted)
-  where go (Plant Nothing   _  _ _ ps) = sum (map go ps)
-	go (Plant (Just l2) l1 _ _ ps) = (l2 - l1) + sum (map go ps)
+  where go (Plant NoGrowth          _  _ _ ps) = sum (map go ps)
+	go (Plant (EnlargingTo l2)  l1 _ _ ps) = (l2 - l1) + sum (map go ps)
+	go (Plant (GrowingSeed done) _ _ _ ps) = (1-done) * seedGrowthCost + sum (map go ps)
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
@@ -80,5 +82,9 @@ applyGrowth r = mapPlanted (applyGrowth' (\a b -> a * (1-r) + b * r))
 
 applyGrowth' :: (Double -> Double -> Double) -> GrowingPlant -> GrowingPlant
 applyGrowth' f = go
-  where go (Plant Nothing   l  ang ut ps) = Plant Nothing   l         ang ut (map go ps)
-	go (Plant (Just l2) l1 ang ut ps) = Plant (Just l2) (f l1 l2) ang ut (map go ps)
+  where go (Plant NoGrowth l ang ut ps) = 
+  		Plant NoGrowth l ang ut (map go ps)
+	go (Plant (EnlargingTo l2) l1 ang ut ps) =
+		Plant (EnlargingTo l2) (f l1 l2) ang ut (map go ps)
+	go (Plant (GrowingSeed done) l ang ut ps) =
+		Plant (GrowingSeed (f (done*seedGrowthCost) seedGrowthCost)) l ang ut (map go ps)

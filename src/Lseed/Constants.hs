@@ -21,6 +21,9 @@ growthPerDay = 3.0
 -- | Cost (in light units) per (length for maintaining the plant)^2, to limit the growth of the plants
 costPerLength = 0.002
 
+-- | Cost (in length growths equivalent) per seed to be grown
+seedGrowthCost = 1.0
+
 -- | Length of one day, in seconds
 dayLength = 10 
 

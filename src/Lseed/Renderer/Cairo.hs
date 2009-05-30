@@ -151,9 +151,9 @@ renderInfo angle garden = do
 	forM_ garden $ \planted -> do
 		let x = plantPosition planted
 		let text1 = printf "Light: %.2f" $
-				siSubLength . pData . phenotype $ planted
-		let text2 = printf "Size: %.2f" $
 				siSubLight . pData . phenotype $ planted
+		let text2 = printf "Size: %.2f" $
+				siSubSize . pData . phenotype $ planted
 		preserve $ do
 			scale 1 (-1)
 			setSourceRGB 0 0 0

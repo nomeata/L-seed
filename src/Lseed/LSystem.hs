@@ -12,25 +12,25 @@ applyLSystem :: RandomGen g => g -> LSystem -> AnnotatedPlant -> GrowingPlant
 applyLSystem rgen rules plant = go plant
   where applyAction :: AnnotatedPlant -> LRuleAction -> GrowingPlant
 	applyAction (Plant _ oldSize ang _ ps) (EnlargeStipe ut newSize) 
-		= Plant (Just newSize) oldSize ang ut $
+		= Plant (EnlargingTo newSize) oldSize ang ut $
                   map go ps
 	applyAction (Plant _ oldSize ang _ ps) (ForkStipe ut pos [])-- No branches
-		= Plant Nothing oldSize ang ut $
+		= Plant NoGrowth oldSize ang ut $
 		  map go ps
 	applyAction (Plant _ oldSize ang _ ps) (ForkStipe ut pos branchSpecs)
 		| 1-pos < eps -- Fork at the end
-		= Plant Nothing oldSize ang ut $
+		= Plant NoGrowth oldSize ang ut $
 			ps' ++
 			newForks
 		| otherwise -- Fork not at the end
-		= Plant Nothing (oldSize * pos) ang ut $
-			[ Plant Nothing (oldSize * (1-pos)) 0 ut ps' ] ++
+		= Plant NoGrowth (oldSize * pos) ang ut $
+			[ Plant NoGrowth (oldSize * (1-pos)) 0 ut ps' ] ++
 			newForks
-	  where newForks = map (\(angle, newSize, ut) -> Plant (Just newSize) 0 angle ut []) branchSpecs
+	  where newForks = map (\(angle, newSize, ut) -> Plant (EnlargingTo newSize) 0 angle ut []) branchSpecs
 		ps' = map go ps
 
 	noAction (Plant _ oldSize ang ut ps)
-		= Plant Nothing oldSize ang ut $ map go ps
+		= Plant NoGrowth oldSize ang ut $ map go ps
 
 	go :: AnnotatedPlant -> GrowingPlant
  	go p = case filter (isValid.snd) $ map (second (applyAction p)) $ mapMaybe ($ p) rules of

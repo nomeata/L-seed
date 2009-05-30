@@ -12,7 +12,7 @@ import System.Time (ClockTime)
 type Garden a = [ Planted a ]
 
 -- | Named variants of a garden, for more expressive type signatures
-type GrowingGarden = Garden (Maybe Double)
+type GrowingGarden = Garden GrowthState
 type AnnotatedGarden = Garden StipeInfo
 
 -- | A plant with metainformatoin
@@ -24,7 +24,7 @@ data Planted a = Planted
 	}
 
 -- | Named variants of a Planted, for more expressive type signatures
-type GrowingPlanted = Planted (Maybe Double)
+type GrowingPlanted = Planted GrowthState
 type AnnotatedPlanted = Planted StipeInfo
 
 -- | A plant, which is
@@ -42,9 +42,6 @@ data Plant a
 -- | A straight, untagged plant with length zero and no branches.
 inititalPlant = Plant () 0 0 "" []
 
--- | Named variants of a Plant, for more expressive type signatures
-type GrowingPlant = Plant (Maybe Double)
-
 data StipeInfo = StipeInfo
 	{ siLength    :: Double -- ^ a bit redundant, but what shells
 	, siSubLength :: Double
@@ -55,6 +52,12 @@ data StipeInfo = StipeInfo
 	}
 	deriving (Show)
 
+data GrowthState = NoGrowth
+		 | EnlargingTo Double -- ^ value indicates the growth target 
+		 | GrowingSeed Double -- ^ value indicates the current state [0..1]
+
+-- | Named variants of a Plant, for more expressive type signatures
+type GrowingPlant = Plant GrowthState
 type AnnotatedPlant = Plant StipeInfo
 
 -- | Possible action to run on a Stipe in a Rule
