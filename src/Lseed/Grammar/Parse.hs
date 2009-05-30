@@ -10,7 +10,7 @@ import Lseed.Grammar
 
 -- The lexer
 lexer       = P.makeTokenParser $ javaStyle
-	{ P.reservedNames = ["RULE", "WHEN", "Tag", "Light", "Branch", "At",
+	{ P.reservedNames = ["RULE", "WHEN", "SET", "Tag", "Light", "Branch", "At",
 			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle",
 			     "BY", "TO", "IMPORTANCE", "WEIGHT"]
 	}
@@ -38,7 +38,11 @@ parseGrammar = parse pFile
 type Parser = Parsec String ()
 
 pFile :: Parser GrammarFile
-pFile = whiteSpace >> many1 pRule
+pFile = do
+	whiteSpace 
+	gf <- many1 pRule
+	eof
+	return gf
 
 pRule :: Parser GrammarRule
 pRule = do
@@ -47,16 +51,15 @@ pRule = do
 	condition <- option (Always True) $ do
 		reserved "WHEN"
 		pCondition
-	actions <- many1 pAction
-	maybe (return ()) fail (actionsAreInvalid actions)
+	action <- pAction
+	-- maybe (return ()) fail (actionIsInvalid action)
 	priority <- option 1 $ do
 		reserved "IMPORTANCE"
 		fromIntegral `fmap` natural
 	weight <- option 1 $ do
 		reserved "WEIGHT"
 		fromIntegral `fmap` natural
-	skipMany nl
-	return $ GrammarRule name priority weight condition actions
+	return $ GrammarRule name priority weight condition action
 
 pCondition :: Parser Condition
 pCondition = buildExpressionParser table term
@@ -82,30 +85,45 @@ pAction = pBranch <|> pGrow
 pBranch :: Parser GrammarAction
 pBranch = do
 	reserved "BRANCH"
-	reserved "AT"
-	fraction <- pFloat
-	unless (0 <= fraction && fraction <= 100) $
-		fail "Fork position has to be in between 0% and 100%."
-	reservedOp "%"
-	reserved "ANGLE"
-	reservedOp "="
-	angle <- pFloat
-	comma
-	reserved "LENGTH"
-	reservedOp "="
-	length <- pFloat
-	mTag <- optionMaybe $ do
+	fraction <- (do
+		reserved "AT"
+		fraction <- pFloat
+		unless (0 <= fraction && fraction <= 100) $
+			fail "Fork position has to be in between 0% and 100%."
+		reservedOp "%"
+		return fraction
+		) <|> (return 100)
+	branches <- many1 $ do
+		reserved "ANGLE"
+		reservedOp "="
+		angle <- pFloat
 		comma
+		reserved "LENGTH"
+		reservedOp "="
+		length <- pFloat
+		mTag <- optionMaybe $ do
+			comma
+			reserved "TAG"
+			reservedOp "="
+			pString
+		return (angle, length, mTag)
+	mTag <- optionMaybe $ do
+		reserved "SET"
 		reserved "TAG"
 		reservedOp "="
 		pString
-	return (AddBranch (fraction/100) angle length mTag)
+	return (AddBranches mTag (fraction/100) branches)
 
 pGrow :: Parser GrammarAction
 pGrow = do
 	reserved "GROW"
 	desc <- by <|> to
-	return (SetLength desc Nothing)
+	mTag <- optionMaybe $ do
+		reserved "SET"
+		reserved "TAG"
+		reservedOp "="
+		pString
+	return (SetLength mTag desc)
   where by = do
 		reserved "BY"
 		value <- pFloat
@@ -116,7 +134,6 @@ pGrow = do
 		value <- pFloat
 		return (Absolute value)
 		
-
 pMatchable =
 	choice $ map (\(a,b) -> const b `fmap` reserved a) $
 		[ ("LIGHT", MatchLight)
@@ -146,5 +163,3 @@ pFloat = do value <- try (do
 	    (deg >> return (value / 180 * pi)) <|> return value
 
 deg = reservedOp "\194\176"
-	
-nl = char '\n'

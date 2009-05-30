@@ -25,7 +25,7 @@ data GrammarRule = GrammarRule
 	, grPriority :: Priority
 	, grWeight :: Weight
 	, grCondition :: Condition
-	, grActions :: [GrammarAction]
+	, grAction :: GrammarAction
 	}
 	deriving (Read,Show)
 
@@ -55,26 +55,12 @@ data Condition
 	deriving (Read,Show)
 	 
 data GrammarAction
-	= SetLength LengthDescr (Maybe UserTag)
-	| AddBranch Double Angle Double (Maybe UserTag)
+	= SetLength (Maybe UserTag) LengthDescr
+	| AddBranches (Maybe UserTag) Double [(Angle, Double, (Maybe UserTag))]
 	deriving (Read,Show)
 
 data LengthDescr = Absolute Double
 	         | Additional Double
                  | AdditionalRelative Double -- ^ in Percent
 	deriving (Read,Show)
-
-actionsAreInvalid :: [GrammarAction] -> Maybe String
-actionsAreInvalid [_] = Nothing
-actionsAreInvalid acts
-	= if all isAddBranch acts 
-          then case nub (map addBranchAngle acts) of
-	    [frac] -> Nothing
-	    _      -> Just "Can not branch at different points at the same time."
-	  else        Just "Can not grow and branch at the same time."
-
-isAddBranch (AddBranch _ _ _ _) = True
-isAddBranch _ = False
-
-addBranchAngle (AddBranch angle _ _ _) = angle
 

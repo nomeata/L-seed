@@ -11,7 +11,7 @@ compileGrammarFile = map compileGrammarRule
 compileGrammarRule :: GrammarRule -> LRule
 compileGrammarRule rule plant = 
 	if   plant `conformsTo` grCondition rule
-	then Just ({- grPriority rule, -}grWeight rule, grToLAction (grActions rule) plant)
+	then Just ({- grPriority rule, -}grWeight rule, grToLAction (grAction rule) plant)
 	else Nothing
 
 
@@ -36,16 +36,11 @@ conformsTo (Stipe si l _) = go
 	doCompare Greater = (>)
 	doCompare GE = (>=)
 
-grToLAction :: [GrammarAction] -> AnnotatedPlant -> LRuleAction
-grToLAction [SetLength ld _] (Stipe _ l _)
+grToLAction :: GrammarAction -> AnnotatedPlant -> LRuleAction
+grToLAction (SetLength _ ld) (Stipe _ l _)
 	= EnlargeStipe (calcLengthDescr ld l)
-grToLAction acts  (Stipe _ l _)
-	| all isAddBranch acts
-	= case nub (map addBranchAngle acts) of
-	    [frac] -> ForkStipe frac $ map (\(AddBranch _ angle length _) -> (angle, length)) acts
-	    _ -> error "Can not branch at different points at the same time"
-	| otherwise
-	= error "Can not grow and branch at the same time"
+grToLAction (AddBranches _ frac branches) (Stipe _ l _)
+	= ForkStipe frac $ map (\(angle,length,_) -> (angle, length)) branches
 
 -- | Length reductions are silenty turned into no-ops
 calcLengthDescr :: LengthDescr -> Double -> Double
