@@ -1,7 +1,7 @@
 -- | Data definitions for L-seed
 module Lseed.Data where 
 
-import Data.Foldable (Foldable, fold)
+import Data.Foldable (Foldable, foldMap)
 import Data.Traversable (Traversable, sequenceA)
 import Control.Applicative ((<$>),(<*>),pure)
 import Control.Arrow (second)
@@ -111,7 +111,7 @@ instance Functor Plant where
 		     }
 
 instance Foldable Plant where
-	fold p = pData p `mappend` (mconcat $ map fold (pBranches p))
+	foldMap f p = mconcat $ f (pData p) : map (foldMap f) (pBranches p)
 
 instance Traversable Plant where
 	sequenceA (Plant x len ang ut ps) =
@@ -122,7 +122,7 @@ instance Functor Planted where
 	fmap f planted = planted { phenotype = fmap f (phenotype planted) }
 
 instance Foldable Planted where
-	fold planted = fold (phenotype planted)
+	foldMap f planted = foldMap f (phenotype planted)
 
 instance Traversable Planted where
 	sequenceA planted = (\x -> planted { phenotype = x }) <$> sequenceA (phenotype planted)
