@@ -49,10 +49,9 @@ plantedToLines planted = runGeometryGenerator (plantPosition planted, 0) 0 $
 		plantToGeometry (phenotype planted)
 
 plantToGeometry :: Plant a -> GeometryGenerator a ()
-plantToGeometry (Stipe x len ps) = do
+plantToGeometry (Plant x len ang ps) = rotated ang $ do
 		addLine x ((0,0),(0,len * stipeLength))
-		translated (0,len * stipeLength) $ forM_ ps $ \(angle,p) ->
-			rotated angle $ plantToGeometry p
+		translated (0,len * stipeLength) $ mapM_ plantToGeometry ps
 
 -- | Lines are annotated with its plant, identified by the extra data
 gardenToLines :: Garden a -> [(Line, a)]

@@ -16,7 +16,7 @@ compileGrammarRule rule plant =
 
 
 conformsTo :: AnnotatedPlant -> Condition -> Bool
-conformsTo (Stipe si l _) = go
+conformsTo (Plant {pData = si}) = go
   where go (Always b)     = b
 	go (c1 `And` c2)  = go c1 && go c2
 	go (c1 `Or` c2)   = go c1 || go c2
@@ -37,9 +37,9 @@ conformsTo (Stipe si l _) = go
 	doCompare GE = (>=)
 
 grToLAction :: GrammarAction -> AnnotatedPlant -> LRuleAction
-grToLAction (SetLength _ ld) (Stipe _ l _)
+grToLAction (SetLength _ ld) (Plant _ l _ _)
 	= EnlargeStipe (calcLengthDescr ld l)
-grToLAction (AddBranches _ frac branches) (Stipe _ l _)
+grToLAction (AddBranches _ frac branches) (Plant _ l _ _)
 	= ForkStipe frac $ map (\(angle,length,_) -> (angle, length)) branches
 
 -- | Length reductions are silenty turned into no-ops

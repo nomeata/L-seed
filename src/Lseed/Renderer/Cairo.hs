@@ -81,14 +81,15 @@ renderPlanted planted = preserve $ do
 	renderPlant (phenotype planted)
 
 renderPlant :: Plant a -> Render ()	
-renderPlant (Stipe _ len ps) = do
-	let l = len + sum (map (plantLength.snd) ps)
+renderPlant (Plant _ len ang ps) = preserve $ do
+	rotate ang
+	let l = len + sum (map plantLength ps)
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt l))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	stroke
 	translate 0 (len * stipeLength)
-	forM_ ps $ \(angle, p) -> preserve $ rotate angle >> renderPlant p
+	mapM_ renderPlant ps
 		
 renderLightedPlanted :: Planted Double -> Render ()
 renderLightedPlanted planted = preserve $ do
@@ -96,7 +97,8 @@ renderLightedPlanted planted = preserve $ do
 	renderLightedPlant (phenotype planted)
 
 renderLightedPlant :: Plant Double -> Render ()	
-renderLightedPlant (Stipe intensity len ps) = do
+renderLightedPlant (Plant intensity len ang ps) = preserve $ do
+	rotate ang
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	let normalized = intensity / (len * stipeLength)
@@ -106,7 +108,7 @@ renderLightedPlant (Stipe intensity len ps) = do
 		setSourceRGBA 1 1 0 normalized
 		stroke
 	translate 0 (len * stipeLength)
-	forM_ ps $ \(angle, p) -> preserve $ rotate angle >> renderLightedPlant p
+	mapM_ renderLightedPlant ps
 		
 {- Line based rendering deprecated
 

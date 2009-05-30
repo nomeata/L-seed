@@ -28,13 +28,14 @@ type GrowingPlanted = Planted (Maybe Double)
 
 -- | A plant, which is
 data Plant a 
-	-- | a stipe with a length (factor of stipeLength)
-	--   and a list of plants sprouting at the end, at a given radial angle.
-	= Stipe a Double [ (Double, Plant a) ]
+	-- | a stipe with a length (factor of stipeLength), an angle relative
+	-- to the parent stipe and a list of plants sprouting at the end
+	= Plant { pData :: a
+		, pLength :: Double
+		, pAngle :: Angle
+		, pBranches :: [ Plant a ]
+		}
 	deriving (Show)
-
-mapSprouts :: (Plant a -> Plant b) -> [ (Double, Plant a) ] -> [ (Double, Plant b) ]
-mapSprouts = map . second
 
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant (Maybe Double)
@@ -90,14 +91,15 @@ nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ ->
 
 -- Instances
 instance Functor Plant where
-	fmap f (Stipe x len ps) = Stipe (f x) len (map (second (fmap f)) ps)
+	fmap f (Plant x len ang ps) = Plant (f x) len ang (map (fmap f) ps)
 
 instance Foldable Plant where
-	fold (Stipe x len ps) = x `mappend` (mconcat $ map (fold.snd) ps)
+	fold (Plant x len ang ps) = x `mappend` (mconcat $ map fold ps)
 
 instance Traversable Plant where
-	sequenceA (Stipe x len ps) =
-		Stipe <$> x <*> pure len <*> sequenceA (map (\(a,p) -> (,) a <$> sequenceA p) ps)
+	sequenceA (Plant x len ang ps) =
+		Plant <$> x <*> pure len <*> pure ang <*>
+			sequenceA (map sequenceA ps)
 
 instance Functor Planted where
 	fmap f planted = planted { phenotype = fmap f (phenotype planted) }

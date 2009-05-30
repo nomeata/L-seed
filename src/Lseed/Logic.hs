@@ -32,8 +32,8 @@ lightAngle diff = pi/100 + diff * (98*pi/100)
 -- | Calculates the length to be grown
 remainingGrowth :: GrowingPlanted -> Double
 remainingGrowth planted = go (phenotype planted)
-  where go (Stipe Nothing _    ps) = sum (map (go.snd) ps)
-	go (Stipe (Just l2) l1 ps) = (l2 - l1) + sum (map (go.snd) ps)
+  where go (Plant Nothing   _  _ ps) = sum (map go ps)
+	go (Plant (Just l2) l1 _ ps) = (l2 - l1) + sum (map go ps)
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
@@ -80,5 +80,5 @@ applyGrowth r = mapPlanted (applyGrowth' (\a b -> a * (1-r) + b * r))
 
 applyGrowth' :: (Double -> Double -> Double) -> GrowingPlant -> GrowingPlant
 applyGrowth' f = go
-  where go (Stipe Nothing l ps)    = Stipe Nothing l (mapSprouts go ps)
-	go (Stipe (Just l2) l1 ps) = Stipe (Just l2) (f l1 l2) (mapSprouts go ps)
+  where go (Plant Nothing   l  ang ps) = Plant Nothing   l         ang (map go ps)
+	go (Plant (Just l2) l1 ang ps) = Plant (Just l2) (f l1 l2) ang (map go ps)

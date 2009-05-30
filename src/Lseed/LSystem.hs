@@ -11,26 +11,26 @@ import Data.List
 applyLSystem :: RandomGen g => g -> LSystem -> AnnotatedPlant -> GrowingPlant
 applyLSystem rgen rules plant = go plant
   where applyAction :: AnnotatedPlant -> LRuleAction -> GrowingPlant
-	applyAction (Stipe _ oldSize ps) (EnlargeStipe newSize) 
-		= Stipe (Just newSize) oldSize $
-                  mapSprouts go ps
-	applyAction (Stipe _ oldSize ps) (ForkStipe pos [])-- No branches
-		= Stipe Nothing oldSize $
-		  mapSprouts go ps
-	applyAction (Stipe _ oldSize ps) (ForkStipe pos branchSpecs)
+	applyAction (Plant _ oldSize ang ps) (EnlargeStipe newSize) 
+		= Plant (Just newSize) oldSize ang $
+                  map go ps
+	applyAction (Plant _ oldSize ang ps) (ForkStipe pos [])-- No branches
+		= Plant Nothing oldSize ang $
+		  map go ps
+	applyAction (Plant _ oldSize ang ps) (ForkStipe pos branchSpecs)
 		| 1-pos < eps -- Fork at the end
-		= Stipe Nothing oldSize $
+		= Plant Nothing oldSize ang $
 			ps' ++
 			newForks
 		| otherwise -- Fork not at the end
-		= Stipe Nothing (oldSize * pos) $
-			[ (0, Stipe Nothing (oldSize * (1-pos)) ps') ] ++
+		= Plant Nothing (oldSize * pos) ang $
+			[ Plant Nothing (oldSize * (1-pos)) 0 ps' ] ++
 			newForks
-	  where newForks = map (\(angle, newSize) -> (angle, Stipe (Just newSize) 0 [])) branchSpecs
-		ps' = mapSprouts go ps
+	  where newForks = map (\(angle, newSize) -> Plant (Just newSize) 0 angle []) branchSpecs
+		ps' = map go ps
 
-	noAction (Stipe _ oldSize ps)
-		= Stipe Nothing oldSize $ mapSprouts go ps
+	noAction (Plant _ oldSize ang ps)
+		= Plant Nothing oldSize ang $ map go ps
 
 	go :: AnnotatedPlant -> GrowingPlant
  	go p = case filter (isValid.snd) $ map (second (applyAction p)) $ mapMaybe ($ p) rules of
@@ -39,8 +39,8 @@ applyLSystem rgen rules plant = go plant
 
 	-- Some general checks to rule out unwanted rules
 	isValid :: GrowingPlant -> Bool
-	isValid (Stipe newSize oldSize ps) = anglesOk
-	  where angles = sort $ map fst ps
+	isValid (Plant newSize oldSize ang ps) = anglesOk
+	  where angles = sort $ map pAngle ps
 		-- Are all angles not too close to each other?
                 anglesOk = all (> minAngle) (zipWith (flip (-)) angles (tail angles))
 
