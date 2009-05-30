@@ -17,11 +17,11 @@ compileGrammarRule rule plant =
 
 
 conformsTo :: AnnotatedPlant -> Condition -> Bool
-conformsTo (Plant {pData = si}) = go
+conformsTo (Plant {pData = si, pUserTag = ut}) = go
   where go (Always b)     = b
 	go (c1 `And` c2)  = go c1 && go c2
 	go (c1 `Or` c2)   = go c1 || go c2
-	go (UserTagIs ut) = error "UserTags are not supported yet"
+	go (UserTagIs ut') = ut' == ut
 	go (NumCond what how val) = doCompare how (getMatchable what) val
 	
 	getMatchable MatchLength    = siLength si

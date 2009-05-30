@@ -30,4 +30,4 @@ readArgs doit = do
 		
 main = readArgs $ \garden -> do
 	obs <- cairoObserver
-	lseedMainLoop True obs 1 garden
+	lseedMainLoop True obs 30 garden
