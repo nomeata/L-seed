@@ -7,6 +7,7 @@ module Lseed.DB
 import Database.HDBC
 import Database.HDBC.ODBC
 import Data.Map((!))
+import qualified Data.Map as M
 
 import Lseed.Data
 import Lseed.Data.Functions
@@ -42,14 +43,16 @@ getCodeToRun = withLseedDB $ \conn -> do
 		       (fromSql (m ! "code"))
 
 addFinishedSeasonResults garden = withLseedDB $ \conn -> do 
+	let owernerscore = M.toList $ foldr go M.empty garden
+		where go p = M.insertWith (+) (plantOwner p) (plantLength (phenotype p))
 	run conn "INSERT INTO SEASON VALUES (NULL, False)" []
 	stmt <- prepare conn "SELECT LAST_INSERT_ID()"
 	execute stmt []
 	id <- (head . head) `fmap` fetchAllRows' stmt
 	stmt <- prepare conn "INSERT INTO seasonscore VALUES (NULL, ?, ?, ?)"
-	executeMany stmt $ map (\planted ->
-		[ toSql $ plantOwner planted
+	executeMany stmt $ map (\(o,l)->
+		[ toSql $ o
 		, id
-		, toSql $ plantLength (phenotype planted)]
-		) garden
+		, toSql $ l
+		]) owernerscore
 

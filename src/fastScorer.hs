@@ -4,6 +4,7 @@ import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.Constants
 import Lseed.Mainloop
+import qualified Data.Map as M
 import Control.Monad
 import Debug.Trace
 import System.Environment
@@ -36,7 +37,10 @@ scoringObs = nullObserver {
 				(plantOwner planted)
 				(plantPosition planted)
 				(plantLength (phenotype planted))
+		let owernerscore = foldr (\p -> M.insertWith (+) (plantOwner p) (plantLength (phenotype p))) M.empty garden
+		forM_ (M.toList owernerscore) $ \(o,s) -> 
+			printf "Sum for %d: %.4f\n" o s
 	}
 
 main = readArgs $ \garden -> do
-	lseedMainLoop False scoringObs 100 garden
+	lseedMainLoop False scoringObs 30 garden
