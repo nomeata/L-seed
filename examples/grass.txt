@@ -1,0 +1,7 @@
+Rule "Some height is good"
+WHEN length < 1
+GROW TO 1
+
+Rule "Be fertile"
+WHEN length >= 1
+BLOSSOM

@@ -1,0 +1,7 @@
+Rule "Some height is good"
+WHEN length < 1
+BRANCH ANGLE = 40°, LENGTH = 1
+
+Rule "Be fertile"
+WHEN length >= 1
+BLOSSOM
