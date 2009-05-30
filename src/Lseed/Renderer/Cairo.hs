@@ -8,6 +8,7 @@ import Data.IORef
 import Data.Maybe
 import Lseed.Data
 import Lseed.Data.Functions
+import Lseed.StipeInfo
 import Lseed.Constants
 import Lseed.Geometry
 import Text.Printf
@@ -62,29 +63,33 @@ cairoObserver = do
 			mainQuit
 		}
 
-render :: Double -> Garden a -> Render ()
+render :: Double -> Garden () -> Render ()
 render angle garden = do
+	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
+	-- by running it here. This needs modification to lightenGarden and mapLine
+	let garden' = map (mapPlanted annotatePlant) (lightenGarden angle garden)
 	renderGround
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
+
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
 	--mapM_ renderLine (gardenToLines garden)
 	--mapM_ renderLightedPlanted (lightenGarden angle garden)
-	mapM_ renderPlanted garden
+	--
+	mapM_ renderPlanted garden'
 
-	renderInfo angle garden
+	renderInfo angle garden'
 
-renderPlanted :: Planted a -> Render ()
+renderPlanted :: AnnotatedPlanted -> Render ()
 renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
 	setSourceRGB 0 0.8 0
 	setLineCap LineCapRound
 	renderPlant (phenotype planted)
 
-renderPlant :: Plant a -> Render ()	
-renderPlant (Plant _ len ang ut ps) = preserve $ do
+renderPlant :: AnnotatedPlant -> Render ()	
+renderPlant (Plant si len ang ut ps) = preserve $ do
 	rotate ang
-	let l = len + sum (map plantLength ps)
-	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt l))
+	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
 	stroke
@@ -143,13 +148,12 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		fill
 
 renderInfo angle garden = do
-	let gardenWithLight = lightenGarden angle garden
-	forM_ gardenWithLight $ \planted -> do
+	forM_ garden $ \planted -> do
 		let x = plantPosition planted
 		let text1 = printf "Light: %.2f" $
-				plantTotalSum (phenotype planted)
+				siSubLength . pData . phenotype $ planted
 		let text2 = printf "Size: %.2f" $
-				plantLength (phenotype planted)
+				siSubLight . pData . phenotype $ planted
 		preserve $ do
 			scale 1 (-1)
 			setSourceRGB 0 0 0

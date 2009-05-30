@@ -25,6 +25,7 @@ data Planted a = Planted
 
 -- | Named variants of a Planted, for more expressive type signatures
 type GrowingPlanted = Planted (Maybe Double)
+type AnnotatedPlanted = Planted StipeInfo
 
 -- | A plant, which is
 data Plant a 
