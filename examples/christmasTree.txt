@@ -29,6 +29,9 @@ RULE "Story 4"
 WHEN TAG = "Root4"
 BRANCH AT 100% ANGLE = 70°, LENGTH = 0.5, Tag = ""
                ANGLE = -70°, LENGTH = 0.5, Tag = ""
-               ANGLE = 0°, LENGTH = 1, Tag = ""
+               ANGLE = 0°, LENGTH = 0.5, Tag = "Tip"
 SET TAG = ""
 
+RULE "Star"
+WHEN TAG = "Tip"
+Blossom
