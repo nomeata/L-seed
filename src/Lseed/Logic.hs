@@ -14,6 +14,7 @@ import System.Time
 import Text.Printf
 import System.Random
 import Data.List
+import qualified Data.Foldable as F
 
 timeSpanFraction :: Double -> ClockTime -> ClockTime -> Double
 timeSpanFraction spanLenght (TOD sa pa) (TOD sb pb) = 
@@ -50,14 +51,26 @@ applyGenome :: (RandomGen g) => Angle -> g -> GrowingGarden -> GrowingGarden
 applyGenome angle rgen garden = concat $ zipWith applyGenome' rgens aGarden
   where rgens = unfoldr (Just . split) rgen
 	aGarden = annotateGarden angle garden
-	applyGenome' rgen planted = (:[]) $
+	applyGenome' rgen planted =
 		if   remainingGrowth siGrowth planted < eps
 		then planted { phenotype = applyLSystem rgen
 							(genome planted)
 							(phenotype planted)
 		     -- here, we throw away the last eps of growth. Is that a problem?
-			     }
-	 	else fmap siGrowth planted
+			     } :
+		     collectSeeds rgen planted
+	 	else [fmap siGrowth planted]
+	collectSeeds :: (RandomGen g) => g -> AnnotatedPlanted -> GrowingGarden
+	collectSeeds rgen planted = snd $ F.foldr go (rgen,[]) planted
+	  where go si (rgen,ps) = case siGrowth si of
+	  		GrowingSeed _ ->
+				let (posDelta,rgen') = randomR (-0.05,0.05) rgen
+				    p = Planted (plantPosition planted + posDelta)
+			                          (plantOwner planted)
+						  (genome planted)
+						  (fmap (const NoGrowth) inititalPlant)
+				in (rgen, p:ps)
+			_ -> (rgen,ps)
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
@@ -67,8 +80,11 @@ growPlanted planted light =
 	in  if remainingLength > eps
             then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
-                     allowedGrowths = max 0 $
-                                      (growthPerDayAndLight * lightAvailable + growthPerDay) /
+		     lowerBound = if sizeOfPlant < smallPlantBoostSize
+		                  then smallPlantBoostLength
+				  else 0
+                     allowedGrowths = max lowerBound $
+                                      (growthPerDayAndLight * lightAvailable) /
                                       (fromIntegral ticksPerDay) 
 		     growthThisTick = min remainingLength allowedGrowths
 		     growthFraction = growthThisTick / remainingLength 

@@ -15,9 +15,11 @@ ticksPerDay = 9
 -- 1 means: Can grow one stipeLength during one day, when catching the sunlight with one branch of (projected) length screenwidth
 growthPerDayAndLight = 15.0
 
--- | Default growth (for plants without light)
---growthPerDay = 0.5
-growthPerDay = 3.0
+-- | Plants up to this size get an boost in growths
+smallPlantBoostSize = 0.5
+
+-- | Minimum growths for plants of size less then smallPlantBoostSize
+smallPlantBoostLength = 0.2
 
 -- | Cost (in light units) per (length for maintaining the plant)^2, to limit the growth of the plants
 costPerLength = 0.002
