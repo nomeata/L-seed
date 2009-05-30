@@ -71,8 +71,8 @@ render angle garden = do
 
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
 	--mapM_ renderLine (gardenToLines garden)
-	--mapM_ renderLightedPlanted (lightenGarden angle garden)
-	--
+	--mapM_ renderLightedPlanted garden
+
 	mapM_ renderPlanted garden
 
 	renderInfo angle garden
@@ -101,17 +101,17 @@ renderPlant (Plant si len ang ut ps) = preserve $ do
 		fill
 	  _ -> return ()
 		
-renderLightedPlanted :: Planted Double -> Render ()
+renderLightedPlanted :: AnnotatedPlanted -> Render ()
 renderLightedPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
 	renderLightedPlant (phenotype planted)
 
-renderLightedPlant :: Plant Double -> Render ()	
-renderLightedPlant (Plant intensity len ang ut ps) = preserve $ do
+renderLightedPlant :: AnnotatedPlant -> Render ()	
+renderLightedPlant (Plant si len ang ut ps) = preserve $ do
 	rotate ang
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
-	let normalized = intensity / (len * stipeLength)
+	let normalized = siLight si / (len * stipeLength)
 	when (normalized > 0) $ do
 		--liftIO $ print normalized
 		setLineWidth (2*stipeWidth)
