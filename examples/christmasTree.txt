@@ -1,0 +1,34 @@
+RULE "Start"
+WHEN Length <= 0
+GROW BY 1
+SET TAG = "Root1"
+
+RULE "Story 1"
+WHEN TAG = "Root1"
+// No Percentage means 100%
+BRANCH ANGLE = 70°, LENGTH = 2, Tag = ""
+       ANGLE = -70°, LENGTH = 2, Tag = ""
+       ANGLE = 0°, LENGTH = 1, TAG = "Root2"
+SET TAG = ""
+
+RULE "Story 2"
+WHEN TAG = "Root2"
+BRANCH AT 100% ANGLE = 70°, LENGTH = 1.5, Tag = ""
+               ANGLE = -70°, LENGTH = 1.5, Tag = ""
+               ANGLE = 0°, LENGTH = 1, TAG = "Root3"
+SET TAG = ""
+
+RULE "Story 3"
+WHEN TAG = "Root3"
+BRANCH AT 100% ANGLE = 70°, LENGTH = 1, Tag = ""
+               ANGLE = -70°, LENGTH = 1, Tag = ""
+               ANGLE = 0°, LENGTH = 1, TAG = "Root4"
+SET TAG = ""
+
+RULE "Story 4"
+WHEN TAG = "Root4"
+BRANCH AT 100% ANGLE = 70°, LENGTH = 0.5, Tag = ""
+               ANGLE = -70°, LENGTH = 0.5, Tag = ""
+               ANGLE = 0°, LENGTH = 1, Tag = ""
+SET TAG = ""
+
