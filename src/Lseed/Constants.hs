@@ -22,13 +22,13 @@ smallPlantBoostSize = 0.5
 smallPlantBoostLength = 0.2
 
 -- | Cost (in light units) per (length for maintaining the plant)^2, to limit the growth of the plants
-costPerLength = 0.002
+costPerLength = 0.001
 
 -- | Cost (in length growths equivalent) per seed to be grown
 seedGrowthCost = 1.0
 
 -- | Length of one day, in seconds
-dayLength = 10 
+dayLength = 10
 
 -- | ε
 eps = 1e-9
