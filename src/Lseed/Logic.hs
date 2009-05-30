@@ -31,11 +31,13 @@ lightAngle :: Double -> Angle
 lightAngle diff = pi/100 + diff * (98*pi/100)
 
 -- | Calculates the length to be grown
-remainingGrowth :: GrowingPlanted -> Double
-remainingGrowth planted = go (phenotype planted)
-  where go (Plant NoGrowth          _  _ _ ps) = sum (map go ps)
-	go (Plant (EnlargingTo l2)  l1 _ _ ps) = (l2 - l1) + sum (map go ps)
-	go (Plant (GrowingSeed done) _ _ _ ps) = (1-done) * seedGrowthCost + sum (map go ps)
+remainingGrowth :: (a -> GrowthState) -> Planted a -> Double
+remainingGrowth getGrowths planted = go (phenotype planted)
+  where go p@(Plant { pLength = l1, pBranches = ps }) =
+ 	   sum (map go ps) + case getGrowths (pData p) of
+  		NoGrowth         -> 0
+                EnlargingTo l2   -> l2 - l1
+                GrowingSeed done -> (1-done) * seedGrowthCost 
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
@@ -43,24 +45,25 @@ growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
 	garden' = applyGenome angle rgen garden
 
 -- | For all Growing plants that are done, find out the next step
+-- This involves creating new plants if some are done
 applyGenome :: (RandomGen g) => Angle -> g -> GrowingGarden -> GrowingGarden 
-applyGenome angle rgen garden = zipWith3 applyGenome' rgens garden lGarden
+applyGenome angle rgen garden = concat $ zipWith applyGenome' rgens aGarden
   where rgens = unfoldr (Just . split) rgen
-	lGarden = lightenGarden angle garden
-	applyGenome' rgen planted lPlanted =
-		if   remainingGrowth planted < eps
+	aGarden = annotateGarden angle garden
+	applyGenome' rgen planted = (:[]) $
+		if   remainingGrowth siGrowth planted < eps
 		then planted { phenotype = applyLSystem rgen
 							(genome planted)
-							(annotatePlant (phenotype lPlanted))
+							(phenotype planted)
 		     -- here, we throw away the last eps of growth. Is that a problem?
 			     }
-	 	else planted
+	 	else fmap siGrowth planted
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
 growPlanted :: GrowingPlanted -> Double -> (Double -> GrowingPlanted)
 growPlanted planted light = 
-	let remainingLength = remainingGrowth planted
+	let remainingLength = remainingGrowth id planted
 	in  if remainingLength > eps
             then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
