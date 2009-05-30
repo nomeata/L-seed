@@ -12,7 +12,8 @@ ticksPerDay = 9
 
 -- | Plant length growth per Day and Light
 --
--- 1 means: Can grow one stipeLength during one day, when catching the sunlight with one branch of (projected) length screenwidth
+-- 1 means: Can grow one stipeLength during one day, when catching the sunlight
+-- with one branch of (projected) length screenwidth
 growthPerDayAndLight = 15.0
 
 -- | Plants up to this size get an boost in growths
@@ -22,13 +23,16 @@ smallPlantBoostSize = 0.5
 smallPlantBoostLength = 0.2
 
 -- | Cost (in light units) per (length for maintaining the plant)^2, to limit the growth of the plants
-costPerLength = 0.001
+costPerLength = 0.0005
 
 -- | Cost (in length growths equivalent) per seed to be grown
 seedGrowthCost = 1.0
 
+-- | Branch translucency. Proportion of light that is let through by a plant
+lightFalloff = 0.3
+
 -- | Length of one day, in seconds
-dayLength = 10
+dayLength = 8.0
 
 -- | ε
 eps = 1e-9
@@ -37,4 +41,4 @@ eps = 1e-9
 minAngle = pi/20
 
 -- | Derived constants
-tickLength = fromIntegral dayLength / fromIntegral ticksPerDay
+tickLength = dayLength / fromIntegral ticksPerDay

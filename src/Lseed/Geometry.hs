@@ -19,8 +19,6 @@ import Control.Applicative
 type Point = (Double, Double)
 type Line  = (Point, Point)
 
-lightFalloff = 0.7
-
 lineLength ((x1,y1),(x2,y2)) = sqrt ((x1-x2)^2 + (y1-y2)^2)
 
 -- | from http://www.pdas.com/lineint.htm
@@ -135,9 +133,9 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 							   llines
 			sorted = sortBy (\(l1,_,_) (l2,_,_) -> aboveFirst mid l1 l2)
                                         curlines
-			curlines' = snd $ mapAccumL shine 1 sorted
-			shine intensity (l,i,amount) = ( intensity * lightFalloff
-						       , (l,i,amount + intensity * width))
+			curlines' = snd $ mapAccumL shine width sorted
+			shine intensity (l,i,amount) = (intensity * lightFalloff, 
+						       (l,i,amount + (1-lightFalloff) * intensity))
 
 	polygons = concatMap go intervals
 	  where go (x1,x2) = if null sorted then [nothingPoly] else lightedPolys
