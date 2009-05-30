@@ -72,10 +72,6 @@ growPlanted planted light =
 		 in \tickDiff -> applyGrowth (tickDiff * growthFraction) planted
 	    else const planted
 
--- | Finishes Growth by reading lenght from the additional information field
-finishGrowth :: GrowingPlant -> Plant ()
-finishGrowth = fmap (const ()) . applyGrowth' (flip const)
-
 -- | Applies Growth at given fraction, leaving the target length in place
 applyGrowth :: Double -> GrowingPlanted -> GrowingPlanted
 applyGrowth r = mapPlanted (applyGrowth' (\a b -> a * (1-r) + b * r))
