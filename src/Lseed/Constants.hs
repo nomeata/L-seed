@@ -4,6 +4,7 @@ module Lseed.Constants where
 groundLevel = 0.03
 budSize     = 0.01
 stipeLength = 0.05
+blossomSize = 0.03
 stipeWidth  = 0.01
 
 -- | Light and growths interpolation frequency

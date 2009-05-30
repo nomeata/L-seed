@@ -4,15 +4,19 @@ import Lseed.Data
 import Lseed.Data.Functions
 import Lseed.Geometry
 
-annotatePlant :: Plant Double -> AnnotatedPlant
+annotateGarden :: Angle -> GrowingGarden -> AnnotatedGarden
+annotateGarden angle  = map (mapPlanted annotatePlant) . lightenGarden angle
+
+annotatePlant :: Plant (GrowthState, Double) -> AnnotatedPlant
 annotatePlant = go 0
-  where go d (Plant light len ang ut ps) = Plant (StipeInfo
+  where go d (Plant (gs, light) len ang ut ps) = Plant (StipeInfo
 		{ siLength    = len
 		, siSubLength = len + sum (map (siSubLength . pData) ps')
 		, siLight     = light
 		, siSubLight  = light + sum (map (siSubLight . pData) ps')
 		, siAngle     = ang
 		, siDirection = normAngle d'
+		, siGrowth    = gs
 		}) len ang ut ps'
 	  where ps' = map (go d') ps
 	  	d' = (d+ang)

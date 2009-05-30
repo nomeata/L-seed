@@ -39,7 +39,7 @@ remainingGrowth planted = go (phenotype planted)
 
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
 growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
-  where lightings = map (plantTotalSum . phenotype) $ lightenGarden angle garden'
+  where lightings = map (plantTotalSum . fmap snd . phenotype) $ lightenGarden angle garden'
 	garden' = applyGenome angle rgen garden
 
 -- | For all Growing plants that are done, find out the next step

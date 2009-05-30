@@ -7,6 +7,7 @@ import Lseed.Geometry
 import Lseed.Data.Functions
 import Lseed.Constants
 import Lseed.Logic
+import Lseed.StipeInfo
 import System.Time
 import System.Random
 import Control.Concurrent
@@ -41,7 +42,7 @@ lseedMainLoop rt obs maxDays garden = do
 					      fromIntegral ticksPerDay
 				    timeInfo = formatTimeInfo day dayDiff
 				    visualizeAngle = lightAngle dayDiff
-				    gardenNow = mapGarden (fmap (const ())) $
+				    gardenNow = annotateGarden visualizeAngle $ 
 				                growingGarden tickDiff
 				in ScreenContent gardenNow visualizeAngle timeInfo
 

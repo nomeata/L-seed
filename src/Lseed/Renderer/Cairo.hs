@@ -8,7 +8,6 @@ import Data.IORef
 import Data.Maybe
 import Lseed.Data
 import Lseed.Data.Functions
-import Lseed.StipeInfo
 import Lseed.Constants
 import Lseed.Geometry
 import Text.Printf
@@ -63,11 +62,10 @@ cairoObserver = do
 			mainQuit
 		}
 
-render :: Double -> Garden () -> Render ()
+render :: Double -> AnnotatedGarden -> Render ()
 render angle garden = do
 	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
 	-- by running it here. This needs modification to lightenGarden and mapLine
-	let garden' = map (mapPlanted annotatePlant) (lightenGarden angle garden)
 	renderGround
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 
@@ -75,9 +73,9 @@ render angle garden = do
 	--mapM_ renderLine (gardenToLines garden)
 	--mapM_ renderLightedPlanted (lightenGarden angle garden)
 	--
-	mapM_ renderPlanted garden'
+	mapM_ renderPlanted garden
 
-	renderInfo angle garden'
+	renderInfo angle garden
 
 renderPlanted :: AnnotatedPlanted -> Render ()
 renderPlanted planted = preserve $ do
@@ -92,9 +90,16 @@ renderPlant (Plant si len ang ut ps) = preserve $ do
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
+	setSourceRGB 0 0.8 0
 	stroke
 	translate 0 (len * stipeLength)
 	mapM_ renderPlant ps
+	case siGrowth si of
+	  GrowingSeed done -> do
+	  	setSourceRGB 1 1 0
+	  	arc 0 0 (done * blossomSize/2) 0 (2*pi)
+		fill
+	  _ -> return ()
 		
 renderLightedPlanted :: Planted Double -> Render ()
 renderLightedPlanted planted = preserve $ do

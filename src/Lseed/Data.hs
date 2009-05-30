@@ -49,12 +49,15 @@ data StipeInfo = StipeInfo
 	, siSubLight  :: Double
 	, siAngle     :: Angle
 	, siDirection :: Angle
+	, siGrowth    :: GrowthState
 	}
 	deriving (Show)
 
+-- | A GrowingPlant can be growing in one of these three ways:
 data GrowthState = NoGrowth
 		 | EnlargingTo Double -- ^ value indicates the growth target 
 		 | GrowingSeed Double -- ^ value indicates the current state [0..1]
+	deriving (Show)
 
 -- | Named variants of a Plant, for more expressive type signatures
 type GrowingPlant = Plant GrowthState
@@ -75,7 +78,7 @@ type LSystem = [LRule]
 
 -- | Representation of what is on screen
 data ScreenContent = ScreenContent
-	{ scGarden     :: Garden ()
+	{ scGarden     :: AnnotatedGarden
 	, scLightAngle :: Double
 	, scTime       :: String
 	}

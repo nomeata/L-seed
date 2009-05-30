@@ -14,6 +14,7 @@ import Data.Traversable (mapM,forM)
 import Prelude hiding (mapM)
 import Control.Monad.ST
 import Data.STRef
+import Control.Applicative
 
 type Point = (Double, Double)
 type Line  = (Point, Point)
@@ -172,19 +173,19 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 							, (p1,p2,p3,p4,intensity))
 
 -- | Annotates each piece of the garden with the amount of line it attacts
-lightenGarden :: Double -> Garden a -> Garden Double
+lightenGarden :: Angle -> Garden a -> Garden (a, Double)
 lightenGarden angle = mapLine (lightenLines angle) 0 (+) 
 
 
 -- | Helper to apply a function that works on lines to a garden
 mapLine :: (forall b. [(Line, b)] -> [(Line, b, c)]) ->
-           c -> (c -> c -> c) -> Garden a -> Garden c
+           c -> (c -> c -> c) -> Garden a -> Garden (a,c)
 mapLine process init combine garden = runST $ do
-	gardenWithPointers <- mapM (mapM (const (newSTRef init))) garden
+	gardenWithPointers <- mapM (mapM (\d -> (,) d <$> newSTRef init)) garden
 	let linesWithPointers = gardenToLines gardenWithPointers
 	let processedLines = process linesWithPointers
 	-- Update values via the STRef
-	forM_ processedLines $ \(_,stRef,result) -> modifySTRef stRef (combine result)
+	forM_ processedLines $ \(_,(_,stRef),result) -> modifySTRef stRef (combine result)
 	-- Undo the STRefs
-	mapM (mapM readSTRef) gardenWithPointers
+	mapM (mapM (\(d,stRef) -> (,) d <$> readSTRef stRef)) gardenWithPointers
 
