@@ -5,7 +5,7 @@ GROW TO 2
 RULE Forking
 WHEN length >= 2
 BRANCH AT 100% ANGLE = -60°, LENGTH = 1
-BRANCH AT 100% ANGLE = -30°, LENGTH = 1
-BRANCH AT 100% ANGLE = 0°, LENGTH = 1
-BRANCH AT 100% ANGLE = 30°, LENGTH = 1
-BRANCH AT 100% ANGLE = 60°, LENGTH = 1
+               ANGLE = -30°, LENGTH = 1
+               ANGLE = 0°, LENGTH = 1
+               ANGLE = 30°, LENGTH = 1
+               ANGLE = 60°, LENGTH = 1
