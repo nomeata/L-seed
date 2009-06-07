@@ -62,7 +62,10 @@ applyGenome angle rgen garden = concat $ zipWith applyGenome' rgens aGarden
 	collectSeeds rgen planted = snd $ F.foldr go (rgen,[]) planted
 	  where go si (rgen,newPlants) = case siGrowth si of
 	  		GrowingSeed _ ->
-				let (posDelta,rgen') = randomR (-0.05,0.05) rgen
+				let spread = ( - siHeight si + siOffset si
+				             ,   siHeight si + siOffset si
+					     )
+				    (posDelta,rgen') = randomR spread rgen
 				    p = Planted (plantPosition planted + posDelta)
 			                          (plantOwner planted)
 						  (genome planted)
