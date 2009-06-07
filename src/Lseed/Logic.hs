@@ -60,15 +60,15 @@ applyGenome angle rgen garden = concat $ zipWith applyGenome' rgens aGarden
 	 	else [fmap siGrowth planted]
 	collectSeeds :: (RandomGen g) => g -> AnnotatedPlanted -> GrowingGarden
 	collectSeeds rgen planted = snd $ F.foldr go (rgen,[]) planted
-	  where go si (rgen,ps) = case siGrowth si of
+	  where go si (rgen,newPlants) = case siGrowth si of
 	  		GrowingSeed _ ->
 				let (posDelta,rgen') = randomR (-0.05,0.05) rgen
 				    p = Planted (plantPosition planted + posDelta)
 			                          (plantOwner planted)
 						  (genome planted)
 						  (fmap (const NoGrowth) inititalPlant)
-				in (rgen, p:ps)
-			_ -> (rgen,ps)
+				in (rgen, p:newPlants)
+			_ -> (rgen,newPlants)
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field
