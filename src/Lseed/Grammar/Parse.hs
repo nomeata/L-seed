@@ -6,6 +6,7 @@ import Text.Parsec.Language (javaStyle)
 import Text.Parsec.Expr
 import Control.Monad
 
+import Lseed.Data
 import Lseed.Grammar
 
 -- The lexer
@@ -107,22 +108,14 @@ pBranch = do
 			reservedOp "="
 			pString
 		return (angle, length, mTag)
-	mTag <- optionMaybe $ do
-		reserved "SET"
-		reserved "TAG"
-		reservedOp "="
-		pString
+	mTag <- pSetTag
 	return (AddBranches mTag (fraction/100) branches)
 
 pGrow :: Parser GrammarAction
 pGrow = do
 	reserved "GROW"
 	desc <- by <|> to
-	mTag <- optionMaybe $ do
-		reserved "SET"
-		reserved "TAG"
-		reservedOp "="
-		pString
+	mTag <- pSetTag
 	return (SetLength mTag desc)
   where by = do
 		reserved "BY"
@@ -137,7 +130,15 @@ pGrow = do
 pBlossom :: Parser GrammarAction
 pBlossom = do
 	reserved "BLOSSOM"
-	return Blossom
+	mTag <- pSetTag
+	return (Blossom mTag)
+
+pSetTag :: Parser (Maybe UserTag)
+pSetTag = optionMaybe $ do
+		reserved "SET"
+		reserved "TAG"
+		reservedOp "="
+		pString
 
 pMatchable =
 	choice $ map (\(a,b) -> const b `fmap` reserved a) $
