@@ -28,6 +28,7 @@ data Planted a = Planted
 	, genome        :: GrammarFile -- ^ Lsystem in use
 	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}
+	deriving (Show)
 
 -- | Named variants of a Planted, for more expressive type signatures
 type GrowingPlanted = Planted GrowthState
