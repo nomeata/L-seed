@@ -8,6 +8,12 @@ import Control.Arrow (second)
 import Data.Monoid
 import System.Time (ClockTime)
 
+-- | User Tag
+type UserTag = String
+
+-- | Light angle
+type Angle = Double
+
 -- | A list of plants, together with their position in the garden, in the interval [0,1]
 type Garden a = [ Planted a ]
 
@@ -19,7 +25,7 @@ type AnnotatedGarden = Garden StipeInfo
 data Planted a = Planted
 	{ plantPosition :: Double -- ^ Position in the garden, interval [0,1]
 	, plantOwner    :: Integer -- ^ Id of the user that owns this plant
-	, genome        :: LSystem -- ^ Lsystem in use
+	, genome        :: GrammarFile -- ^ Lsystem in use
 	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}
 
@@ -63,31 +69,12 @@ data GrowthState = NoGrowth
 type GrowingPlant = Plant GrowthState
 type AnnotatedPlant = Plant StipeInfo
 
--- | Possible action to run on a Stipe in a Rule
-data LRuleAction
-	= EnlargeStipe UserTag Double -- ^ Extend this Stipe to the given length
-        | ForkStipe UserTag Double [(Angle, Double, UserTag)] -- ^ Branch this stipe at the given fraction and angles and let it grow to the given lengths
-	| DoBlossom UserTag -- ^ Start a to grow a new seed
-	deriving (Show)
-
--- | A (compiled) rule of an L-system, with a matching function returning an action and weight
-type LRule = (AnnotatedPlant -> Maybe (Int, LRuleAction))
-
--- | An complete LSystem 
-type LSystem = [LRule]
-
 -- | Representation of what is on screen
 data ScreenContent = ScreenContent
 	{ scGarden     :: AnnotatedGarden
 	, scLightAngle :: Double
 	, scTime       :: String
 	}
-
--- | Light angle
-type Angle = Double
-
--- | User Tag
-type UserTag = String
 
 -- | Main loop observers
 data Observer = Observer
@@ -103,6 +90,67 @@ data Observer = Observer
 	, obFinished :: GrowingGarden -> IO ()
 	}
 nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ())
+
+
+-- | A complete grammar file
+type GrammarFile = [ GrammarRule ]
+
+type Priority = Int
+type Weight = Int
+
+defaultPriority :: Priority
+defaultPriority = 0
+
+defaultWeight :: Weight
+defaultWeight = 1
+
+-- | A single Rule. For now, only single branches
+--   can be matched, not whole subtree structures
+data GrammarRule = GrammarRule
+	{ grName :: String
+	, grPriority :: Priority
+	, grWeight :: Weight
+	, grCondition :: Condition
+	, grAction :: GrammarAction
+	}
+	deriving (Read,Show)
+
+data Matchable
+	= MatchLight
+	| MatchSubLight
+	| MatchLength
+	| MatchSubLength
+	| MatchDirection
+	| MatchAngle
+	deriving (Read,Show)
+
+data Cmp
+	= LE
+	| Less
+	| Equals
+	| Greater
+	| GE 
+	deriving (Read,Show)
+
+data Condition
+	= Always Bool -- constant conditions
+	| Condition `And` Condition
+	| Condition `Or` Condition
+	| UserTagIs String
+	| NumCond Matchable Cmp Double
+	deriving (Read,Show)
+	 
+data GrammarAction
+	= SetLength (Maybe UserTag) LengthDescr
+	| AddBranches (Maybe UserTag) Double [(Angle, Double, Maybe UserTag)]
+	| Blossom (Maybe UserTag)
+	deriving (Read,Show)
+
+data LengthDescr = Absolute Double
+	         | Additional Double
+                 | AdditionalRelative Double -- ^ in Percent
+	deriving (Read,Show)
+
 
 -- Instances
 instance Functor Plant where

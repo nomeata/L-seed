@@ -8,37 +8,50 @@ import System.Random
 import Control.Arrow (second)
 import Data.List
 
-applyLSystem :: RandomGen g => g -> LSystem -> AnnotatedPlant -> GrowingPlant
+applyLSystem :: RandomGen g => g -> GrammarFile -> AnnotatedPlant -> GrowingPlant
 applyLSystem rgen rules plant = go plant
-  where applyAction :: AnnotatedPlant -> LRuleAction -> GrowingPlant
-	applyAction (Plant _ oldSize ang _ ps) (DoBlossom ut)
-		= Plant (GrowingSeed 0) oldSize ang ut $
-                  map go ps
-	applyAction (Plant _ oldSize ang _ ps) (EnlargeStipe ut newSize) 
-		= Plant (EnlargingTo newSize) oldSize ang ut $
-                  map go ps
-	applyAction (Plant _ oldSize ang _ ps) (ForkStipe ut pos [])-- No branches
-		= Plant NoGrowth oldSize ang ut $
-		  map go ps
-	applyAction (Plant _ oldSize ang _ ps) (ForkStipe ut pos branchSpecs)
-		| 1-pos < eps -- Fork at the end
-		= Plant NoGrowth oldSize ang ut $
-			ps' ++
-			newForks
-		| otherwise -- Fork not at the end
-		= Plant NoGrowth (oldSize * pos) ang ut $
-			[ Plant NoGrowth (oldSize * (1-pos)) 0 ut ps' ] ++
-			newForks
-	  where newForks = map (\(angle, newSize, ut) -> Plant (EnlargingTo newSize) 0 angle ut []) branchSpecs
+  where go :: AnnotatedPlant -> GrowingPlant
+ 	go p@(Plant { pUserTag = oldUt
+		    , pLength = oldSize
+		    , pAngle = ang
+		    , pBranches = ps
+		    })
+		= case filter (isValid.snd) $
+			map applyRule $
+			filter (\r -> p `conformsTo` grCondition r) $
+			rules
+		of
+		[]      -> noAction
+		choices -> chooseWeighted rgen choices
+	  where applyRule :: GrammarRule -> (Int, GrowingPlant)
+	  	applyRule r = (grWeight r, applyAction (grAction r))
+	  
+	  	applyAction :: GrammarAction -> GrowingPlant
+	  	applyAction (SetLength mut ld)
+			= p { pData    = EnlargingTo (calcLengthDescr ld oldSize)
+			    , pUserTag = fromMaybe oldUt mut
+			    , pBranches = ps'
+			    }
+	  	applyAction (AddBranches mut pos branches) 
+			| 1-pos < eps -- Fork at the end
+			= p { pData = NoGrowth
+			    , pUserTag = ut
+			    , pBranches = ps' ++ newForks}
+			| otherwise -- Fork not at the end
+			= Plant NoGrowth (oldSize * pos) ang ut $
+			  [ Plant NoGrowth (oldSize * (1-pos)) 0 ut ps' ] ++
+			  newForks
+		 where	ut = fromMaybe oldUt mut
+			newForks = map (\(angle, newSize, ut) -> Plant (EnlargingTo newSize) 0 angle (fromMaybe oldUt ut) []) branches
+		applyAction (Blossom mut) 
+			= p { pData = GrowingSeed 0
+			    , pBranches = ps'
+			    }
+	
+		noAction = p { pData = NoGrowth, pBranches = ps' }
+		
 		ps' = map go ps
 
-	noAction (Plant _ oldSize ang ut ps)
-		= Plant NoGrowth oldSize ang ut $ map go ps
-
-	go :: AnnotatedPlant -> GrowingPlant
- 	go p = case filter (isValid.snd) $ map (second (applyAction p)) $ mapMaybe ($ p) rules of
-		[]      -> noAction p
-		choices -> chooseWeighted rgen choices
 
 	-- Some general checks to rule out unwanted rules
 	isValid :: GrowingPlant -> Bool
@@ -50,3 +63,33 @@ applyLSystem rgen rules plant = go plant
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list
         (c,_) = randomR (1, length replicated) rgen
+
+
+
+conformsTo :: AnnotatedPlant -> Condition -> Bool
+conformsTo (Plant {pData = si, pUserTag = ut}) = go
+  where go (Always b)     = b
+	go (c1 `And` c2)  = go c1 && go c2
+	go (c1 `Or` c2)   = go c1 || go c2
+	go (UserTagIs ut') = ut' == ut
+	go (NumCond what how val) = doCompare how (getMatchable what) val
+	
+	getMatchable MatchLength    = siLength si
+	getMatchable MatchSubLength = siSubLength si
+	getMatchable MatchLight     = siLight si
+	getMatchable MatchSubLight  = siSubLight si
+	getMatchable MatchDirection = siDirection si
+	getMatchable MatchAngle     = siAngle si
+
+	doCompare LE = (<=)
+	doCompare Less = (<)
+	doCompare Equals = (==)
+	doCompare Greater = (>)
+	doCompare GE = (>=)
+
+-- | Length reductions are silenty turned into no-ops
+calcLengthDescr :: LengthDescr -> Double -> Double
+calcLengthDescr (Absolute val) l  = max l val
+calcLengthDescr (Additional val) l = max l (l + val)
+calcLengthDescr (AdditionalRelative val) l = max l (l + l * (val/100))
+

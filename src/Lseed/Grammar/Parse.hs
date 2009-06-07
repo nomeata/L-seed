@@ -7,7 +7,6 @@ import Text.Parsec.Expr
 import Control.Monad
 
 import Lseed.Data
-import Lseed.Grammar
 
 -- The lexer
 lexer       = P.makeTokenParser $ javaStyle

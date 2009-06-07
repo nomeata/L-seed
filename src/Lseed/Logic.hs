@@ -3,8 +3,6 @@ module Lseed.Logic where
 
 import Lseed.Data
 import Lseed.Data.Functions
-import Lseed.Grammar
-import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.LSystem
 import Lseed.Constants
