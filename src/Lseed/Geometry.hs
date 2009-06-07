@@ -99,7 +99,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 		-- End of a line. Calculate crosses with all open line, and remove it from the
 		-- list of open lines
 		step ol (x, True, (l,_)) = 
-			let ol' = filter (/= l) ol
+			let ol' = delete l ol
 			    crosses = map projectPoint $ mapMaybe (crossPoint l) ol'
 			in (ol', x:crosses)
 
