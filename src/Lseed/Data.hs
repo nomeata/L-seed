@@ -57,6 +57,8 @@ data StipeInfo = StipeInfo
 	, siAngle     :: Angle
 	, siDirection :: Angle
 	, siGrowth    :: GrowthState
+	, siOffset    :: Double -- ^ Sideways position, relative to Plant origin
+	, siHeight    :: Double -- ^ Vertical distance from bottom
 	}
 	deriving (Show)
 
