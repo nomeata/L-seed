@@ -50,6 +50,7 @@ applyLSystem rgen rules plant = let (maxPrio, result) = go maxPrio plant -- grea
 			newForks = map (\(angle, newSize, ut) -> Plant (EnlargingTo newSize) 0 angle (fromMaybe oldUt ut) []) branches
 		applyAction (Blossom mut) 
 			= p { pData = GrowingSeed 0
+			    , pUserTag = fromMaybe oldUt mut
 			    , pBranches = ps'
 			    }
 	
