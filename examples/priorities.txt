@@ -1,0 +1,23 @@
+RULE "Start"
+WHEN Length <= 0 AND TAG = ""
+BRANCH AT 100%
+ANGLE = -45°, LENGTH = 1, TAG = ""
+ANGLE = 0°, LENGTH = 1, TAG = "Main"
+ANGLE = 45°, LENGTH = 1, TAG = ""
+SET TAG = "Done"
+PRIORITY 10
+
+RULE "Grow Fast"
+WHEN TAG = "Main"
+GROW BY 1
+SET TAG = "MainBlossom"
+PRIORITY 2
+
+RULE "Blossom 1"
+WHEN TAG = "MainBlossom"
+BLOSSOM
+SET TAG = "Main"
+
+RULE "Blossom 2"
+WHEN TAG = ""
+BLOSSOM
