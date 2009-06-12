@@ -9,22 +9,27 @@ import Control.Arrow (second)
 import Data.List
 
 applyLSystem :: RandomGen g => g -> GrammarFile -> AnnotatedPlant -> GrowingPlant
-applyLSystem rgen rules plant = go plant
-  where go :: AnnotatedPlant -> GrowingPlant
- 	go p@(Plant { pUserTag = oldUt
-		    , pLength = oldSize
-		    , pAngle = ang
-		    , pBranches = ps
-		    })
-		= case filter (isValid.snd) $
-			map applyRule $
-			filter (\r -> p `conformsTo` grCondition r) $
-			rules
-		of
-		[]      -> noAction
-		choices -> chooseWeighted rgen choices
-	  where applyRule :: GrammarRule -> (Int, GrowingPlant)
-	  	applyRule r = (grWeight r, applyAction (grAction r))
+applyLSystem rgen rules plant = let (maxPrio, result) = go maxPrio plant -- great use of lazyness here
+                                in  result
+  where go :: Int -> AnnotatedPlant -> (Int, GrowingPlant)
+ 	go maxPrio p@(Plant { pUserTag = oldUt
+		            , pLength = oldSize
+		            , pAngle = ang
+		            , pBranches = ps
+		            })
+		= let choices = map applyRule $
+			        filter (\r -> p `conformsTo` grCondition r) $
+			        rules
+		  in ( maximum (0 : subPrios ++ map fst choices)
+		     , case filter (isValid . snd) $
+		     	    map snd $
+		            filter ((>= maxPrio) . fst) $
+			    choices
+		       of []       -> noAction
+		          choices' -> chooseWeighted rgen choices'
+		     )
+	  where applyRule :: GrammarRule -> (Int, (Int, GrowingPlant))
+	  	applyRule r = (grPriority r, (grWeight r, applyAction (grAction r)))
 	  
 	  	applyAction :: GrammarAction -> GrowingPlant
 	  	applyAction (SetLength mut ld)
@@ -50,8 +55,7 @@ applyLSystem rgen rules plant = go plant
 	
 		noAction = p { pData = NoGrowth, pBranches = ps' }
 		
-		ps' = map go ps
-
+		(subPrios, ps') = unzip $ map (go maxPrio) ps
 
 	-- Some general checks to rule out unwanted rules
 	isValid :: GrowingPlant -> Bool
