@@ -60,6 +60,7 @@ applyLSystem rgen rules plant = go plant
 		-- Are all angles not too close to each other?
                 anglesOk = all (> minAngle) (zipWith (flip (-)) angles (tail angles))
 
+chooseWeighted _    []   = error "Can not choose from an empty list"
 chooseWeighted rgen list = replicated !! (c-1)
   where replicated = concatMap (\(w,e) -> replicate w e) list
         (c,_) = randomR (1, length replicated) rgen
