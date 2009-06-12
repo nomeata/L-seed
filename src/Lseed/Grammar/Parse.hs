@@ -12,7 +12,7 @@ import Lseed.Data
 lexer       = P.makeTokenParser $ javaStyle
 	{ P.reservedNames = ["RULE", "WHEN", "SET", "Tag", "Light", "Branch", "At",
 			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle",
-			     "BY", "TO", "IMPORTANCE", "WEIGHT", "Blossom"]
+			     "BY", "TO", "PRIORITY", "WEIGHT", "Blossom"]
 	}
 
 parens      = P.parens lexer
@@ -54,7 +54,7 @@ pRule = do
 	action <- pAction
 	-- maybe (return ()) fail (actionIsInvalid action)
 	priority <- option 1 $ do
-		reserved "IMPORTANCE"
+		reserved "PRIORITY"
 		fromIntegral `fmap` natural
 	weight <- option 1 $ do
 		reserved "WEIGHT"
