@@ -80,9 +80,9 @@ data ScreenContent = ScreenContent
 	}
 
 -- | Main loop observers
-data Observer = Observer
+data Observer = Observer {
 	-- | Called once, before the main loop starts
-	{ obInit :: IO ()
+	  obInit :: IO ()
 	-- | Called once per tick, with the current tick number and the current
 	-- state of the garden
 	, obState :: Integer -> GrowingGarden -> IO ()
