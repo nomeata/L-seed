@@ -4,9 +4,10 @@ set -e
 
 cd $(dirname $0)
 
-haddock -o doc/ -h $(find src/Lseed -name \*.hs)
+runhaskell ./Setup.hs configure
+runhaskell ./Setup.hs haddock --hyperlink-source
 
 if [ "$USER" = "jojo" ]
 then
-	rsync -rva --delete doc/ bl0rg:public_html/L-seed-doc/
+	rsync -rva --delete dist/doc/html/L-seed/ bl0rg:public_html/L-seed-doc/
 fi

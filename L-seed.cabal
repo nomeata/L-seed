@@ -1,6 +1,6 @@
 Name:           L-seed
 Version:        0.1
-Cabal-Version:  >= 1.2
+Cabal-Version:  >= 1.6
 License:        BSD3
 License-file:   LICENSE
 Author:         Joachim Breitner <mail@joachim-breitner.de>
@@ -38,6 +38,12 @@ Flag WebTools
         This is not needed when you just want to test the game locally.
   Default: False
 
+Flag RendererCairo
+  Description:
+        This builds the cairo renderer. This will ususally be needed, unless
+        you build the WebTools only.
+  Default: True
+
 Library
   Hs-Source-Dirs: src/
   Exposed-Modules:
@@ -50,7 +56,6 @@ Library
         Lseed.LSystem		
         Lseed.Logic		
         Lseed.Mainloop		
-        Lseed.Renderer.Cairo		
         Lseed.StipeInfo		
   Build-Depends:
         base    == 3.*,
@@ -58,9 +63,14 @@ Library
         containers,
         old-time,
         mtl,
-        cairo,
-        gtk,
         parsec == 3.*
+
+  if flag(RendererCairo)
+    Exposed-Modules:
+        Lseed.Renderer.Cairo		
+    Build-Depends:
+        cairo == 0.10.*,
+        gtk == 0.10.*
 
   if flag(Database) 
     Build-Depends:
@@ -71,11 +81,13 @@ Library
 
   if flag(WebTools) 
     Build-Depends:
-        json
+        json == 0.4.*
 
 Executable runGarden
   Main-Is:        main.hs
   Hs-Source-Dirs: src/
+  if ! flag(RendererCairo)
+    Buildable:    False
 
 Executable validate
   Main-Is:        validate.hs
@@ -90,7 +102,7 @@ Executable fastScorer
 Executable dbclient
   Main-Is:        dbclient.hs
   Hs-Source-Dirs: src/
-  if ! flag(Database)
+  if ! flag(Database) || ! flag(RendererCairo)
     Buildable:    False
 
 Executable dbscorer
@@ -98,3 +110,8 @@ Executable dbscorer
   Hs-Source-Dirs: src/
   if ! flag(Database)
     Buildable:    False
+
+Source-repository head
+  Type:     git
+  Location: git://git.nomeata.de/L-seed.git
+
