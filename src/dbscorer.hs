@@ -1,7 +1,6 @@
 import Lseed.Data
 import Lseed.Data.Functions
 import Lseed.DB
-import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.Mainloop
 import Control.Applicative
@@ -16,7 +15,7 @@ getGarden = spread <$> map compileDBCode
 compileDBCode dbc =
 	case  parseGrammar "" (dbcCode dbc) of
 		Left err          -> error (show err)
-		Right grammarFile -> (dbcUserID dbc, compileGrammarFile grammarFile)
+		Right grammarFile -> (dbcUserID dbc, grammarFile)
 
 scoringObs = nullObserver {
 	obFinished = \garden -> do

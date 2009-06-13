@@ -1,6 +1,5 @@
 import Lseed.Data
 import Lseed.Data.Functions
-import Lseed.Grammar.Compile
 import Lseed.Grammar.Parse
 import Lseed.Constants
 import Lseed.Mainloop
@@ -15,7 +14,7 @@ import Text.Printf
 parseFile filename = do
 	content <- readFile filename
 	let result = parseGrammar filename content
-	return $ either (error.show) compileGrammarFile result
+	return $ either (error.show) id result
 
 readArgs doit = do
 	args <- getArgs
