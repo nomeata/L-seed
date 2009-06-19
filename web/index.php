@@ -1,6 +1,7 @@
 <?php
+	function __autoload($class_name) { require_once $class_name . '.php'; }
 
-//require("php/communication.php");
+//require("php/Communication.php");
 
 //$res = GetPlantList();
 //echo $res;
@@ -12,6 +13,8 @@
 <html>
 	<head>
 		<title>L-Seed</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
 		<link rel="stylesheet" type="text/css" href="ext/resources/css/xtheme-slate.css" />

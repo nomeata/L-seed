@@ -31,7 +31,7 @@ Lseed.Communication = function() {
 		var params = {};
 		Ext.apply(params, opts, { cmd: cmd });
 		Ext.Ajax.request({
-			url: 'php/communication.php',
+			url: 'php/Communication.php',
 			success: this.handleResponse.createDelegate(this)
 			,failure: function(response, opts) {
 				Ext.MessageBox.alert("Fehler", "Es konnte keine Verbindung zum Server hergestellt werden.")
@@ -479,7 +479,7 @@ Lseed.Editor = function() {
 		
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'SavePlant'
-			,name: plant.data.Name
+			,plant: plant.data.Name
 			,code: plant.data.Code
 		});
 	};
