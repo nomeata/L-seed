@@ -4,6 +4,8 @@
 	session_start();
 	if (get_magic_quotes_gpc()) { $_POST = array_map( 'stripslashes', $_POST ); }
 	
+	$_GLOBALS['WINDOWS'] = false;
+	
 	include("Plant.php");
 	include("User.php");
 	include("Controller.php");
@@ -18,6 +20,9 @@
 		switch ($_POST["cmd"]) {
 			case "RPC":
 				$username = $_POST["user"];
+				if ($username == null) {
+					$username = $_SESSION['user'];
+				}
 				$pw = $_POST["pw"];
 				$plantname = $_POST["plant"];
 				$code = $_POST["code"];

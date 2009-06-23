@@ -85,9 +85,11 @@
 			
 			$res = $this->m_Controller->HandleRemoteProcedureCall("Register", "test", "test", "", "");
 			$res = $this->m_Controller->HandleRemoteProcedureCall("Auth", "test", "test", "", "");
-			$res = $this->m_Controller->HandleRemoteProcedureCall("CreatePlant", "", "", "newplant", "RULE GROW BY 1");
+			$res = $this->m_Controller->HandleRemoteProcedureCall("CreatePlant", "", "", "newplant", "RULE a GROW BY 1");
+			
+			$GLOBALS['ValidatorFile'] = '../../cgi/validate';
 			$res = $this->m_Controller->HandleRemoteProcedureCall("ValidatePlant", "test", "", "newplant", "");
-			$this->validateRPCResponse($res, "ValidatePlant", "{ success: true, msg: '' }");
+			$this->validateRPCResponse($res, "ValidatePlant", "{\"valid\":true}");
 			
 		}
 	}

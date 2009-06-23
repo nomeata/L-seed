@@ -89,6 +89,29 @@
 			$plant = $this->m_Database->GetPlant($user->ID, $data_name);
 			$this->assertTrue($plant == null);
 		}
+		
+		function testNextSeed() {
+			$username = "testuser";
+			$data_name = "myplant";
+			$data_code = "my fancy plant code!";
+			
+			$this->m_Database->CreateUser($username, "test");
+			$user = $this->m_Database->GetUser($username);
+			
+			$this->m_Database->InsertNewPlant($user->ID, $data_name, $data_code);
+			$plant = $this->m_Database->GetPlant($user->ID, $data_name);
+			
+			$result = $this->m_Database->SetUsersNextSeed($user->ID, $plant->ID);
+			$this->assertTrue($result);
+			
+			$user = $this->m_Database->GetUserByID($user->ID);
+			$this->assertTrue($user != null);
+			$this->assertTrue($user->NextSeedID == $plant->ID);
+			
+			$plant = $this->m_Database->GetPlantByID($user->ID, $plant->ID);
+			$this->assertTrue($plant != null);
+			$this->assertTrue($plant->IsActive);
+		}
 	}
 
 ?>

@@ -6,13 +6,16 @@
 	    public $Name;
 	    public $Password;
 	    public $IsAdmin;
+	    public $SeasonScore;
+		public $NextSeedID;
 	    public $m_Database;
 
-		public function __construct($id, $user, $md5pw, $isadmin, $database) {
+		public function __construct($id, $user, $md5pw, $isadmin, $nextseedid, $database) {
 			$this->ID = $id;
 			$this->Name = $user;
 			$this->Password = $md5pw;
 			$this->IsAdmin = $isadmin;
+			$this->NextSeedID = $nextseedid;
 			$this->m_Database = $database;
 		}
 		

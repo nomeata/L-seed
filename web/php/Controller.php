@@ -81,7 +81,11 @@
 					break;
 
 				case "CreatePlant":
-					$res = $this->CreatePlant($plantname, "");
+					$res = $this->CreatePlant($plantname, $code);
+					break;
+
+				case "ActivatePlant":
+					$res = $plant->Activate();;
 					break;
 
 				case "GetPlantList":
@@ -107,7 +111,7 @@
 					if ($plant != null) {
 						$res = $plant->Validate();
 					} else {
-						$res = "{ success: false, msg: 'Keine Pflanze mit dem Namen '".$plantname."' für den Nutzer '".$username."' gefunden.' }";
+						$res = "{ success: false, msg: \"Keine Pflanze mit dem Namen '".$plantname."' für den Nutzer '".$username."' gefunden.\" }";
 					}
 					break;
 			}

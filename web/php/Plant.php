@@ -6,6 +6,7 @@
 	    public $UserID;
 	    public $Name;
 	    public $Code;
+		public $IsActive;
 		public $m_Database;
 
 		public function __construct($id, $userid, $name, $code, $database) {
@@ -13,11 +14,21 @@
 			$this->UserID = $userid;
 			$this->Name = $name;
 			$this->Code = $code;
+			$this->IsActive = false;
 			$this->m_Database = $database;
+			if (!isset($GLOBALS['ValidatorFile'])) {
+				$GLOBALS['ValidatorFile'] = '../cgi/validate';
+				if ($GLOBALS['WINDOWS']) {
+					$GLOBALS['ValidatorFile'] = '../cgi/validate.exe';
+				}
+			}
 		}
 
 		public function ToJson() {
-			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "' }";
+			
+			$active = 'false';
+			if ($this->IsActive) { $active = 'true'; } else { $active = 'false'; }
+			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "', IsActive: " . $active . " }";
 		}
 
 		public function ToJsonArray() {
@@ -75,8 +86,7 @@
 
 			$cwd = realpath("..\\cgi");
 
-
-			$process = proc_open('validate.exe', $descriptorspec, $pipes, $cwd, array());
+			$process = proc_open($GLOBALS['ValidatorFile'], $descriptorspec, $pipes, $cwd, array());
 
 			if (is_resource($process)) {
 				// $pipes sieht nun so aus:
@@ -101,6 +111,21 @@
 				}
 			}
 
+			return $result;
+		}
+		
+		public function Activate() {
+			$result = "{ success: false, msg: 'Ihre Pflanze konnte nicht aktiviert werden.' }";
+			
+			if ($this->IsActive) {
+				$result = "{ success: false, msg: 'Ihre Pflanze ist bereits aktiv.' }";
+			} else {
+				if ($this->m_Database->SetUsersNextSeed($this->UserID, $this->ID)) {
+					$result = "{ success: true, msg: '' }";
+					$this->IsActive = true;
+				}
+			}
+			
 			return $result;
 		}
 	}

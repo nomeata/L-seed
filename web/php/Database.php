@@ -41,22 +41,25 @@
 
 			return $result;
 		}
-		public function GetUser($user) {
+		public function GetUser($username) {
 			$result = null;
+			$userid = null;
 			
-			$stmt = $this->m_Connection->prepare("SELECT ID, Name, Password, IsAdmin FROM user WHERE Name=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID FROM user WHERE Name=?");
 			
 			if ($stmt) {
-				$stmt->bind_param("s", $user);
+				$stmt->bind_param("s", $username);
 				$stmt->execute();
-				$stmt->bind_result( $id, $name, $pw, $isadmin);
+				$stmt->bind_result( $userid);
 
-				if ($stmt->fetch()) {
-					$result = new User($id, $name, $pw, $isadmin, $this);
-				}
+				$stmt->fetch();
 				$stmt->close();
 			} else {
 				die("You silly bastard. Not again!!!!");
+			}
+			
+			if ($userid != null) {
+				$result = $this->GetUserByID($userid);
 			}
 
 			return $result;
@@ -64,21 +67,44 @@
 		public function GetUserByID($userid) {
 			$result = null;
 			
-			$stmt = $this->m_Connection->prepare("SELECT ID, Name, Password, IsAdmin FROM user WHERE ID=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID, Name, Password, IsAdmin, NextSeed FROM user WHERE ID=?");
 			
 			if ($stmt) {
 				$stmt->bind_param("d", $userid);
 				$stmt->execute();
-				$stmt->bind_result( $id, $name, $pw, $isadmin);
+				$stmt->bind_result( $id, $name, $pw, $isadmin, $nextseedid);
 
 				if ($stmt->fetch()) {
-					$result = new User($id, $name, $pw, $isadmin, $this);
+					$result = new User($id, $name, $pw, $isadmin, $nextseedid, $this);
 				}
 				$stmt->close();
 			} else {
 				die("AAARRRRRRR!!!!");
 			}
+			
+			if ($result != null) {
+				$result->SeasonScore = $this->GetCurrentSeasonScore($result);
+			}
 
+			return $result;
+		}
+		public function SetUsersNextSeed($userid, $plantid) {
+			$result = false;
+			
+			$stmt = $this->m_Connection->prepare("UPDATE user SET NextSeed=? WHERE ID=?");
+			
+			if ($stmt) {
+				$stmt->bind_param("dd", $plantid, $userid);
+				$stmt->execute();
+
+				if ($stmt->affected_rows == 1) {
+					$result = true;
+				}
+				$stmt->close();
+			} else {
+				die("Look there, behind you. A three-headed monkey!");
+			}
+			
 			return $result;
 		}
 		public function InsertNewPlant($userid, $name, $code) {
@@ -102,23 +128,25 @@
 		}
 		public function GetPlant($userid, $name) {
 			$result = null;
+			$plantid = null;
 
-			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code FROM plant WHERE UserID=? AND Name=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID FROM plant WHERE UserID=? AND Name=?");
 			
 			if ($stmt) {
 				$stmt->bind_param("ds", $userid, $name);
 				$stmt->execute();
-				$stmt->bind_result( $id, $theuserid, $thename, $code);
+				$stmt->bind_result( $plantid);
 				
-				if ($stmt->fetch()) {
-					$result = new Plant($id, $theuserid, $thename, $code, $this);
-				} else {
-					//echo "nope no plant like that found.";
-				}
+				$stmt->fetch();
 				$stmt->close();
 			} else {
-				die("the server you requested is currently unavailable. Please engage in nose picking...");
+				die("The server you requested is currently unavailable. Please engage in nosepicking...");
 			}
+			
+			if ($plantid != null) {
+				$result = $this->GetPlantByID($userid, $plantid);
+			}
+			
 			return $result;
 		}
 		public function GetPlantByID($userid, $plantid) {
@@ -138,8 +166,18 @@
 				}
 				$stmt->close();
 			} else {
-				die("the server you requested is currently unavailable. Please engage in nose picking...");
+				die("WTF?");
 			}
+			
+			if ($result != null) {
+				$user = $this->GetUserByID($userid);
+				if ($user != null) {
+					$result->IsActive = $user->NextSeedID == $result->ID;
+				} else {
+					die("Invisible? No waaaay.");
+				}
+			}
+			
 			return $result;
 		}
 		public function UpdatePlant($plant) {
@@ -181,23 +219,72 @@
 		}
 		public function GetPlantsForUser($userid) {
 			$result = array();
+			$plantids = array();
 			
-			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code FROM plant WHERE UserID=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID FROM plant WHERE UserID=?");
 			if ($stmt) {
 				$stmt->bind_param("d", $userid);
 				$stmt->execute();
-				$stmt->bind_result( $id, $userid, $name, $code);
+				$stmt->bind_result($id);
 
 				while ($stmt->fetch()) {
-					$plant = new Plant($id, $userid, $name, $code, $this);
-					$result[] = $plant;
+					$plantids[] = $id;
 				}
 				$stmt->close();
 			} else {
 				die("None of that young lady!");
 			}
 			
+			foreach ($plantids as $id) {
+				$result[] = $this->GetPlantByID($userid, $id);
+			}
+			
 			return $result;
+		}
+		public function GetCurrentSeasonScore($userid) {
+			$result = null;
+			
+			$stmt = $this->m_Connection->prepare("SELECT ID, SeasonID, Score FROM seasonscore WHERE UserID=?");
+			if ($stmt) {
+				$stmt->bind_param("d", $userid);
+				$stmt->execute();
+				$stmt->bind_result( $id, $seasonid, $score);
+
+				while ($stmt->fetch()) {
+					$score = new SeasonScore($id, $seasonid, $score, $this);
+					$result = $score;
+				}
+				$stmt->close();
+			} else {
+				die("WHY YOU LITTLE...!");
+			}
+			
+			if ($result != null) {
+				$result->Season = $this->GetSeasonForSeasonScore($score);
+			}
+			
+			return $result;
+			
+		}
+		
+		public function GetSeasonForSeasonScore($score) {
+			$season = null;
+			
+			$stmt = $this->m_Connection->prepare("SELECT ID, IsRunning FROM season WHERE ID=?");
+			if ($stmt) {
+				$stmt->bind_param("d", $score->SeasonID);
+				$stmt->execute();
+				$stmt->bind_result( $id, $isrunnning);
+
+				while ($stmt->fetch()) {
+					$season = new Season($id, $isrunnning);
+				}
+				$stmt->close();
+			} else {
+				die("You Crack me up little buddy.");
+			}
+			
+			return $season;
 		}
 	}
 ?>
