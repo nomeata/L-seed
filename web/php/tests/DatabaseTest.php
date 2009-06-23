@@ -112,6 +112,30 @@
 			$this->assertTrue($plant != null);
 			$this->assertTrue($plant->IsActive);
 		}
+		
+		function testSeason() {
+			$username = "testuser";
+			$data_name = "myplant";
+			$data_code = "my fancy plant code!";
+			
+			$this->m_Database->CreateUser($username, "test");
+			$user = $this->m_Database->GetUser($username);
+			
+			$this->m_Database->m_Connection->query("INSERT INTO season (IsRunning) VALUES (true)");
+			$stmt = $this->m_Database->m_Connection->query("SELECT ID FROM season");
+			$seasonid = $stmt->fetch_object()->ID;
+			$this->assertTrue($seasonid != null);
+			$stmt->close();
+			
+			$this->m_Database->m_Connection->query("INSERT INTO seasonscore (UserID, SeasonID, Score) VALUES (".$user->ID.", ".$seasonid.", 5)");
+			$seasonscores = $this->m_Database->GetAllSeasonScores();
+			$this->assertTrue($seasonscores != null);
+			$this->assertTrue(count($seasonscores) == 1, "expected 1 got ".count($seasonscores));
+			$this->assertTrue($seasonscores[0]->UserID == $user->ID);
+			$this->assertTrue($seasonscores[0]->SeasonID == $seasonid);
+			$this->assertTrue($seasonscores[0]->Season != null);
+			$this->assertTrue($seasonscores[0]->Season->IsRunning);
+		}
 	}
 
 ?>

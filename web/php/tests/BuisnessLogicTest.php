@@ -2,6 +2,8 @@
 	include("../User.php");
 	include("../Plant.php");
 	include("../Controller.php");
+	include("../Season.php");
+	include("../SeasonScore.php");
 
 	class TestOfBuisnessLogic extends UnitTestCase
 	{

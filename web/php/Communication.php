@@ -8,6 +8,8 @@
 	
 	include("Plant.php");
 	include("User.php");
+	include("Season.php");
+	include("SeasonScore.php");
 	include("Controller.php");
 	include("Database.php");
 

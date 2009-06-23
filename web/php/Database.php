@@ -14,7 +14,9 @@
 		public function Clear() {
 			$res1 = $this->m_Connection->query("DELETE FROM user");
 			$res2 = $this->m_Connection->query("DELETE FROM plant");
-			return $res1 && $res2;
+			$res3 = $this->m_Connection->query("DELETE FROM season");
+			$res4 = $this->m_Connection->query("DELETE FROM seasonscore");
+			return $res1 && $res2 && $res3 && $res4;
 		}
 		public function Close() {
 			$this->m_Connection->close();
@@ -244,15 +246,33 @@
 		public function GetCurrentSeasonScore($userid) {
 			$result = null;
 			
-			$stmt = $this->m_Connection->prepare("SELECT ID, SeasonID, Score FROM seasonscore WHERE UserID=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID FROM seasonscore WHERE UserID=?");
 			if ($stmt) {
 				$stmt->bind_param("d", $userid);
 				$stmt->execute();
-				$stmt->bind_result( $id, $seasonid, $score);
+				$stmt->bind_result($id);
 
 				while ($stmt->fetch()) {
-					$score = new SeasonScore($id, $seasonid, $score, $this);
-					$result = $score;
+					$result = $this->GetSeasonScoreByID($id);
+				}
+				$stmt->close();
+			} else {
+				die("WHY YOU LITTLE...!");
+			}
+			
+			return $result;
+		}
+		public function GetSeasonScoreByID($ssid) {
+			$result = null;
+			
+			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, SeasonID, Score FROM seasonscore WHERE ID=?");
+			if ($stmt) {
+				$stmt->bind_param("d", $ssid);
+				$stmt->execute();
+				$stmt->bind_result( $id, $userid, $seasonid, $score);
+
+				while ($stmt->fetch()) {
+					$result = new SeasonScore($id, $userid, $seasonid, $score, $this);
 				}
 				$stmt->close();
 			} else {
@@ -260,11 +280,10 @@
 			}
 			
 			if ($result != null) {
-				$result->Season = $this->GetSeasonForSeasonScore($score);
+				$result->Season = $this->GetSeasonForSeasonScore($result);
 			}
 			
 			return $result;
-			
 		}
 		
 		public function GetSeasonForSeasonScore($score) {
@@ -277,7 +296,7 @@
 				$stmt->bind_result( $id, $isrunnning);
 
 				while ($stmt->fetch()) {
-					$season = new Season($id, $isrunnning);
+					$season = new Season($id, $isrunnning, $this);
 				}
 				$stmt->close();
 			} else {
@@ -285,6 +304,28 @@
 			}
 			
 			return $season;
+		}
+		
+		public function GetAllSeasonScores() {
+			$result = array();
+			$idlist = array();
+			
+			$stmt = $this->m_Connection->query("SELECT ID FROM seasonscore");
+		
+			if ($stmt) {
+				while ($obj = $stmt->fetch_object()) {
+					$idlist[] = $obj->ID;
+				}
+				$stmt->close();
+			} else {
+				die("WHY YOU LITTLE...!");
+			}
+			
+			foreach ($idlist as $id) {
+				$result[] = $this->GetSeasonScoreByID($id);
+			}
+			
+			return $result;
 		}
 	}
 ?>

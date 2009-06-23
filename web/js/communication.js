@@ -457,6 +457,24 @@ Lseed.Communication = function() {
 			console.error("Lseed.Communication.stopWaitingForPage: loadPageProgressbar is not defined.");
 		}
 	};
+	
+	// === Season Managerment ===
+	
+	this.GetSeasonList = function() {
+		Ext.MessageBox.wait("Staffeln werden geladen.", "Wird geladen...");
+		
+		this.sendMessage(Lseed.MessageCommands.RPC, { func: 'GetSeasonList' });
+	};
+	
+	this.GetSeasonListCallback = function(data) {
+		var grid = Ext.getCmp("seasonlistgrid");
+		if (grid) {
+			grid.store.loadData(data.list);
+		} else {
+			console.error("Lseed.Communication.GetSeasonList: 'seasonlistgrid' could not be found.");
+		}
+	}
+	
 
 	this.Init = function(editor) {
 		Ext.MessageBox.wait("Programmeinstellungen werden geladen.", "Wird geladen...");
@@ -465,6 +483,7 @@ Lseed.Communication = function() {
 		this.AddCallback("Auth", this.AuthCallback.createDelegate(this));
 		this.AddCallback("Register", this.RegisterCallback.createDelegate(this));
 		this.AddCallback("GetPlantList", this.GetPlantListCallback.createDelegate(this));
+		this.AddCallback("GetSeasonList", this.GetSeasonListCallback.createDelegate(this));
 		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
@@ -603,5 +622,19 @@ Lseed.Plant = Ext.data.Record.create([{
 }, {
 	name: 'IsActive'
 	,type: 'boolean'
+}]);
+
+Lseed.Season = Ext.data.Record.create([{
+	name: 'ID'
+	,type: 'int'
+}, {
+	name: 'User'
+	,type: 'string'
+}, {
+	name: 'IsRunning'
+	,type: 'boolean'
+}, {
+	name: 'Score'
+	,type: 'float'
 }]);
 

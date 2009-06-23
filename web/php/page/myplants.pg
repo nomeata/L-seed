@@ -40,7 +40,7 @@
 		},{
 			id: 'plantlistActivatePlant'
 			,text: 'Activate'
-			,icon: 'img/icons/accept.png'
+			,icon: 'img/icons/award.png'
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){

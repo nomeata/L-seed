@@ -17,5 +17,9 @@
 		id: 'testplant'
 		,text: "Pflanze testen"
 		,leaf: true
+	},{
+		id: 'season'
+		,text: "Aktuelle Staffel"
+		,leaf: true
 	}]
 }

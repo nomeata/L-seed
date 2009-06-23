@@ -43,6 +43,27 @@
 			
 			return $res;
 		}
+		
+		private function GetSeasonScoreList() {
+			$result = "{ success: false, msg: 'Unbekannter Fehler' }";
+			
+			$list = $this->m_Database->GetAllSeasonScores();
+			
+			if (count($list) > 0) {
+				$result = "{ list: [";
+				$first = true;
+				foreach ($list as $seasonscore) {
+					if (!$first) {
+						$result .= ", ";
+					}
+					$result .= $seasonscore->ToJson();
+					$first = false;
+				}
+				$result .= "] }";
+			}
+			
+			return $result;
+		}
 
 		public function HandleRemoteProcedureCall($func, $username, $pw, $plantname, $code) {
 			$plant = null;
@@ -94,6 +115,10 @@
 					} else {
 						$res = "{ success: false, msg: 'Sie sind nicht angemeldet' }";
 					}
+					break;
+
+				case "GetSeasonList":
+					$res = $this->GetSeasonScoreList();
 					break;
 
 				case "DeletePlant":
