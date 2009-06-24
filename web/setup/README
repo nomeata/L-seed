@@ -1,0 +1,17 @@
+Folgende Ordner und ihre Unterordner im Verzeichnis web müssen im webroot existieren:
+cgi, css, ext, img, js, php
+
+Zudem natürlich noch die index.php
+Der Ordner tests unter php sollte nach erfolgreicher Installation und aufrufen der all_tests.php gelöscht oder gesperrt werden, da die Tests die Datenbank plätten.
+
+Die Dateien im cgi Ordner brauchen das executable Recht.
+
+Die Datei Database.php im Order php enthält in den ersten Zeilen die Informationen zur verbindung mit der mysql-Datenbank.
+
+Der Webserver muss php und dieses mysqli installiert haben. Zum ausführen der Tests wird SimpleTest benötigt. 
+http://www.simpletest.org/ falls kein Paket vorhanden. Sollte aber zumindest via pear verfügbar sein.
+
+Die Datei validateTest.php im Ordner cgi sollte nach erfolgreichem testen der validierung gesperrt oder gelöscht werden.
+Im Ordner cgi liegen bereits 2 kompilate des validierers. Bei Änderungen an diesem oder einer nicht kompatiblen Platform muss hier eine Datei Namens validate oder validate.exe liegen.
+
+

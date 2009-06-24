@@ -1,0 +1,65 @@
+{
+	id: 'ContentPanel_season'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Aktuelle Staffel'
+	,layout: 'fit'
+	,items: [{
+		id: "seasonlistgrid"
+		,title: "Mein Pflanzen"
+		,xtype: 'grid'
+		,autoExpandColumn: 'User'
+		,view: new Ext.grid.GroupingView({
+			markDirty: false  
+		})
+		,tbar: [{
+			id: 'seasonlistRefresh'
+			,text: 'Refresh'
+			,icon: 'img/icons/arrow_refresh.png'
+			,cls: 'x-btn-text-icon'
+			,handler: communication.GetSeasonList.createDelegate(communication)
+		}]
+		,store: new Ext.data.GroupingStore({
+			reader: new Ext.data.JsonReader({fields: Lseed.Season})
+			,sortInfo: {field: 'User', direction: 'ASC'}
+			,data: []
+		})
+		,columns: [
+			new Ext.grid.RowNumberer()
+			,{
+				id: 'ID'
+				,header: 'ID'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'ID'
+			},{
+				id: 'User'
+				,header: 'User'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'User'
+			},{
+				id: 'IsRunning'
+				,header: 'IsRunning'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'IsRunning'
+			},{
+				id: 'Score'
+				,header: 'Score'
+				,width: 200
+				,sortable: true
+				,dataIndex: 'Score'
+			}
+		]
+		,sm: new Ext.grid.RowSelectionModel({
+			singleSelect:true
+			,listeners: {
+				rowselect: function() {
+				}
+				,rowdeselect: function() {
+				}
+			}
+		})
+	}]
+}
