@@ -94,6 +94,15 @@ data Observer = Observer {
 	}
 nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ())
 
+-- | Methods to get the initial garden and the updated code when a plant multiplies
+data GardenSource = GardenSource {
+	-- | Called at the beginning of a season, to aquire the garden
+	  getGarden :: IO (Garden ())
+	-- | Given a plant, returns the genome to be used for a seedling.
+	, getUpdatedCode :: Planted () -> IO GrammarFile
+	}
+constGardenSource :: Garden () -> GardenSource
+constGardenSource garden = GardenSource (return garden) (return . genome)
 
 -- | A complete grammar file
 type GrammarFile = [ GrammarRule ]

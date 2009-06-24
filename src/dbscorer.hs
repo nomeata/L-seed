@@ -29,4 +29,4 @@ scoringObs = nullObserver {
 
 main = do
 	garden <- getGarden
-	lseedMainLoop False scoringObs 10 garden
+	lseedMainLoop False scoringObs (constGardenSource garden) 10

@@ -38,40 +38,38 @@ remainingGrowth getGrowths planted = go (phenotype planted)
                 EnlargingTo l2   -> l2 - l1
                 GrowingSeed done -> (1-done) * seedGrowthCost 
 
+-- | For a GrowingGarden, calculates the current amount of light and then
+-- advance the growth. This ought to be called after applyGenome
 growGarden :: (RandomGen g) => Angle -> g -> GrowingGarden -> (Double -> GrowingGarden)
-growGarden angle rgen garden = sequence $ zipWith growPlanted garden' lightings
-  where lightings = map (plantTotalSum . fmap snd . phenotype) $ lightenGarden angle garden'
-	garden' = applyGenome angle rgen garden
+growGarden angle rgen garden = sequence $ zipWith growPlanted garden totalLight
+  where totalLight = map (plantTotalSum . fmap snd . phenotype) $ lightenGarden angle garden
 
 -- | For all Growing plants that are done, find out the next step
--- This involves creating new plants if some are done
-applyGenome :: (RandomGen g) => Angle -> g -> GrowingGarden -> GrowingGarden 
-applyGenome angle rgen garden = concat $ zipWith applyGenome' rgens aGarden
+-- If new plants are to be created, these are returned via their position, next
+-- to their parent plant.
+applyGenome :: (RandomGen g) => Angle -> g -> GrowingGarden -> [(GrowingPlanted,[Double])]
+applyGenome angle rgen garden = zipWith applyGenome' rgens aGarden
   where rgens = unfoldr (Just . split) rgen
 	aGarden = annotateGarden angle garden
 	applyGenome' rgen planted =
 		if   remainingGrowth siGrowth planted < eps
-		then planted { phenotype = applyLSystem rgen
+		then ( planted { phenotype = applyLSystem rgen
 							(genome planted)
 							(phenotype planted)
 		     -- here, we throw away the last eps of growth. Is that a problem?
-			     } :
-		     collectSeeds rgen planted
-	 	else [fmap siGrowth planted]
-	collectSeeds :: (RandomGen g) => g -> AnnotatedPlanted -> GrowingGarden
+			     }
+		     , collectSeeds rgen planted)
+	 	else (fmap siGrowth planted,[])
+	collectSeeds :: (RandomGen g) => g -> AnnotatedPlanted -> [Double]
 	collectSeeds rgen planted = snd $ F.foldr go (rgen,[]) planted
-	  where go si (rgen,newPlants) = case siGrowth si of
+	  where go si (rgen,seedPoss) = case siGrowth si of
 	  		GrowingSeed _ ->
 				let spread = ( - siHeight si + siOffset si
 				             ,   siHeight si + siOffset si
 					     )
 				    (posDelta,rgen') = randomR spread rgen
-				    p = Planted (plantPosition planted + posDelta)
-			                          (plantOwner planted)
-						  (genome planted)
-						  (fmap (const NoGrowth) inititalPlant)
-				in (rgen, p:newPlants)
-			_ -> (rgen,newPlants)
+				in (rgen', posDelta:seedPoss)
+			_ -> (rgen,seedPoss)
 
 -- | Applies an L-System to a Plant, putting the new length in the additional
 --   information field

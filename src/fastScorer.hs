@@ -42,4 +42,4 @@ scoringObs = nullObserver {
 	}
 
 main = readArgs $ \garden -> do
-	lseedMainLoop False scoringObs 30 garden
+	lseedMainLoop False scoringObs (constGardenSource garden) 30

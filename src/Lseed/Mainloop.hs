@@ -17,10 +17,11 @@ import Control.Monad
 -- observer informed about any changes.
 lseedMainLoop :: Bool -- ^ Run in real time, e.g. call 'threadDelay'
 	-> Observer -- ^ Who to notify about the state of the game
+	-> GardenSource -- ^ Where do get the plant code from
 	-> Integer -- ^ Maximum days to run
-	-> Garden () -- ^ Initial garden state
 	-> IO ()
-lseedMainLoop rt obs maxDays garden = do
+lseedMainLoop rt obs gardenSource maxDays = do
+	garden <- getGarden gardenSource
 	obInit obs
 	let nextDay (tick, garden) = 
 		let (day, tickOfDay) = tick `divMod` ticksPerDay in
@@ -32,7 +33,18 @@ lseedMainLoop rt obs maxDays garden = do
 		rgen <- newStdGen
 		let sampleAngle = lightAngle $ (fromIntegral tickOfDay + 0.5) /
                                                 fromIntegral ticksPerDay
-		let growingGarden = growGarden sampleAngle rgen garden
+		let newGardenWithSeeds = applyGenome sampleAngle rgen garden
+		rgen <- newStdGen
+		newGarden <- fmap concat $ forM newGardenWithSeeds $
+			\(parent,seedPoss) -> fmap (parent:) $ forM seedPoss $ \seedPos -> do
+				genome <- getUpdatedCode gardenSource (fmap (const ()) parent)
+				return $ Planted (plantPosition parent + seedPos)
+				                 (plantOwner parent)
+				         	 genome
+				         	 (fmap (const NoGrowth) inititalPlant)
+
+		let growingGarden = growGarden sampleAngle rgen newGarden
+
 
 		obState obs tick garden
 		when rt $ do

@@ -16,4 +16,4 @@ getGarden = spread <$> map (either (error.show) id . parseGrammar "" . dbcCode)
 main = do
 	garden <- getGarden
 	obs <- cairoObserver
-	lseedMainLoop True obs 1 garden
+	lseedMainLoop True obs (constGardenSource garden) 200
