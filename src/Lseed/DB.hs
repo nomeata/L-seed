@@ -1,6 +1,7 @@
 module Lseed.DB 
 	( DBCode(..)
 	, getCodeToRun
+	, getUpdatedCodeFromDB
 	, addFinishedSeasonResults
 	) where
 
@@ -11,6 +12,7 @@ import qualified Data.Map as M
 
 import Lseed.Data
 import Lseed.Data.Functions
+import Data.Maybe
 
 data DBCode = DBCode
 	{ dbcUserName :: String
@@ -36,6 +38,19 @@ getCodeToRun = withLseedDB $ \conn -> do
 	execute stmt []
 	result <- fetchAllRowsMap' stmt
 	return $ flip map result $ \m -> 
+		DBCode (fromSql (m ! "username"))
+		       (fromSql (m ! "userid"))
+		       (fromSql (m ! "plantname"))
+		       (fromSql (m ! "plantid"))
+		       (fromSql (m ! "code"))
+
+getUpdatedCodeFromDB :: Integer -> IO (Maybe DBCode)
+getUpdatedCodeFromDB userid = withLseedDB $ \conn -> do
+	let query = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE user.NextSeed = plant.ID AND user.ID = ?;"
+	stmt <- prepare conn query
+	execute stmt [toSql userid]
+	result <- fetchAllRowsMap' stmt
+	return $ listToMaybe $ flip map result $ \m -> 
 		DBCode (fromSql (m ! "username"))
 		       (fromSql (m ! "userid"))
 		       (fromSql (m ! "plantname"))
