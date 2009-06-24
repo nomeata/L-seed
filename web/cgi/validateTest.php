@@ -10,6 +10,8 @@
 	<body>
 
 <?php 
+	$GLOBALS['WINDOWS'] = false;
+	
 	function ValidateRuleSet($ruleset) {
 		$result = "{valid: false, line: 0, column: 0, msg: 'Internal Server Error'}";
 		
@@ -21,8 +23,12 @@
 
 		$cwd = realpath(".");
 
+		$filename = '../cgi/validate';
+		if ($GLOBALS['WINDOWS'] == true) {
+			$filename = '../cgi/validate.exe';
+		}
 
-		$process = proc_open('validate.exe', $descriptorspec, $pipes, $cwd, array());
+		$process = proc_open($filename, $descriptorspec, $pipes, $cwd, array());
 
 		if (is_resource($process)) {
 			// $pipes sieht nun so aus:
@@ -36,7 +42,7 @@
 			$result = stream_get_contents($pipes[1]);
 			fclose($pipes[1]);
 
-			//echo stream_get_contents($pipes[2]);
+			echo stream_get_contents($pipes[2]);
 			fclose($pipes[2]);
 
 			$return_value = proc_close($process);

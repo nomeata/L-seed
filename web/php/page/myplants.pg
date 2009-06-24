@@ -31,12 +31,26 @@
 				}
 			}
 		},{
-			id: 'plantlistTestPlant'
-			,text: 'Test'
-			,icon: 'img/icons/magnifier.png'
+			id: 'plantlistCheckPlantSyntax'
+			,text: 'Check Syntax'
+			,icon: 'img/icons/accept.png'
 			,cls: 'x-btn-text-icon'
 			,disabled: true
-			,handler: editor.Test.createDelegate(editor, ['plantlistgrid'], true)
+			,handler: editor.CheckSyntax.createDelegate(editor, ['plantlistgrid'], true)
+		},{
+			id: 'plantlistActivatePlant'
+			,text: 'Activate'
+			,icon: 'img/icons/award.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: function(){
+				Ext.getCmp("plantlistgridEditor").stopEditing();
+				var grid = Ext.getCmp("plantlistgrid");
+				var selected = grid.getSelectionModel().getSelections();
+				if(selected.length > 0) {
+				    editor.Activate(selected[0]);
+				}
+			}
 		},{
 			id: 'plantlistRefresh'
 			,text: 'Refresh'
@@ -76,10 +90,6 @@
 				,width: 200
 				,sortable: true
 				,dataIndex: 'Name'
-				,editor: {
-					xtype: 'textfield'
-					,allowBlank: false
-				}
 			},{
 				id: 'Code'
 				,header: 'Code'
@@ -91,14 +101,11 @@
 					,allowBlank: true
 				}
 			},{
-				id: 'Active'
-				,header: 'Active'
+				id: 'IsActive'
+				,header: 'IsActive'
 				,width: 200
 				,sortable: true
-				,dataIndex: 'Active'
-				,editor: {
-					xtype: 'checkbox'
-				}
+				,dataIndex: 'IsActive'
 			}
 		]
 		,sm: new Ext.grid.RowSelectionModel({
@@ -106,11 +113,14 @@
 			,listeners: {
 				rowselect: function() {
 					Ext.getCmp("plantlistDeletePlant").enable();
-					Ext.getCmp("plantlistTestPlant").enable();
+					Ext.getCmp("plantlistCheckPlantSyntax").enable();
+					Ext.getCmp("plantlistActivatePlant").enable();
 				}
 				,rowdeselect: function() {
 					Ext.getCmp("plantlistDeletePlant").disable();
-					Ext.getCmp("plantlistTestPlant").disable();
+					Ext.getCmp("plantlistCheckPlantSyntax").disable();
+					Ext.getCmp("plantlistActivatePlant").disable();
+					Ext.getCmp("plantlistActivatePlant").disable();
 				}
 			}
 		})

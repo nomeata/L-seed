@@ -22,6 +22,8 @@ Lseed.MessageCommands = {
 };
 
 Lseed.Communication = function() {
+	
+	this.Username = '';
 
 	// ----- Framework -----
 	
@@ -31,7 +33,7 @@ Lseed.Communication = function() {
 		var params = {};
 		Ext.apply(params, opts, { cmd: cmd });
 		Ext.Ajax.request({
-			url: 'php/communication.php',
+			url: 'php/Communication.php',
 			success: this.handleResponse.createDelegate(this)
 			,failure: function(response, opts) {
 				Ext.MessageBox.alert("Fehler", "Es konnte keine Verbindung zum Server hergestellt werden.")
@@ -192,6 +194,8 @@ Lseed.Communication = function() {
 			var pw = cmpPw.getValue();
 			pw = MD5(pw);
 			Ext.MessageBox.wait("Authentifiziere.", "Wird geladen...");
+				
+			this.Username = user;
 			
 			this.sendMessage(Lseed.MessageCommands.RPC, { func: 'Auth', user: user, pw: pw });
 			this.hideLoginDialog();
@@ -299,6 +303,8 @@ Lseed.Communication = function() {
 			if (pw == pwRepeat) {
 				pw = MD5(pw);
 				Ext.MessageBox.wait("Registriere.", "Wird geladen...");
+				
+				this.Username = user;
 
 				this.sendMessage(Lseed.MessageCommands.RPC, { func: 'Register', user: user, pw: pw });
 				this.hideRegisterDialog();
@@ -451,6 +457,24 @@ Lseed.Communication = function() {
 			console.error("Lseed.Communication.stopWaitingForPage: loadPageProgressbar is not defined.");
 		}
 	};
+	
+	// === Season Managerment ===
+	
+	this.GetSeasonList = function() {
+		Ext.MessageBox.wait("Staffeln werden geladen.", "Wird geladen...");
+		
+		this.sendMessage(Lseed.MessageCommands.RPC, { func: 'GetSeasonList' });
+	};
+	
+	this.GetSeasonListCallback = function(data) {
+		var grid = Ext.getCmp("seasonlistgrid");
+		if (grid) {
+			grid.store.loadData(data.list);
+		} else {
+			console.error("Lseed.Communication.GetSeasonList: 'seasonlistgrid' could not be found.");
+		}
+	}
+	
 
 	this.Init = function(editor) {
 		Ext.MessageBox.wait("Programmeinstellungen werden geladen.", "Wird geladen...");
@@ -459,10 +483,12 @@ Lseed.Communication = function() {
 		this.AddCallback("Auth", this.AuthCallback.createDelegate(this));
 		this.AddCallback("Register", this.RegisterCallback.createDelegate(this));
 		this.AddCallback("GetPlantList", this.GetPlantListCallback.createDelegate(this));
+		this.AddCallback("GetSeasonList", this.GetSeasonListCallback.createDelegate(this));
 		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
 		this.AddCallback("ValidatePlant", editor.CheckSyntaxCallback.createDelegate(editor));
+		this.AddCallback("ActivatePlant", editor.ActivateCallback.createDelegate(editor));
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, {func: 'IsLoggedIn'});
 	};
@@ -479,7 +505,7 @@ Lseed.Editor = function() {
 		
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'SavePlant'
-			,name: plant.data.Name
+			,plant: plant.data.Name
 			,code: plant.data.Code
 		});
 	};
@@ -487,6 +513,24 @@ Lseed.Editor = function() {
 	this.SaveCallback = function(data) {
 		if (data.success) {
 			communication.showMessage("Erfolgreich gespeichert.", "info");
+		} else {
+			communication.showMessage(data.msg, "error");
+		}
+	};
+	
+	this.Activate = function(plant) {
+		console.log(arguments);
+		communication.sendMessage(Lseed.MessageCommands.RPC, { 
+			func: 'ActivatePlant'
+			,plant: plant.data.Name
+			,user: communication.Username
+		});
+	};
+	
+	this.ActivateCallback = function(data) {
+		if (data.success) {
+			communication.showMessage("Erfolgreich aktiviert.", "info");
+			communication.GetPlantList();
 		} else {
 			communication.showMessage(data.msg, "error");
 		}
@@ -501,25 +545,39 @@ Lseed.Editor = function() {
 	
 	this.CheckSyntaxCallback = null;
 	this.CheckSyntax = function(plant, callback) {
-		this.CheckSyntaxCallback = callback;
+		if (typeof callback != 'undefined' && callback != null) {
+			this.CheckSyntaxCallback = callback;
+		}
 		
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'ValidatePlant'
+			,plant: plant.data.Name
 			,code: plant.data.Code
 		});
 	};
 	
-	this.CheckSyntaxCallback = function(data) {
-		if (!data.valid) {
-			if (this.CheckSyntaxCallback != null) {
-				this.CheckSyntaxCallback(data);
-			} else {
-				console.error("Lseed.Editor.CheckSyntaxCallback: no Callback given.");
-			}
+	this.HandleSyntaxCheckAnswerForEditor = function(data) {
+		var pdEditor = Ext.getCmp("plantdefinitioneditor");
+		if (pdEditor) {
+			communication.stopWaitingForPage();
+			Ext.MessageBox.show({
+				title:'Fehler'
+				,msg: data.msg
+				,buttons: Ext.Msg.OK
+				,fn: function() {
+					var index = editor.GetStartFromField(pdEditor, data.line-1, data.column);
+					if (index != -1) {
+						pdEditor.selectText(index-1, index);
+					}
+				}
+				,icon: Ext.MessageBox.ERROR
+			});
 		} else {
-			console.info("Syntax is Valid.");
+			console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
 		}
-	};
+	}
+	
+	this.CheckSyntaxCallback = function() {};
 	
 	this.Delete = function(plant) {
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
@@ -561,5 +619,22 @@ Lseed.Plant = Ext.data.Record.create([{
 }, {
 	name: 'Code'
 	,type: 'string'
+}, {
+	name: 'IsActive'
+	,type: 'boolean'
+}]);
+
+Lseed.Season = Ext.data.Record.create([{
+	name: 'ID'
+	,type: 'int'
+}, {
+	name: 'User'
+	,type: 'string'
+}, {
+	name: 'IsRunning'
+	,type: 'boolean'
+}, {
+	name: 'Score'
+	,type: 'float'
 }]);
 

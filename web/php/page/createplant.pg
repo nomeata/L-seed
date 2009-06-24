@@ -29,39 +29,17 @@
 			}
 		}
 	},{
-		text: "Test"
-		,icon: 'img/icons/magnifier.png'
-		,cls: 'x-btn-text-icon'
-		,handler: editor.Test.createDelegate(editor)
-	},{
 		text: "CheckSyntax"
 		,icon: 'img/icons/accept.png'
 		,cls: 'x-btn-text-icon'
 		,handler: function() { 
 			communication.waitForPage();
 			var pdEditor = Ext.getCmp("plantdefinitioneditor");
-			if (pdEditor) {
+			var pnEditor = Ext.getCmp("plantdefinitionnamefield");
+			if (pdEditor && pnEditor) {
+				var name = pnEditor.getValue();
 				var code = pdEditor.getValue();
-				editor.CheckSyntax({data:{Code:code}}, function(data) {
-					var pdEditor = Ext.getCmp("plantdefinitioneditor");
-					if (pdEditor) {
-						communication.stopWaitingForPage();
-						Ext.MessageBox.show({
-							title:'Fehler'
-							,msg: data.msg
-							,buttons: Ext.Msg.OK
-							,fn: function() {
-								var index = editor.GetStartFromField(pdEditor, data.line-1, data.column);
-								if (index != -1) {
-									pdEditor.selectText(index-1, index);
-								}
-							}
-							,icon: Ext.MessageBox.ERROR
-						});
-					} else {
-						console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
-					}
-				}); 
+				editor.CheckSyntax({data:{Code:code, Name:name}}, editor.HandleSyntaxCheckAnswerForEditor); 
 			} else {
 				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
 			}
