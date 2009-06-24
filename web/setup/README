@@ -1,5 +1,17 @@
 Folgende Ordner und ihre Unterordner im Verzeichnis web müssen im webroot existieren:
-cgi, css, ext, img, js, php
+cgi, css, img, js, php
+
+Es muss ein Ordner ext existieren in dem die Version 3.0 RC 1.1 der Ext JS Library liegt. Zu finden unter: http://extjs.com
+benötigt hierraus sind:
+
+adapter/
+resources/
+ext-all-debug.js
+ext-core-debug.js
+ext-all.js
+ext-core.js
+
+In der Datei index.php kann optional der javascript include für ext-all-debug.js zu ext-all.js abgeändert werden. (minimized)
 
 Zudem natürlich noch die index.php
 Der Ordner tests unter php sollte nach erfolgreicher Installation und aufrufen der all_tests.php gelöscht oder gesperrt werden, da die Tests die Datenbank plätten.
