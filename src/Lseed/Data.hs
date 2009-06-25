@@ -25,6 +25,7 @@ type AnnotatedGarden = Garden StipeInfo
 data Planted a = Planted
 	{ plantPosition :: Double -- ^ Position in the garden, interval [0,1]
 	, plantOwner    :: Integer -- ^ Id of the user that owns this plant
+	, plantOwnerName:: String -- ^ Name of the owner of the plant
 	, genome        :: GrammarFile -- ^ Lsystem in use
 	, phenotype     :: Plant a -- ^ Actual current form of the plant
 	}

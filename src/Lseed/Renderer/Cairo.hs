@@ -13,6 +13,9 @@ import Lseed.Geometry
 import Text.Printf
 import System.Time
 
+colors :: [ (Double, Double, Double) ]
+colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
+
 cairoObserver :: IO Observer
 cairoObserver = do
 	initGUI
@@ -66,7 +69,7 @@ render :: Double -> AnnotatedGarden -> Render ()
 render angle garden = do
 	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
 	-- by running it here. This needs modification to lightenGarden and mapLine
-	renderGround
+	renderSky
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
@@ -75,25 +78,68 @@ render angle garden = do
 
 	mapM_ renderPlanted garden
 
+	renderGround
+
 	renderInfo angle garden
 
 renderPlanted :: AnnotatedPlanted -> Render ()
 renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
-	setSourceRGB 0 0.8 0
 	setLineCap LineCapRound
-	renderPlant (phenotype planted)
+	let c = colors !! fromIntegral (plantOwner planted)
+	renderPlant (Just (renderFlag (take 10 (plantOwnerName planted))))
+	            c (phenotype planted)
 
-renderPlant :: AnnotatedPlant -> Render ()	
-renderPlant (Plant si len ang ut ps) = preserve $ do
-	rotate ang
-	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
+renderFlag :: String -> Render ()
+renderFlag text = preserve $ do
+	scale 1 (-1)
+	setFontSize (groundLevel/2)
+	ext <- textExtents text
+
+	preserve $ do
+		translate (stipeWidth) (groundLevel/2)
+		rectangle 0
+			  (textExtentsYbearing ext + groundLevel/2)
+			  (textExtentsXadvance ext)
+			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+		setSourceRGB 1 1 1
+		fill
+
+		setSourceRGB 0 0 0
+		showText text
+
+	setLineWidth (groundLevel/10)
+	setSourceRGB 0 0 0
 	moveTo 0 0
-	lineTo 0 (len * stipeLength)
-	setSourceRGB 0 0.8 0
+	lineTo (stipeWidth + textExtentsXadvance ext) 0
 	stroke
+
+
+-- | Renders a plant, or part of a plant, with a given colour. If the Render
+-- argument is given, it is drawn at the end of the plant, if there are no
+-- branches, or passed to exactly one branch.
+renderPlant :: (Maybe (Render ())) -> (Double,Double,Double) -> AnnotatedPlant -> Render ()	
+renderPlant leaveR color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
+	rotate ang
+	withLinearPattern 0 0 0 (len * stipeLength) $ \pat -> do
+		let darkenByBegin = 1/(1 + (siSubLength si)/50)
+		let darkenByEnd = 1/(1 + (siSubLength si - siLength si)/50)
+		patternAddColorStopRGB pat 0
+			(darkenByBegin*r) (darkenByBegin*g) (darkenByBegin*b) 
+		patternAddColorStopRGB pat 1
+			(darkenByEnd*r) (darkenByEnd*g) (darkenByEnd*b) 
+		setSource pat
+		--setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
+		setLineWidth stipeWidth
+		moveTo 0 0
+		lineTo 0 (len * stipeLength)
+		stroke
 	translate 0 (len * stipeLength)
-	mapM_ renderPlant ps
+	if null ps
+	 then fromMaybe (return ()) leaveR
+	 else sequence_ $ zipWith (\r p -> renderPlant r color p)
+	                         (leaveR : repeat Nothing)
+				 ps
 	case siGrowth si of
 	  GrowingSeed done -> do
 	  	setSourceRGB 1 1 0
@@ -155,8 +201,11 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 renderInfo angle garden = do
 	forM_ garden $ \planted -> do
 		let x = plantPosition planted
+		{-
 		let text1 = printf "Light: %.2f" $
 				siSubLight . pData . phenotype $ planted
+		-}
+		let text1 = plantOwnerName planted
 		let text2 = printf "Size: %.2f" $
 				siSubLength . pData . phenotype $ planted
 		preserve $ do
@@ -164,9 +213,9 @@ renderInfo angle garden = do
 			setSourceRGB 0 0 0
 			setFontSize (groundLevel/2)
 			moveTo x (0.9*groundLevel)
-			showText text1
-			moveTo x (0.5*groundLevel)
 			showText text2
+			moveTo x (0.5*groundLevel)
+			showText text1
 
 renderTimeInfo timeStr = do
 	preserve $ do
@@ -176,12 +225,14 @@ renderTimeInfo timeStr = do
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
 
+renderSky :: Render ()
+renderSky = do
+	-- Clear Background
+	setSourceRGB  0 0 1
+	paint
+
 renderGround :: Render ()
 renderGround = do
-	-- Clear Background
-	rectangle 0 0 1 100
-	setSourceRGB  0 0 1
-	fill
 	setSourceRGB (140/255) (80/255) (21/255)
 	rectangle 0 0 1 (-groundLevel)
         fill
