@@ -52,6 +52,20 @@
 				}
 			}
 		},{
+			id: 'plantlistEditPlant'
+			,text: 'Edit'
+			,icon: 'img/icons/edit.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: function(){
+				Ext.getCmp("plantlistgridEditor").stopEditing();
+				var grid = Ext.getCmp("plantlistgrid");
+				var selected = grid.getSelectionModel().getSelections();
+				if(selected.length > 0) {
+				    editor.Edit(selected[0]);
+				}
+			}
+		},{
 			id: 'plantlistRefresh'
 			,text: 'Refresh'
 			,icon: 'img/icons/arrow_refresh.png'
@@ -115,12 +129,13 @@
 					Ext.getCmp("plantlistDeletePlant").enable();
 					Ext.getCmp("plantlistCheckPlantSyntax").enable();
 					Ext.getCmp("plantlistActivatePlant").enable();
+					Ext.getCmp("plantlistEditPlant").enable();
 				}
 				,rowdeselect: function() {
 					Ext.getCmp("plantlistDeletePlant").disable();
 					Ext.getCmp("plantlistCheckPlantSyntax").disable();
 					Ext.getCmp("plantlistActivatePlant").disable();
-					Ext.getCmp("plantlistActivatePlant").disable();
+					Ext.getCmp("plantlistEditPlant").disable();
 				}
 			}
 		})
