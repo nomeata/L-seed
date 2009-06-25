@@ -24,6 +24,7 @@ CREATE TABLE `plant` (
 	`UserID` INT NOT NULL ,
 	`Name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,
 	`Code` VARCHAR( 2048 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,
+	`Valid` BOOL NOT NULL,
 	INDEX ( `UserID` )
 ) ENGINE = MYISAM ;
 

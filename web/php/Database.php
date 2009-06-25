@@ -111,11 +111,14 @@
 		}
 		public function InsertNewPlant($userid, $name, $code) {
 			$result = false;
+
+			$plant = new Plant(0,$userid,$plantname,$code,this);
+			$valid = $plant->IsValid();
 			
-			$stmt = $this->m_Connection->prepare("INSERT INTO plant (UserID, Name, Code) VALUES (?, ?, ?)");
+			$stmt = $this->m_Connection->prepare("INSERT INTO plant (UserID, Name, Code, Valid) VALUES (?, ?, ?, ?)");
 			
 			if ($stmt) {
-				$stmt->bind_param("dss", $userid, $name, $code);
+				$stmt->bind_param("dssi", $userid, $name, $code, $valid);
 				$stmt->execute();
 				
 				if ($stmt->affected_rows == 1) {
@@ -185,10 +188,12 @@
 		public function UpdatePlant($plant) {
 			$result = false;
 			
-			$stmt = $this->m_Connection->prepare("UPDATE plant SET Code=? WHERE ID=?");
-			
+			die($plant);
+
+			$stmt = $this->m_Connection->prepare("UPDATE plant SET Code=?, Valid=? WHERE ID=?");
+
 			if ($stmt) {
-				$stmt->bind_param("sd", $plant->Code, $plant->ID);
+				$stmt->bind_param("sid", $plant->Code, $plant->IsValid(), $plant->ID);
 				$stmt->execute();
 
 				if ($stmt->affected_rows == 1) {

@@ -72,11 +72,18 @@
 		}
 		
 		public function Validate() {
-			return $this->ValidateCode();
+			$arr =  $this->ValidateCode();
+			return $arr[1];
+		}
+
+		public function IsValid() {
+			$arr =  $this->ValidateCode();
+			return $arr[0];
 		}
 		
 		public function ValidateCode() {
 			$result = "{valid: false, line: 0, column: 0, msg: 'Interner Server Fehler'}";
+			$result_ok = 0;
 			
 			$descriptorspec = array(
 			   0 => array("pipe", "r"),  // STDIN ist eine Pipe, von der das Child liest
@@ -108,10 +115,11 @@
 				//echo $return_value;
 				if ($return_value == 0) {
 					$result = $output;
+					$result_ok = 1;
 				}
 			}
 
-			return $result;
+			return array($result_ok, $result);
 		}
 		
 		public function Activate() {
