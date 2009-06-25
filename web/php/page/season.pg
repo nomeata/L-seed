@@ -2,7 +2,7 @@
 	id: 'ContentPanel_season'
 	,closable: true
 	,style: 'padding: 5px;'
-	,title: 'Aktuelle Staffel'
+	,title: 'Aktuelle Saison'
 	,layout: 'fit'
 	,items: [{
 		id: "seasonlistgrid"

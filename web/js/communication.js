@@ -482,7 +482,7 @@ Lseed.Communication = function() {
 	// === Season Managerment ===
 	
 	this.GetSeasonList = function() {
-		Ext.MessageBox.wait("Staffeln werden geladen.", "Wird geladen...");
+		Ext.MessageBox.wait("Saisons werden geladen.", "Wird geladen...");
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, { func: 'GetSeasonList' });
 	};
