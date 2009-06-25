@@ -60,7 +60,7 @@ getUpdatedCodeFromDB conf userid = withLseedDB conf $ \conn -> do
 addFinishedSeasonResults conf garden = withLseedDB conf $ \conn -> do 
 	let owernerscore = M.toList $ foldr go M.empty garden
 		where go p = M.insertWith (+) (plantOwner p) (plantLength (phenotype p))
-	run conn "INSERT INTO SEASON VALUES (NULL, False)" []
+	run conn "INSERT INTO season VALUES (NULL, False)" []
 	stmt <- prepare conn "SELECT LAST_INSERT_ID()"
 	execute stmt []
 	id <- (head . head) `fmap` fetchAllRows' stmt
