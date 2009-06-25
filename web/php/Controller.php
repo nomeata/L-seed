@@ -141,6 +141,12 @@
 					$res = $plant->Validate();
 					break;
 
+				case "CheckSyntax":
+					# Create a temporary plant		
+					$plant = new Plant(0,0,$plantname,$code,0);
+					$res = $plant->Validate();
+					break;
+
 				default:
 					$res = "{ success : false, msg: \"Unkown RPC call '".$func."'\"}";
 			}

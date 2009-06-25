@@ -17,10 +17,10 @@
 			$this->IsActive = false;
 			$this->m_Database = $database;
 			if (!isset($GLOBALS['ValidatorFile'])) {
-				$GLOBALS['ValidatorFile'] = '../cgi/validate';
-				if ($GLOBALS['WINDOWS']) {
-					$GLOBALS['ValidatorFile'] = '../cgi/validate.exe';
-				}
+				$GLOBALS['ValidatorFile'] = '/home/lseed/.cabal/bin/validate';
+				#if ($GLOBALS['WINDOWS']) {
+				#	$GLOBALS['ValidatorFile'] = '../cgi/validate.exe';
+				#}
 			}
 		}
 
@@ -84,7 +84,7 @@
 			   2 => array("pipe", "w")   // STDERR
 			);
 
-			$cwd = realpath("..\\cgi");
+			$cwd = realpath(".");
 
 			$process = proc_open($GLOBALS['ValidatorFile'], $descriptorspec, $pipes, $cwd, array());
 

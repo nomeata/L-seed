@@ -580,7 +580,7 @@ Lseed.Editor = function() {
 		}
 		
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
-			func: 'ValidatePlant'
+			func: 'CheckSyntax'
 			,plant: plant.data.Name
 			,code: plant.data.Code
 		});
