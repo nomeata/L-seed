@@ -81,8 +81,7 @@ cairoObserver = do
 		{ obGrowingState = \scGen -> do
 			writeIORef currentGardenRef scGen
 			widgetQueueDraw canvas
-		, obFinished = \_ ->
-			mainQuit
+		, obShutdown = mainQuit
 		}
 
 render :: Double -> AnnotatedGarden -> Render ()
