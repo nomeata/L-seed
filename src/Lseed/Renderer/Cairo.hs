@@ -218,9 +218,8 @@ renderTimeInfo timeStr = do
 renderSky :: Render ()
 renderSky = do
 	-- Clear Background
-	rectangle 0 0 1 100
 	setSourceRGB  0 0 1
-	fill
+	paint
 
 renderGround :: Render ()
 renderGround = do
