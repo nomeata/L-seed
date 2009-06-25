@@ -139,6 +139,9 @@
 						$res = "{ success: false, msg: \"Keine Pflanze mit dem Namen '".$plantname."' für den Nutzer '".$username."' gefunden.\" }";
 					}
 					break;
+
+				default:
+					$res = "{ success : false, msg: \"Unkown RPC call '".$func."'\"}";
 			}
 		
 			return new RPCAnswer($func, $res);
