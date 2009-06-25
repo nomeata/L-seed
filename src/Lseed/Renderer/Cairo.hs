@@ -13,6 +13,9 @@ import Lseed.Geometry
 import Text.Printf
 import System.Time
 
+colors :: [ (Double, Double, Double) ]
+colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
+
 cairoObserver :: IO Observer
 cairoObserver = do
 	initGUI
@@ -80,20 +83,20 @@ render angle garden = do
 renderPlanted :: AnnotatedPlanted -> Render ()
 renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
-	setSourceRGB 0 0.8 0
 	setLineCap LineCapRound
-	renderPlant (phenotype planted)
+	let c = colors !! fromIntegral (plantOwner planted)
+	renderPlant c (phenotype planted)
 
-renderPlant :: AnnotatedPlant -> Render ()	
-renderPlant (Plant si len ang ut ps) = preserve $ do
+renderPlant :: (Double,Double,Double) -> AnnotatedPlant -> Render ()	
+renderPlant color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
 	rotate ang
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
 	moveTo 0 0
 	lineTo 0 (len * stipeLength)
-	setSourceRGB 0 0.8 0
+	setSourceRGB r g b
 	stroke
 	translate 0 (len * stipeLength)
-	mapM_ renderPlant ps
+	mapM_ (renderPlant color) ps
 	case siGrowth si of
 	  GrowingSeed done -> do
 	  	setSourceRGB 1 1 0
