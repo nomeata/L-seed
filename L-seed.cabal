@@ -89,6 +89,12 @@ Executable runGarden
   if ! flag(RendererCairo)
     Buildable:    False
 
+Executable renderAsPNG
+  Main-Is:        renderAsPNG.hs
+  Hs-Source-Dirs: src/
+  if ! flag(RendererCairo)
+    Buildable:    False
+
 Executable validate
   Main-Is:        validate.hs
   Hs-Source-Dirs: src/
