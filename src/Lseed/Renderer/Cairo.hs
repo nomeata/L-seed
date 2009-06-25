@@ -69,7 +69,7 @@ render :: Double -> AnnotatedGarden -> Render ()
 render angle garden = do
 	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
 	-- by running it here. This needs modification to lightenGarden and mapLine
-	renderGround
+	renderSky
 	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
@@ -77,6 +77,8 @@ render angle garden = do
 	--mapM_ renderLightedPlanted garden
 
 	mapM_ renderPlanted garden
+
+	renderGround
 
 	renderInfo angle garden
 
@@ -213,12 +215,15 @@ renderTimeInfo timeStr = do
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
 
-renderGround :: Render ()
-renderGround = do
+renderSky :: Render ()
+renderSky = do
 	-- Clear Background
 	rectangle 0 0 1 100
 	setSourceRGB  0 0 1
 	fill
+
+renderGround :: Render ()
+renderGround = do
 	setSourceRGB (140/255) (80/255) (21/255)
 	rectangle 0 0 1 (-groundLevel)
         fill
