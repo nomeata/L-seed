@@ -7,6 +7,7 @@ import Control.Applicative ((<$>),(<*>),pure)
 import Control.Arrow (second)
 import Data.Monoid
 import System.Time (ClockTime)
+import Data.Monoid
 
 -- | User Tag
 type UserTag = String
@@ -187,3 +188,13 @@ instance Foldable Planted where
 
 instance Traversable Planted where
 	sequenceA planted = (\x -> planted { phenotype = x }) <$> sequenceA (phenotype planted)
+
+instance Monoid Observer where
+	mempty = nullObserver
+	obs1 `mappend` obs2 = nullObserver {
+		obInit = obInit obs1 >> obInit obs2,
+		obState = \d g -> obState obs1 d g >> obState obs2 d g,
+		obGrowingState = \f -> obGrowingState obs1 f >> obGrowingState obs2 f,
+		obFinished = \g -> obFinished obs1 g >> obFinished obs2 g
+		}
+	
