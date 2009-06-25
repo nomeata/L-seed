@@ -6,7 +6,7 @@
 	,layout: 'fit'
 	,items: [{
 		id: "plantlistgrid"
-		,title: "Mein Pflanzen"
+		,title: "Saisons"
 		,xtype: 'grid'
 		,autoExpandColumn: 'Code'
 		,plugins: [new Ext.ux.RowEditor({

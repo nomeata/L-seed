@@ -6,7 +6,7 @@
 	,layout: 'fit'
 	,items: [{
 		id: "seasonlistgrid"
-		,title: "Mein Pflanzen"
+		,title: "Meine Pflanzen"
 		,xtype: 'grid'
 		,autoExpandColumn: 'User'
 		,view: new Ext.grid.GroupingView({
