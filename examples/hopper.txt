@@ -1,7 +1,7 @@
 Rule "Start"
 WHEN Length <= 0
 BRANCH AT 100% ANGLE = 30°, LENGTH = 0.5
-BRANCH AT 100% ANGLE = -30°, LENGTH = 0.5
+               ANGLE = -30°, LENGTH = 0.5
 
 RULE "Links"
 WHEN Direction > 0 AND Direction < 140°
