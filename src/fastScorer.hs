@@ -25,20 +25,27 @@ readArgs doit = do
 	  else	do
 		genomes <- mapM parseFile args
 		doit (spread genomes)
-  where	spread gs = zipWith (\g p -> Planted ((fromIntegral p + 0.5) / l) p g inititalPlant) gs [0..]
+  where	spread gs = zipWith (\g p ->
+  		Planted ((fromIntegral p + 0.5) / l)
+		        p
+			(show p)
+			g
+			inititalPlant
+		) gs [0..]
 	  where l = fromIntegral (length gs)
 	      
 
 scoringObs = nullObserver {
 	obFinished = \garden -> do
 		forM_ garden $ \planted -> do
-			printf "Plant from %d at %.4f: Total size %.4f\n"
+			printf "Plant from %s (%d) at %.4f: Total size %.4f\n"
+				(plantOwnerName planted)
 				(plantOwner planted)
 				(plantPosition planted)
 				(plantLength (phenotype planted))
-		let owernerscore = foldr (\p -> M.insertWith (+) (plantOwner p) (plantLength (phenotype p))) M.empty garden
-		forM_ (M.toList owernerscore) $ \(o,s) -> 
-			printf "Sum for %d: %.4f\n" o s
+		let owernerscore = foldr (\p -> M.insertWith (+) (plantOwner p, plantOwnerName p)(plantLength (phenotype p))) M.empty garden
+		forM_ (M.toList owernerscore) $ \((o,n),s) -> 
+			printf "Sum for %s (%d): %.4f\n" n o s
 	}
 
 main = readArgs $ \garden -> do

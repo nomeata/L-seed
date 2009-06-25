@@ -40,6 +40,7 @@ lseedMainLoop rt obs gardenSource maxDays = do
 				genome <- getUpdatedCode gardenSource (fmap (const ()) parent)
 				return $ Planted (plantPosition parent + seedPos)
 				                 (plantOwner parent)
+				                 (plantOwnerName parent)
 				         	 genome
 				         	 (fmap (const NoGrowth) inititalPlant)
 
