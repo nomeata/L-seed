@@ -105,6 +105,9 @@ Lseed.Communication = function() {
 				break;
 			default:
 				this.loadTab(content, contentname);
+				if (contentname == "editplant") {
+					editor.EditCallback();
+				}
 				break;
 		}
 	};
@@ -487,7 +490,7 @@ Lseed.Communication = function() {
 		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
-		this.AddCallback("ValidatePlant", editor.CheckSyntaxCallback.createDelegate(editor));
+		this.AddCallback("ValidatePlant", editor.HandleSyntaxCheckAnswerForEditor.createDelegate(editor));
 		this.AddCallback("ActivatePlant", editor.ActivateCallback.createDelegate(editor));
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, {func: 'IsLoggedIn'});
@@ -536,6 +539,21 @@ Lseed.Editor = function() {
 		}
 	};
 	
+	this.Edit = function(plant) {
+		communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'editplant'});
+		this.LastEditPlant = plant;
+	};
+	this.EditCallback = function() {
+		var cmp = Ext.getCmp("editplantdefinitionnamefield");
+		if (cmp) {
+			cmp.setValue(this.LastEditPlant.data.Name);
+		}
+		var cmp = Ext.getCmp("editplantdefinitioneditor");
+		if (cmp) {
+			cmp.setValue(this.LastEditPlant.data.Code);
+		}
+	};
+	
 	this.Test = function(plant, callback) {
 		communication.showMessage("Diese Funktion ist leider momentan nicht verfügbar", "error");
 	};
@@ -543,7 +561,6 @@ Lseed.Editor = function() {
 	this.TestCallback = function() {
 	};
 	
-	this.CheckSyntaxCallback = null;
 	this.CheckSyntax = function(plant, callback) {
 		if (typeof callback != 'undefined' && callback != null) {
 			this.CheckSyntaxCallback = callback;
@@ -557,27 +574,37 @@ Lseed.Editor = function() {
 	};
 	
 	this.HandleSyntaxCheckAnswerForEditor = function(data) {
-		var pdEditor = Ext.getCmp("plantdefinitioneditor");
-		if (pdEditor) {
-			communication.stopWaitingForPage();
+		if (data.success || data.valid) {
 			Ext.MessageBox.show({
-				title:'Fehler'
-				,msg: data.msg
+				title:'Valide'
+				,msg: "Alles Super."
 				,buttons: Ext.Msg.OK
-				,fn: function() {
-					var index = editor.GetStartFromField(pdEditor, data.line-1, data.column);
-					if (index != -1) {
-						pdEditor.selectText(index-1, index);
-					}
-				}
-				,icon: Ext.MessageBox.ERROR
+				,icon: Ext.MessageBox.Info
 			});
 		} else {
-			console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
+			var pdEditor = Ext.getCmp("plantdefinitioneditor");
+			if (pdEditor) {
+				communication.stopWaitingForPage();
+				Ext.MessageBox.show({
+					title:'Fehler'
+					,msg: data.msg
+					,buttons: Ext.Msg.OK
+					,fn: function() {
+						if (typeof data.line != "undefined") {
+							var index = editor.GetStartFromField(pdEditor, data.line-1, data.column);
+							if (index != -1) {
+								pdEditor.selectText(index-1, index);
+							}
+						}
+					}
+					,icon: Ext.MessageBox.ERROR
+				});
+			} else {
+				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
+				alert("Es trat ein Fehler auf...sowas.");
+			}
 		}
-	}
-	
-	this.CheckSyntaxCallback = function() {};
+	};
 	
 	this.Delete = function(plant) {
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 

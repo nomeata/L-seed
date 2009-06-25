@@ -1,0 +1,70 @@
+{
+	id: 'ContentPanel_createplant'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Pflanze editieren'
+	,layout: 'form'
+	,labelWidth: 100
+	,baseCls: 'x-plain'
+	,bodyStyle:'padding:5px;'
+	,defaults: {
+		bodyStyle:'padding:5px;'
+	}
+	,tbar: [{
+		text: "Save"
+		,icon: 'img/icons/disk.png'
+		,cls: 'x-btn-text-icon'
+		,handler: function() {
+			var namefield = Ext.getCmp("editplantdefinitionnamefield");
+			var planteditor = Ext.getCmp("editplantdefinitioneditor");
+			if (namefield.isValid()) {
+			
+				var plant = new Lseed.Plant({
+					Name: namefield.getValue() 
+					,Code: planteditor.getValue()
+				});
+				editor.Save(plant);
+			} else {
+				communication.showMessage("Ihre Pflanze benötigt einen Namen.", "error");
+			}
+		}
+	},{
+		text: "CheckSyntax"
+		,icon: 'img/icons/accept.png'
+		,cls: 'x-btn-text-icon'
+		,handler: function() { 
+			communication.waitForPage();
+			var pdEditor = Ext.getCmp("editplantdefinitioneditor");
+			var pnEditor = Ext.getCmp("editplantdefinitionnamefield");
+			if (pdEditor && pnEditor) {
+				var name = pnEditor.getValue();
+				var code = pdEditor.getValue();
+				editor.CheckSyntax({data:{Code:code, Name:name}}, editor.HandleSyntaxCheckAnswerForEditor); 
+			} else {
+				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
+			}
+		}.createDelegate(editor)
+	}]
+	,items: [{
+		id: "editplantdefinitionnamefield"
+		,xtype: 'textfield'
+		,name: 'name'
+		,allowBlank: false
+		,fieldLabel: 'Name der Pflanze'
+		,anchor:'100%'
+		,disabled: true
+		,enableKeyEvents: true
+		,listeners: {
+		}
+	},{
+		id: "editplantdefinitioneditor"
+		,xtype: 'textarea'
+		,name: 'code'
+		,fieldLabel: 'Pflanzendefinition'
+		,anchor:'100% -50'
+		,enableKeyEvents: true
+		,listeners: {
+		}
+		,value: ''
+	}]
+}
