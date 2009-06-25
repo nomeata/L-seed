@@ -96,22 +96,24 @@ renderFlag text = preserve $ do
 	setFontSize (groundLevel/2)
 	ext <- textExtents text
 
+	preserve $ do
+		translate (stipeWidth) (groundLevel/2)
+		rectangle 0
+			  (textExtentsYbearing ext + groundLevel/2)
+			  (textExtentsXadvance ext)
+			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+		setSourceRGB 1 1 1
+		fill
+
+		setSourceRGB 0 0 0
+		showText text
+
 	setLineWidth (groundLevel/10)
 	setSourceRGB 0 0 0
 	moveTo 0 0
 	lineTo (stipeWidth + textExtentsXadvance ext) 0
 	stroke
 
-	translate (stipeWidth) (groundLevel/2)
-	rectangle 0
-		  (textExtentsYbearing ext)
-		  (textExtentsXadvance ext)
-		  (textExtentsHeight ext)
-	setSourceRGB 1 1 1
-	fill
-
-	setSourceRGB 0 0 0
-	showText text
 
 -- | Renders a plant, or part of a plant, with a given colour. If the Render
 -- argument is given, it is drawn at the end of the plant, if there are no
@@ -119,11 +121,19 @@ renderFlag text = preserve $ do
 renderPlant :: (Maybe (Render ())) -> (Double,Double,Double) -> AnnotatedPlant -> Render ()	
 renderPlant leaveR color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
 	rotate ang
-	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
-	moveTo 0 0
-	lineTo 0 (len * stipeLength)
-	setSourceRGB r g b
-	stroke
+	withLinearPattern 0 0 0 (len * stipeLength) $ \pat -> do
+		let darkenByBegin = 1/(1 + (siSubLength si)/50)
+		let darkenByEnd = 1/(1 + (siSubLength si - siLength si)/50)
+		patternAddColorStopRGB pat 0
+			(darkenByBegin*r) (darkenByBegin*g) (darkenByBegin*b) 
+		patternAddColorStopRGB pat 1
+			(darkenByEnd*r) (darkenByEnd*g) (darkenByEnd*b) 
+		setSource pat
+		--setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
+		setLineWidth stipeWidth
+		moveTo 0 0
+		lineTo 0 (len * stipeLength)
+		stroke
 	translate 0 (len * stipeLength)
 	if null ps
 	 then fromMaybe (return ()) leaveR
