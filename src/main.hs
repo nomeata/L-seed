@@ -27,7 +27,7 @@ readArgs doit = do
   where	spread gs = zipWith (\g p ->
   		Planted ((fromIntegral p + 0.5) / l)
 		        p
-			(show p)
+			("Player " ++ (show p))
 			g
 			inititalPlant
 		) gs [0..]

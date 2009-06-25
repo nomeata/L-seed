@@ -85,10 +85,37 @@ renderPlanted planted = preserve $ do
 	translate (plantPosition planted) 0
 	setLineCap LineCapRound
 	let c = colors !! fromIntegral (plantOwner planted)
-	renderPlant c (phenotype planted)
+	renderPlant (Just (renderFlag (take 10 (plantOwnerName planted))))
+	            c (phenotype planted)
 
-renderPlant :: (Double,Double,Double) -> AnnotatedPlant -> Render ()	
-renderPlant color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
+renderFlag :: String -> Render ()
+renderFlag text = preserve $ do
+	scale 1 (-1)
+	setFontSize (groundLevel/2)
+	ext <- textExtents text
+
+	setLineWidth (groundLevel/10)
+	setSourceRGB 0 0 0
+	moveTo 0 0
+	lineTo (stipeWidth + textExtentsXadvance ext) 0
+	stroke
+
+	translate (stipeWidth) (groundLevel/2)
+	rectangle 0
+		  (textExtentsYbearing ext)
+		  (textExtentsXadvance ext)
+		  (textExtentsHeight ext)
+	setSourceRGB 1 1 1
+	fill
+
+	setSourceRGB 0 0 0
+	showText text
+
+-- | Renders a plant, or part of a plant, with a given colour. If the Render
+-- argument is given, it is drawn at the end of the plant, if there are no
+-- branches, or passed to exactly one branch.
+renderPlant :: (Maybe (Render ())) -> (Double,Double,Double) -> AnnotatedPlant -> Render ()	
+renderPlant leaveR color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
 	rotate ang
 	setLineWidth (stipeWidth*(0.5 + 0.5 * sqrt (siSubLength si)))
 	moveTo 0 0
@@ -96,7 +123,11 @@ renderPlant color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
 	setSourceRGB r g b
 	stroke
 	translate 0 (len * stipeLength)
-	mapM_ (renderPlant color) ps
+	if null ps
+	 then fromMaybe (return ()) leaveR
+	 else sequence_ $ zipWith (\r p -> renderPlant r color p)
+	                         (leaveR : repeat Nothing)
+				 ps
 	case siGrowth si of
 	  GrowingSeed done -> do
 	  	setSourceRGB 1 1 0
@@ -158,8 +189,11 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 renderInfo angle garden = do
 	forM_ garden $ \planted -> do
 		let x = plantPosition planted
+		{-
 		let text1 = printf "Light: %.2f" $
 				siSubLight . pData . phenotype $ planted
+		-}
+		let text1 = plantOwnerName planted
 		let text2 = printf "Size: %.2f" $
 				siSubLength . pData . phenotype $ planted
 		preserve $ do
@@ -167,9 +201,9 @@ renderInfo angle garden = do
 			setSourceRGB 0 0 0
 			setFontSize (groundLevel/2)
 			moveTo x (0.9*groundLevel)
-			showText text1
-			moveTo x (0.5*groundLevel)
 			showText text2
+			moveTo x (0.5*groundLevel)
+			showText text1
 
 renderTimeInfo timeStr = do
 	preserve $ do
