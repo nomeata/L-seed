@@ -23,16 +23,16 @@ data DBCode = DBCode
 	}
 	deriving (Show)
 
-withLseedDB ::  (Connection -> IO t) -> IO t
-withLseedDB what = do
-	dn <- readFile "../db.conf"
+withLseedDB :: FilePath -> (Connection -> IO t) -> IO t
+withLseedDB conf what = do
+	dn <- readFile conf
 	conn <- connectODBC dn	
 	res <- what conn
 	disconnect conn
 	return res
 
-getCodeToRun ::  IO [DBCode]
-getCodeToRun = withLseedDB $ \conn -> do
+getCodeToRun :: FilePath -> IO [DBCode]
+getCodeToRun conf = withLseedDB conf $ \conn -> do
 	let getCodeQuery = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE user.NextSeed = plant.ID;"
 	stmt <- prepare conn getCodeQuery
 	execute stmt []
@@ -44,8 +44,8 @@ getCodeToRun = withLseedDB $ \conn -> do
 		       (fromSql (m ! "plantid"))
 		       (fromSql (m ! "code"))
 
-getUpdatedCodeFromDB :: Integer -> IO (Maybe DBCode)
-getUpdatedCodeFromDB userid = withLseedDB $ \conn -> do
+getUpdatedCodeFromDB :: FilePath -> Integer -> IO (Maybe DBCode)
+getUpdatedCodeFromDB conf userid = withLseedDB conf $ \conn -> do
 	let query = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE user.NextSeed = plant.ID AND user.ID = ?;"
 	stmt <- prepare conn query
 	execute stmt [toSql userid]
@@ -57,7 +57,7 @@ getUpdatedCodeFromDB userid = withLseedDB $ \conn -> do
 		       (fromSql (m ! "plantid"))
 		       (fromSql (m ! "code"))
 
-addFinishedSeasonResults garden = withLseedDB $ \conn -> do 
+addFinishedSeasonResults conf garden = withLseedDB conf $ \conn -> do 
 	let owernerscore = M.toList $ foldr go M.empty garden
 		where go p = M.insertWith (+) (plantOwner p) (plantLength (phenotype p))
 	run conn "INSERT INTO SEASON VALUES (NULL, False)" []
