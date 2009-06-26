@@ -33,7 +33,7 @@ withLseedDB conf what = do
 
 getCodeToRun :: FilePath -> IO [DBCode]
 getCodeToRun conf = withLseedDB conf $ \conn -> do
-	let getCodeQuery = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE user.NextSeed = plant.ID;"
+	let getCodeQuery = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE plant.Valid AND user.NextSeed = plant.ID;"
 	stmt <- prepare conn getCodeQuery
 	execute stmt []
 	result <- fetchAllRowsMap' stmt
@@ -46,7 +46,7 @@ getCodeToRun conf = withLseedDB conf $ \conn -> do
 
 getUpdatedCodeFromDB :: FilePath -> Integer -> IO (Maybe DBCode)
 getUpdatedCodeFromDB conf userid = withLseedDB conf $ \conn -> do
-	let query = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE user.NextSeed = plant.ID AND user.ID = ?;"
+	let query = "SELECT plant.ID AS plantid, user.ID AS userid, code, plant.Name AS plantname, user.Name AS username from plant, user WHERE plant.Valid AND user.NextSeed = plant.ID AND user.ID = ?;"
 	stmt <- prepare conn query
 	execute stmt [toSql userid]
 	result <- fetchAllRowsMap' stmt
