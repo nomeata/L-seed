@@ -18,7 +18,6 @@
 
 		<link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
 		<link rel="stylesheet" type="text/css" href="ext/resources/css/xtheme-slate.css" />
-		<link rel="stylesheet" type="text/css" href="css/RowEditor.css" />
 		<style type="text/css">
 			#loading {
 			  position: absolute;
@@ -69,7 +68,6 @@
 		<script type="text/javascript" src="js/md5.js"></script>
 		<script type="text/javascript" src="js/communication.js"></script>
 		<script type="text/javascript" src="js/codepress/codepress.js"></script>
-		<script type="text/javascript" src="js/RowEditor.js"></script>
 		<script type="text/javascript">
 			communication = new Lseed.Communication();
 			editor = new Lseed.Editor();
