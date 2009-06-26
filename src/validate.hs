@@ -11,6 +11,7 @@ import Text.Parsec.Error
 import Text.Parsec.Pos
 import Lseed.Grammar.Parse
 import Text.JSON
+import System.Exit
 
 valid = encode $ makeObj [ ("valid", showJSON True) ]
 
@@ -24,4 +25,12 @@ invalid error = encode $ makeObj
                     errorMessages $ error)
 	]
 
-main = interact $ either invalid (const valid) . parseGrammar "stdin"
+main = do
+	file <- getContents
+	case (parseGrammar "stdin" file) of
+		Left err -> do
+			putStrLn (invalid err)
+			exitWith (ExitFailure 1)
+		Right _ -> do
+			putStrLn valid
+			exitWith ExitSuccess
