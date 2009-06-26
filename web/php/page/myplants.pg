@@ -106,12 +106,26 @@
 				,width: 50
 				,sortable: true
 				,dataIndex: 'IsValid'
+				,renderer: function (value, metadata, record, rowindex, colindex, store) {
+					if (value) {
+						return '<img src="img/icons/accept.png"/>';
+					} else {
+						return '<img src="img/icons/cross.png"/>';
+					}
+				}
 			},{
 				id: 'IsActive'
 				,header: 'IsActive'
 				,width: 50
 				,sortable: true
 				,dataIndex: 'IsActive'
+				,renderer: function (value, metadata, record, rowindex, colindex, store) {
+					if (value) {
+						return '<img src="img/icons/award.png"/>';
+					} else {
+						return '';
+					}
+				}
 			}
 		]
 		,sm: new Ext.grid.RowSelectionModel({
