@@ -252,6 +252,7 @@ renderStats h garden = do
 	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
 
 	let texts = map (\(n,s) -> printf "%s: %.4f" n s) $
+			reverse $
 			sortBy (comparing snd) $
 		        (M.toList owernerscore)
 	preserve $ do
