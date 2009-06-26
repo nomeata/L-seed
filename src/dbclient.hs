@@ -9,8 +9,9 @@ import Control.Monad
 import Text.Printf
 import System.Environment
 import Data.Monoid
+import Data.Maybe
 
-getDBGarden conf = spread <$> map compileDBCode <$> getCodeToRun conf
+getDBGarden conf = spread <$> mapMaybe compileDBCode <$> getCodeToRun conf
   where spread gs = zipWith (\(u,n,g) p ->
  		 Planted ((fromIntegral p + 0.5) / l)
 			 u
@@ -22,12 +23,14 @@ getDBGarden conf = spread <$> map compileDBCode <$> getCodeToRun conf
 
 compileDBCode dbc =
 	case  parseGrammar "" (dbcCode dbc) of
-		Left err          -> error (show err)
-		Right grammarFile -> (dbcUserID dbc, dbcUserName dbc, grammarFile)
-dbc2genome = either (error.show) id . parseGrammar "" . dbcCode
+		Left err          -> Nothing
+		Right grammarFile -> Just (dbcUserID dbc, dbcUserName dbc, grammarFile)
 
-getDBUpdate conf planted = maybe (genome planted) dbc2genome <$>
-                      getUpdatedCodeFromDB conf (plantOwner planted)
+dbc2genome = either (const Nothing) Just . parseGrammar "" . dbcCode
+
+getDBUpdate conf planted = fromMaybe (genome planted) <$>
+		maybe Nothing dbc2genome <$>
+		getUpdatedCodeFromDB conf (plantOwner planted)
 
 scoringObs conf = nullObserver {
 	obFinished = \garden -> do

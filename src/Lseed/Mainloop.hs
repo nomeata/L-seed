@@ -53,7 +53,7 @@ lseedMainLoop rt obs gardenSource maxDays = do
 				let tickDiff = timeSpanFraction tickLength tickStart later
 				    dayDiff = (fromIntegral tickOfDay + tickDiff) /
 					      fromIntegral ticksPerDay
-				    timeInfo = formatTimeInfo day dayDiff
+				    timeInfo = formatTimeInfo day dayDiff ++ " Connect now! http://lseed.gpn.entropia.de/"
 				    visualizeAngle = lightAngle dayDiff
 				    gardenNow = annotateGarden visualizeAngle $ 
 				                growingGarden tickDiff
