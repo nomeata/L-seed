@@ -26,13 +26,6 @@
 				}
 			}
 		},{
-			id: 'plantlistCheckPlantSyntax'
-			,text: 'Check Syntax'
-			,icon: 'img/icons/accept.png'
-			,cls: 'x-btn-text-icon'
-			,disabled: true
-			,handler: editor.CheckSyntax.createDelegate(editor, ['plantlistgrid'], true)
-		},{
 			id: 'plantlistActivatePlant'
 			,text: 'Activate'
 			,icon: 'img/icons/award.png'
@@ -120,13 +113,11 @@
 			,listeners: {
 				rowselect: function() {
 					Ext.getCmp("plantlistDeletePlant").enable();
-					Ext.getCmp("plantlistCheckPlantSyntax").enable();
 					Ext.getCmp("plantlistActivatePlant").enable();
 					Ext.getCmp("plantlistEditPlant").enable();
 				}
 				,rowdeselect: function() {
 					Ext.getCmp("plantlistDeletePlant").disable();
-					Ext.getCmp("plantlistCheckPlantSyntax").disable();
 					Ext.getCmp("plantlistActivatePlant").disable();
 					Ext.getCmp("plantlistEditPlant").disable();
 				}
