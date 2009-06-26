@@ -138,11 +138,6 @@
 				case "TestPlant":
 					break;
 
-				case "ValidatePlant":
-					$plant = new Plant(0,0,$plantname,$code,0);
-					$res = $plant->Validate();
-					break;
-
 				case "CheckSyntax":
 					# Create a temporary plant		
 					$plant = new Plant(0,0,$plantname,$code,0);

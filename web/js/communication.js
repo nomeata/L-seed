@@ -501,9 +501,10 @@ Lseed.Communication = function() {
 		this.AddCallback("GetPlantList", this.GetPlantListCallback.createDelegate(this));
 		this.AddCallback("GetSeasonList", this.GetSeasonListCallback.createDelegate(this));
 		
+		this.AddCallback("CheckSyntax", editor.HandleSyntaxCheckAnswerForEditor.createDelegate(editor));
+		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
-		this.AddCallback("ValidatePlant", editor.HandleSyntaxCheckAnswerForEditor.createDelegate(editor));
 		this.AddCallback("ActivatePlant", editor.ActivateCallback.createDelegate(editor));
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, {func: 'IsLoggedIn'});
