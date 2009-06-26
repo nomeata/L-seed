@@ -519,7 +519,6 @@ Lseed.Editor = function() {
 	};
 	
 	this.Save = function(plant) {
-		alert('Save');	
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'SavePlant'
 			,plant: plant.data.Name
