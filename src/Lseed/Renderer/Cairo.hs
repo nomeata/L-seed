@@ -13,6 +13,9 @@ import Lseed.Geometry
 import Lseed.StipeInfo
 import Text.Printf
 import System.Time
+import qualified Data.Map as M
+import Data.List
+import Data.Ord
 
 colors :: [ (Double, Double, Double) ]
 colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
@@ -73,6 +76,7 @@ cairoObserver = do
 
 					render angle garden
 					renderTimeInfo timeInfo
+					renderStats (fromIntegral h/fromIntegral w) garden
 		                  return True
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
@@ -243,6 +247,35 @@ renderTimeInfo timeStr = do
 		setFontSize (groundLevel/2)
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
+
+renderStats h garden = do
+	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
+
+	let texts = map (\(n,s) -> printf "%s: %.4f" n s) $
+			sortBy (comparing snd) $
+		        (M.toList owernerscore)
+	preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		translate 0 (1.5*groundLevel - h) 
+
+		setFontSize (groundLevel/2)
+
+		--translate (stipeWidth) (groundLevel/2)
+		forM_ texts $ \text ->  do
+			ext <- textExtents text
+			rectangle 0
+				  (textExtentsYbearing ext + groundLevel/2)
+				  (textExtentsXadvance ext)
+				  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+			setSourceRGB 1 1 1
+			fill
+
+			setSourceRGB 0 0 0
+			showText text
+
+			translate 0 (groundLevel/2)
+
 
 renderSky :: Render ()
 renderSky = do
