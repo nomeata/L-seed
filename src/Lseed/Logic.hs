@@ -80,7 +80,7 @@ growPlanted planted light =
             then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
 		     lowerBound = if sizeOfPlant < smallPlantBoostSize
-		                  then smallPlantBoostLength
+		                  then (1 - sizeOfPlant / smallPlantBoostSize) * smallPlantBoostLength
 				  else 0
                      allowedGrowths = max lowerBound $
                                       (growthPerDayAndLight * lightAvailable) /

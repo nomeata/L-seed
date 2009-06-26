@@ -47,7 +47,7 @@ main = do
 		lseedMainLoop True
 			      (obs `mappend` scoringObs conf)
 			      (GardenSource (getDBGarden conf) (getDBUpdate conf))
-			      200
+			      30
 	  _ -> do
 		putStrLn "L-Seed DB client application."
 		putStrLn "Please pass DB configuration file on the command line."
