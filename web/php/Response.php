@@ -34,14 +34,18 @@
 		public $m_Type;
 		public $m_ContentName;
 		
-		public function __construct($name) {
+		public function __construct($name, $plantid) {
 			parent::__construct("Content");
 			$this->m_ContentName = $name;
+			$this->m_PlantID = $plantid;
 		}
 		
 		public function send() {
 			echo "{ cmd: '".$this->m_Command."', contentname: '".$this->m_ContentName."', content: ";
 			readfile( "page/".$this->m_ContentName.".pg" );
+			if ($this->m_PlantID != null) {
+				echo ", plantid: ".$this->m_PlantID;
+			};
 			echo "}";
 		}
 	}

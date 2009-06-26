@@ -67,7 +67,7 @@ Lseed.Communication = function() {
 				case 'Content':
 					this.stopWaitingForPage();
 					
-					this.showContent(obj.content, obj.contentname);
+					this.showContent(obj);
 					break;
 			}
 		} catch (e) {
@@ -97,15 +97,20 @@ Lseed.Communication = function() {
 
 	// ----- Application -----
 	
-	this.showContent = function (content, contentname) {
-		switch(contentname) {
+	this.showContent = function (contentmsg) {
+		switch(contentmsg.contentname) {
 			case "nav":
 			case "adminnav":
-				this.loadNavigation(content);
+				this.loadNavigation(contentmsg.content);
 				break;
 			default:
-				this.loadTab(content, contentname);
-				if (contentname == "editplant") {
+				content = contentmsg.content;
+				if (contentmsg.contentname == "previewplant") {
+
+					content.html = '<img src="php/PlantImages.php?plantid='+contentmsg.plantid+'"/>';
+				}
+				this.loadTab(content, contentmsg.contentname);
+				if (contentmsg.contentname == "editplant") {
 					editor.EditCallback();
 				}
 				break;
@@ -550,6 +555,12 @@ Lseed.Editor = function() {
 		} else {
 			communication.showMessage(data.msg, "error");
 		}
+	};
+	
+	this.Preview = function(plant) {
+		communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'previewplant', plantid: plant.data.ID} );
+	};
+	this.PreviewCallback = function() {
 	};
 	
 	this.Edit = function(plant) {

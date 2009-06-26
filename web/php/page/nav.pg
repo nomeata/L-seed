@@ -14,10 +14,6 @@
 		,text: "Meine Pflanzen"
 		,leaf: true
 	},{
-		id: 'testplant'
-		,text: "Pflanze testen"
-		,leaf: true
-	},{
 		id: 'season'
 		,text: "Aktuelle Saison"
 		,leaf: true

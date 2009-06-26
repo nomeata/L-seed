@@ -34,7 +34,7 @@
 
 			case "ContentRequest":
 				if ($controller->IsLoggedIn() != "false") {
-					$response = new ContentMessage($_POST["content"]);
+					$response = new ContentMessage($_POST["content"], $_POST["plantid"]);
 				} else {
 					$func = "function() { this.showLoginDialog(); this.showMessage('Sie sind nicht eingeloggt bitte einloggen', 'error'); }";
 					$response = new RemoteProcedureCall($func);

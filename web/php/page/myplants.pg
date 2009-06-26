@@ -39,6 +39,19 @@
 				}
 			}
 		},{
+			id: 'plantlistPreviewPlant'
+			,text: 'Preview'
+			,icon: 'img/icons/edit.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: function(){
+				var grid = Ext.getCmp("plantlistgrid");
+				var selected = grid.getSelectionModel().getSelections();
+				if(selected.length > 0) {
+				    editor.Preview(selected[0]);
+				}
+			}
+		},{
 			id: 'plantlistEditPlant'
 			,text: 'Edit'
 			,icon: 'img/icons/edit.png'
@@ -129,10 +142,12 @@
 					Ext.getCmp("plantlistDeletePlant").enable();
 					Ext.getCmp("plantlistActivatePlant").enable();
 					Ext.getCmp("plantlistEditPlant").enable();
+					Ext.getCmp("plantlistPreviewPlant").enable();
 				}
 				,rowdeselect: function() {
 					Ext.getCmp("plantlistDeletePlant").disable();
 					Ext.getCmp("plantlistActivatePlant").disable();
+					Ext.getCmp("plantlistPreviewPlant").disable();
 					Ext.getCmp("plantlistEditPlant").disable();
 				}
 			}
