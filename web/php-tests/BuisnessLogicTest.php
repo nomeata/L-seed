@@ -1,9 +1,9 @@
 <?php
-	include("../php/User.php");
-	include("../php/Plant.php");
-	include("../php/Controller.php");
-	include("../php/Season.php");
-	include("../php/SeasonScore.php");
+	include("../User.php");
+	include("../Plant.php");
+	include("../Controller.php");
+	include("../Season.php");
+	include("../SeasonScore.php");
 
 	class TestOfBuisnessLogic extends UnitTestCase
 	{

@@ -2,14 +2,10 @@
 	
 	class DataBase
 	{
-		private $m_Username = "lseed";
-		private $m_Password = "GCp:rtAaN8nwTFMP";
-		private $m_Server = "localhost";
-		private $m_Database = "lseed";
 		public $m_Connection;
 
 		public function __construct() {
-			$this->m_Connection = @new mysqli( $this->m_Server, $this->m_Username, $this->m_Password, $this->m_Database );
+			$this->m_Connection = @new mysqli( 'localhost', 'lseed', 'GCp:rtAaN8nwTFMP', 'lseed' );
 			if (mysqli_connect_errno() != 0) {
 				die( "Argh what did you do?->SERVERERR=0, ".mysqli_connect_error());
 			}
