@@ -29,8 +29,8 @@ main = do
 	file <- getContents
 	case (parseGrammar "stdin" file) of
 		Left err -> do
-			putStrLn (invalid err)
+			putStr (invalid err)
 			exitWith (ExitFailure 1)
 		Right _ -> do
-			putStrLn valid
+			putStr valid
 			exitWith ExitSuccess
