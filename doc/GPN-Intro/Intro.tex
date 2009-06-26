@@ -1,0 +1,262 @@
+\documentclass[compress]{beamer}
+
+\usetheme[footline=authortitle,compress]{GPN}
+\usecolortheme{GPN}
+\usepackage[german]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usepackage{pgflibraryarrows}
+\usepackage{colortbl}
+\usepackage{listings}
+\usepackage{pifont}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{wasysym}
+\usepackage{amsmath}
+\usepackage{textcomp}
+
+
+% Listing-Definition
+\lstset{language=Java,
+        basicstyle=\footnotesize,
+        breaklines,breakatwhitespace,prebreak=\Pisymbol{psy}{191},
+	texcl,
+	commentstyle=\color{blue},
+	stringstyle=\color{gray},
+	extendedchars=true,
+}
+
+\newcommand{\comp}{\leftmoon\!\!}
+
+% \pause mit verstecken
+\newcommand{\hide}{\onslide+<+(1)->}
+
+\title{L-seed}
+\author[Joachim Breitner]{Joachim Breitner}
+\institute{\url{http://entropia.de/wiki/L-seed}}
+%\titlegraphic{\includegraphics[width=45pt]{img/Logo}}
+\date{26. Juni 2006}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+%\frame{\frametitle{Unser Programm heute} \tableofcontents}
+
+\section{Die Idee}
+\subsection*{}
+
+\begin{frame}
+\frametitle{Vorbemerkung}
+Vortragsfolien entstanden vorher, daher nicht besonders schick\dots
+\end{frame}
+
+\begin{frame}
+\frametitle{Das Spiel}
+\begin{itemize}
+\item Dieses Jahr werden Pflanzen simuliert
+\item Man programmiert in einer einfachen, \textit{nicht-turingmächtigen} Programmiersprache
+\item Pflanzen können während dem Wachstum nicht beeinflusst werden
+\item Das ganze soll chillig aussehen und sein
+\item Es sollte schick anzusehen sein
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Verwendung}
+\begin{itemize}
+\item Auf \url{http://lseed.gpn8.entropia.de} registrieren
+\item Dort munter Code schreiben
+\item Integrierter Syntaxchecker!
+\item Integrierte Vorschau!
+\item Wenn zufrieden $\to$ als aktiv markieren
+\item Zuschauen
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Die Regeln}
+\begin{itemize}
+\item Eine Pflanze besteht aus Zweigen, an deren Ende andere Zweige abstehen, und Blüten.
+\item Wenn eine Pflanze gerade nicht wächst, wird \textbf{für jeden Zweig} gleichzeitig geschaut, welche Regel anwendbar ist
+\item Regeln können abhängen von der Zweiglänge, der Größe des Teilbaums, der Richtung und des Usertags
+\item Usertags sind Strings, die man an einen Branch hängen kann und auch ändern kann
+\item Von allen anwendbaren Regen werden nur die mit höchster Prioriät betrachtet
+\item Bei mehreren anwendbaren Regeln wird zufällig und ggf. gewichtet gewählt
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Die Regelaktionen}
+Eine Regel gibt eine von drei Aktionen an:
+\begin{itemize}
+\item Wachsen
+\begin{itemize}
+\item mit absolut angegebener Zielgröße, absolutem Zuwachs und relativem Zuwachs
+\end{itemize}
+\item Abzweigen
+\begin{itemize}
+\item am Ende oder in der Mitte des Zweigs
+\item ggf. mehrfach
+\item in eine Richtung, relativ zum aktuellen Zweig
+\item mit einer Länge für den neuen Zweig
+\end{itemize}
+\item Blühen, um Samen zu werfen
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Saisons}
+\begin{itemize}
+\item Eine Runde (Saison) dauert $n$ Tage à $m$ Minuten
+\item Am Anfang werden alle (aktiven, gültigen) Genome geladen
+\item Neue Pflanzen bekommen ggf. aktualisierten Code
+\item Am Ende wird die Biomasse gezählt
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Licht}
+\begin{itemize}
+\item Zum Wachsen braucht man Licht
+\item Licht wird von den Zweigen eingefangen
+\item Im Schatten gibt es weniger Licht
+\item Je mehr Licht, desto schneller das Wachstum
+\item Alles aktuelles Wachstum findet gleichzeitig statt und wird gleichzeitig beendet
+\end{itemize}
+\end{frame}
+
+
+\section{Beispiele}
+\subsection*{}
+
+\begin{frame}[fragile]
+\frametitle{Die triviale Pflanze}
+\begin{lstlisting}
+// This is the trivial plant, which just grows and grows
+RULE "Very simple Rule"
+GROW BY 1
+\end{lstlisting}
+\pause
+Man sieht:
+\begin{itemize}
+\item Java-Style-Kommentare
+\item Whitespace ist unsignifikant
+\item Strings in Anführungszeichen oder einfach ein Wort
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Branching}
+\begin{lstlisting}
+Rule "Growing"
+Grow by 2
+Weight 2
+
+Rule "Right"
+Branch At 50% Angle = 45°, Length = 1
+Weight 1
+
+Rule "Left"
+Branch At 100% Angle = -45°, Length = 1
+Weight 1
+\end{lstlisting}
+\pause
+Man sieht:
+\begin{itemize}
+\item Verwendung von Gewichten
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Regel-Bedingungen}
+\begin{lstlisting}
+Rule "Start"
+WHEN Length <= 0
+BRANCH AT 100% ANGLE = 30°, LENGTH = 0.5
+               ANGLE = -30°, LENGTH = 0.5
+RULE "Links"
+WHEN Direction > 0 AND Direction < 140°
+BRANCH AT 100% ANGLE = 30°, LENGTH = 0.5
+RULE "Zurück"
+WHEN Direction >= 140°
+BRANCH AT 100% ANGLE = -120°, LENGTH = 0.5
+RULE "Rechts"
+WHEN Direction < 0 AND Direction > -140°
+BRANCH AT 100% ANGLE = -30°, LENGTH = 0.5
+RULE "Zurück"
+WHEN Direction <= -140°
+BRANCH AT 100% ANGLE = 120°, LENGTH = 0.5
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Usertags}
+\begin{lstlisting}
+RULE "Start" WHEN Length <= 0
+GROW BY 1 SET TAG = "Root1"
+
+RULE "Story 1" WHEN TAG = "Root1"
+BRANCH ANGLE = 70°, LENGTH = 2, Tag = ""
+       ANGLE = -70°, LENGTH = 2, Tag = ""
+       ANGLE = 0°, LENGTH = 1, TAG = "Root2"
+SET TAG = ""
+RULE "Story 2" WHEN TAG = "Root2"
+BRANCH AT 100% ANGLE = 70°, LENGTH = 1.5, Tag = ""
+               ANGLE = -70°, LENGTH = 1.5, Tag = ""
+               ANGLE = 0°, LENGTH = 1, TAG = "Root3"
+SET TAG = ""
+RULE "Story 3" WHEN TAG = "Root3"
+BRANCH AT 100% ANGLE = 70°, LENGTH = 1, Tag = ""
+               ANGLE = -70°, LENGTH = 1, Tag = ""
+               ANGLE = 0°, LENGTH = 1, TAG = "Tip"
+SET TAG = ""
+RULE "Star" WHEN TAG = "Tip" Blossom
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Usertags}
+Man sah:
+\begin{itemize}
+\item Verwendung von Usertags
+\item Zeilenumbrüche nicht relevant
+\item Fortpflanzung
+\end{itemize}
+\end{frame}
+
+\section{Und nun?}
+\subsection*{}
+
+\begin{frame}
+\frametitle{Und nun?}
+\begin{itemize}
+\item Pflanzen wachsen lassen, die möglichst groß werden.
+\item Pflanzen wachsen lassen, die möglichst schön sind.
+\pause
+\item Coden!
+\begin{itemize}
+\item Schönere Graphik (Haskell, Cairo, ggf. OpenGL)
+\item Web-Frontend debuggen und aufmöbeln (etwa mehrere Pflanzen gleichzeitig bearbeiten)
+(PHP, Javascript, ExtJs)
+\item Sonstiges features
+\end{itemize}
+\item \url{http://git.nomeata.de/} bzw. \url{http://lseed.gpn8.entropia.de/git}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+Fragen?
+\end{center}
+\end{frame}
+
+
+\section*{\ } % hack to make my navi work
+\setbeamercolor{normal text}{bg=black}
+\frame[plain]{
+\begin{center}	\includegraphics[height=\textheight]{Endbild}\end{center}
+}
+
+\end{document}
