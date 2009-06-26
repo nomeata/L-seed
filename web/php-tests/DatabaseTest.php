@@ -1,5 +1,5 @@
 <?php
-	include("../Database.php");
+	include("../php/Database.php");
 
 	class TestOfDataBase extends UnitTestCase
 	{

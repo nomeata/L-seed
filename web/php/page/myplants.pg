@@ -9,10 +9,6 @@
 		,title: "Mein Pflanzen"
 		,xtype: 'grid'
 		,autoExpandColumn: 'Code'
-		,plugins: [new Ext.ux.RowEditor({
-			id: 'plantlistgridEditor'
-			,saveText: 'Update'
-		})]
 		,view: new Ext.grid.GroupingView({
 			markDirty: false  
 		})
@@ -23,7 +19,6 @@
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){
-				Ext.getCmp("plantlistgridEditor").stopEditing();
 				var grid = Ext.getCmp("plantlistgrid");
 				var s = grid.getSelectionModel().getSelections();
 				for(var i = 0, r; r = s[i]; i++) {
@@ -44,7 +39,6 @@
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){
-				Ext.getCmp("plantlistgridEditor").stopEditing();
 				var grid = Ext.getCmp("plantlistgrid");
 				var selected = grid.getSelectionModel().getSelections();
 				if(selected.length > 0) {
@@ -58,7 +52,6 @@
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){
-				Ext.getCmp("plantlistgridEditor").stopEditing();
 				var grid = Ext.getCmp("plantlistgrid");
 				var selected = grid.getSelectionModel().getSelections();
 				if(selected.length > 0) {
