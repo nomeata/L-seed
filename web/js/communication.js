@@ -380,7 +380,20 @@ Lseed.Communication = function() {
 			cmp.removeAll();
 			cmp.add(elem);
 		} else {
-			console.error("Lseed.Communication.clearNavigation: 'navTree' does not exist.");
+			console.error("Lseed.Communication.closeAllTabs: 'contentTabPanel' does not exist.");
+		}
+	};
+	
+	this.closeTab = function(tabname) {
+		var cmp = Ext.getCmp('contentTabPanel');
+		if (cmp) {
+			var tab = this.getTab(tabname);
+			if (tab) {
+				console.error("Lseed.Communication.closeTab: '"+tabname+"' does not exist.");
+			}
+			cmp.remove(tab);
+		} else {
+			console.error("Lseed.Communication.closeTab: 'contentTabPanel' does not exist.");
 		}
 	};
 	
