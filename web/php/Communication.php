@@ -28,7 +28,8 @@
 				$pw = $_POST["pw"];
 				$plantname = $_POST["plant"];
 				$code = $_POST["code"];
-				$response = $controller->HandleRemoteProcedureCall($_POST["func"], $username, $pw, $plantname, $code);
+				$plantid = $_POST["id"];
+				$response = $controller->HandleRemoteProcedureCall($_POST["func"], $username, $pw, $plantname, $code, $plantid);
 				break;
 
 			case "ContentRequest":
