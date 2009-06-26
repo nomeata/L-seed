@@ -3,4 +3,17 @@
 	,closable: true
 	,style: 'padding: 5px;'
 	,title: 'Pflanze anschauen'
+	,tbar: [{
+		id: 'previewReload'
+		,text: 'Reload'
+		,icon: 'img/icons/arrow_refresh.png'
+		,cls: 'x-btn-text-icon'
+		,handler: function(){
+			var cmp = Ext.getCmp('ContentPanel_previewplant');
+			if (cmp) {
+				communication.closeTab('previewplant');
+				editor.Preview({data:{ID:cmp.plantid}});
+			}
+		}
+	}]
 }
