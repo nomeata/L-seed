@@ -9,12 +9,13 @@
 		public $IsActive;
 		public $m_Database;
 
-		public function __construct($id, $userid, $name, $code, $database) {
+		public function __construct($id, $userid, $name, $code, $valid, $database) {
 			$this->ID = $id;
 			$this->UserID = $userid;
 			$this->Name = $name;
 			$this->Code = $code;
 			$this->IsActive = false;
+			$this->Valid = $valid;
 			$this->m_Database = $database;
 			if (!isset($GLOBALS['ValidatorFile'])) {
 				$GLOBALS['ValidatorFile'] = '/home/lseed/.cabal/bin/validate';
@@ -28,7 +29,7 @@
 			
 			$active = 'false';
 			if ($this->IsActive) { $active = 'true'; } else { $active = 'false'; }
-			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "', IsActive: " . $active . " }";
+			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "', IsValid: " . $this->Valid . ", IsActive: " . $active . " }";
 		}
 
 		public function ToJsonArray() {

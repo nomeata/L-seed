@@ -664,6 +664,9 @@ Lseed.Plant = Ext.data.Record.create([{
 	name: 'Code'
 	,type: 'string'
 }, {
+	name: 'IsValid'
+	,type: 'boolean'
+}, {
 	name: 'IsActive'
 	,type: 'boolean'
 }]);

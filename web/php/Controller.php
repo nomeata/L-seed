@@ -138,7 +138,7 @@
 
 				case "CheckSyntax":
 					# Create a temporary plant		
-					$plant = new Plant(0,0,$plantname,$code,0);
+					$plant = new Plant(0,0,$plantname,$code,0,0);
 					$res = $plant->Validate();
 					break;
 

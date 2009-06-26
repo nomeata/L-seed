@@ -112,7 +112,7 @@
 		public function InsertNewPlant($userid, $name, $code) {
 			$result = false;
 
-			$plant = new Plant(0,$userid,$plantname,$code,this);
+			$plant = new Plant(0,$userid,$plantname,$code,0,this);
 			$valid = $plant->IsValid();
 			
 			$stmt = $this->m_Connection->prepare("INSERT INTO plant (UserID, Name, Code, Valid) VALUES (?, ?, ?, ?)");
@@ -157,15 +157,15 @@
 		public function GetPlantByID($userid, $plantid) {
 			$result = null;
 
-			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code FROM plant WHERE UserID=? AND ID=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code, Valid FROM plant WHERE UserID=? AND ID=?");
 			
 			if ($stmt) {
 				$stmt->bind_param("ds", $userid, $plantid);
 				$stmt->execute();
-				$stmt->bind_result( $id, $theuserid, $thename, $code);
+				$stmt->bind_result( $id, $theuserid, $thename, $code, $isvalid);
 				
 				if ($stmt->fetch()) {
-					$result = new Plant($id, $theuserid, $thename, $code, $this);
+					$result = new Plant($id, $theuserid, $thename, $code, $isvalid, $this);
 				} else {
 					//echo "nope no plant like that found.";
 				}

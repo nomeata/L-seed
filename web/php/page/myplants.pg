@@ -101,9 +101,15 @@
 					,allowBlank: true
 				}
 			},{
+				id: 'IsValid'
+				,header: 'Valid'
+				,width: 50
+				,sortable: true
+				,dataIndex: 'IsValid'
+			},{
 				id: 'IsActive'
 				,header: 'IsActive'
-				,width: 200
+				,width: 50
 				,sortable: true
 				,dataIndex: 'IsActive'
 			}
