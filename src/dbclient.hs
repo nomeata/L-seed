@@ -54,7 +54,7 @@ main = do
 	case args of
 	  [conf] -> do
 		obs <- cairoObserver
-		forever $ lseedMainLoop True
+		lseedMainLoop True
 			      (obs `mappend` scoringObs conf)
 			      (GardenSource (getDBGarden conf) (getDBUpdate conf))
 			      30
