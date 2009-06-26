@@ -142,8 +142,8 @@ renderPlant :: (Maybe (Render ())) -> (Double,Double,Double) -> AnnotatedPlant -
 renderPlant leaveR color@(r,g,b) (Plant si len ang ut ps) = preserve $ do
 	rotate ang
 	withLinearPattern 0 0 0 (len * stipeLength) $ \pat -> do
-		let darkenByBegin = 1/(1 + (siSubLength si)/50)
-		let darkenByEnd = 1/(1 + (siSubLength si - siLength si)/50)
+		let darkenByBegin = 1/(1 + (siSubLength si)/15)
+		let darkenByEnd = 1/(1 + (siSubLength si - siLength si)/15)
 		patternAddColorStopRGB pat 0
 			(darkenByBegin*r) (darkenByBegin*g) (darkenByBegin*b) 
 		patternAddColorStopRGB pat 1
