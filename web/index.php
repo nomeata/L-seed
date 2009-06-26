@@ -57,7 +57,7 @@
 		</style>
 
 		<script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
-		<script type="text/javascript" src="ext/ext-all-debug.js"></script>
+		<script type="text/javascript" src="ext/ext-all.js"></script>
 		<script type="text/javascript" src="js/md5.js"></script>
 		<script type="text/javascript" src="js/communication.js"></script>
 		<script type="text/javascript" src="js/codepress/codepress.js"></script>
