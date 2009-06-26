@@ -54,10 +54,12 @@ main = do
 	case args of
 	  [conf] -> do
 		obs <- cairoObserver
+		let obs' = obs `mappend` scoringObs conf
 		lseedMainLoop True
-			      (obs `mappend` scoringObs conf)
+			      obs'
 			      (GardenSource (getDBGarden conf) (getDBUpdate conf))
 			      30
+		obShutdown obs'
 	  _ -> do
 		putStrLn "L-Seed DB client application."
 		putStrLn "Please pass DB configuration file on the command line."
