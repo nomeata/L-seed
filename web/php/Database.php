@@ -188,8 +188,6 @@
 		public function UpdatePlant($plant) {
 			$result = false;
 			
-			die($plant);
-
 			$stmt = $this->m_Connection->prepare("UPDATE plant SET Code=?, Valid=? WHERE ID=?");
 
 			if ($stmt) {

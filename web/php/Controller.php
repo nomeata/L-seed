@@ -79,7 +79,6 @@
 			}
 			
 			$res = "";
-			error_log($func);
 
 			switch ($func) {
 				case "IsLoggedIn":
@@ -99,7 +98,6 @@
 					break;
 
 				case "SavePlant":
-					error_log("Blubb");
 					if ($plant != null) {
 						$res = $plant->Save($code);
 					} else {
