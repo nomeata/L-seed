@@ -73,7 +73,7 @@
 		}
 		
 		public function Validate() {
-			$arr =  $this->ValidateCode();
+			$arr = $this->ValidateCode();
 			return $arr[1];
 		}
 
@@ -114,10 +114,8 @@
 				$return_value = proc_close($process);
 				
 				//echo $return_value;
-				if ($return_value == 0) {
-					$result = $output;
-					$result_ok = 1;
-				}
+				$result = $output;
+				$result_ok = 1;
 			}
 
 			return array($result_ok, $result);

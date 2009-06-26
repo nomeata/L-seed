@@ -574,11 +574,7 @@ Lseed.Editor = function() {
 	this.TestCallback = function() {
 	};
 	
-	this.CheckSyntax = function(plant, callback) {
-		if (typeof callback != 'undefined' && callback != null) {
-			this.CheckSyntaxCallback = callback;
-		}
-		
+	this.CheckSyntax = function(plant) {
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'CheckSyntax'
 			,plant: plant.data.Name
