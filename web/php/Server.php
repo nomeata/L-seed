@@ -12,6 +12,7 @@
 			switch ($content) {
 				case "myplants":
 				case "createplant":
+				case "editplant":
 				case "testplant":
 					new ContentMessage($content).send();
 					break;

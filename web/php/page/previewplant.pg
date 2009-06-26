@@ -1,0 +1,6 @@
+{
+	id: 'ContentPanel_previewplant'
+	,closable: true
+	,style: 'padding: 5px;'
+	,title: 'Pflanze anschauen'
+}

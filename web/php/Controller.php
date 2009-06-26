@@ -65,13 +65,17 @@
 			return $result;
 		}
 
-		public function HandleRemoteProcedureCall($func, $username, $pw, $plantname, $code) {
+		public function HandleRemoteProcedureCall($func, $username, $pw, $plantname, $code, $plantid) {
 			$plant = null;
 			if ($this->m_User == null) {
 				$this->m_User = $this->m_Database->GetUser($username);
 			}
 			if ($this->m_User != null) {
-				$plant = $this->m_User->GetPlant($plantname);
+				if ($plantid != null) {
+					$plant = $this->m_User->GetPlantById($plantid);
+				} else {
+					$plant = $this->m_User->GetPlant($plantname);
+				}
 			}
 			
 			$res = "";
@@ -132,12 +136,10 @@
 				case "TestPlant":
 					break;
 
-				case "ValidatePlant":
-					if ($plant != null) {
-						$res = $plant->Validate();
-					} else {
-						$res = "{ success: false, msg: \"Keine Pflanze mit dem Namen '".$plantname."' für den Nutzer '".$username."' gefunden.\" }";
-					}
+				case "CheckSyntax":
+					# Create a temporary plant		
+					$plant = new Plant(0,0,$plantname,$code,0,0);
+					$res = $plant->Validate();
 					break;
 
 				default:

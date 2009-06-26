@@ -24,6 +24,8 @@
 					,Code: planteditor.getValue()
 				});
 				editor.Save(plant);
+				editor.Edit(plant);
+				communication.closeTab("createplant");
 			} else {
 				communication.showMessage("Ihre Pflanze benötigt einen Namen.", "error");
 			}
@@ -39,7 +41,7 @@
 			if (pdEditor && pnEditor) {
 				var name = pnEditor.getValue();
 				var code = pdEditor.getValue();
-				editor.CheckSyntax({data:{Code:code, Name:name}}, editor.HandleSyntaxCheckAnswerForEditor); 
+				editor.CheckSyntax({data:{Code:code, Name:name}});
 			} else {
 				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
 			}

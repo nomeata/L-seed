@@ -111,11 +111,14 @@
 		}
 		public function InsertNewPlant($userid, $name, $code) {
 			$result = false;
+
+			$plant = new Plant(0,$userid,$plantname,$code,0,this);
+			$valid = $plant->IsValid();
 			
-			$stmt = $this->m_Connection->prepare("INSERT INTO plant (UserID, Name, Code) VALUES (?, ?, ?)");
+			$stmt = $this->m_Connection->prepare("INSERT INTO plant (UserID, Name, Code, Valid) VALUES (?, ?, ?, ?)");
 			
 			if ($stmt) {
-				$stmt->bind_param("dss", $userid, $name, $code);
+				$stmt->bind_param("dssi", $userid, $name, $code, $valid);
 				$stmt->execute();
 				
 				if ($stmt->affected_rows == 1) {
@@ -154,15 +157,15 @@
 		public function GetPlantByID($userid, $plantid) {
 			$result = null;
 
-			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code FROM plant WHERE UserID=? AND ID=?");
+			$stmt = $this->m_Connection->prepare("SELECT ID, UserID, Name, Code, Valid FROM plant WHERE UserID=? AND ID=?");
 			
 			if ($stmt) {
 				$stmt->bind_param("ds", $userid, $plantid);
 				$stmt->execute();
-				$stmt->bind_result( $id, $theuserid, $thename, $code);
+				$stmt->bind_result( $id, $theuserid, $thename, $code, $isvalid);
 				
 				if ($stmt->fetch()) {
-					$result = new Plant($id, $theuserid, $thename, $code, $this);
+					$result = new Plant($id, $theuserid, $thename, $code, $isvalid, $this);
 				} else {
 					//echo "nope no plant like that found.";
 				}
@@ -185,10 +188,10 @@
 		public function UpdatePlant($plant) {
 			$result = false;
 			
-			$stmt = $this->m_Connection->prepare("UPDATE plant SET Code=? WHERE ID=?");
-			
+			$stmt = $this->m_Connection->prepare("UPDATE plant SET Code=?, Valid=? WHERE ID=?");
+
 			if ($stmt) {
-				$stmt->bind_param("sd", $plant->Code, $plant->ID);
+				$stmt->bind_param("sid", $plant->Code, $plant->IsValid(), $plant->ID);
 				$stmt->execute();
 
 				if ($stmt->affected_rows == 1) {

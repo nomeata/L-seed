@@ -67,7 +67,7 @@ Lseed.Communication = function() {
 				case 'Content':
 					this.stopWaitingForPage();
 					
-					this.showContent(obj.content, obj.contentname);
+					this.showContent(obj);
 					break;
 			}
 		} catch (e) {
@@ -97,15 +97,20 @@ Lseed.Communication = function() {
 
 	// ----- Application -----
 	
-	this.showContent = function (content, contentname) {
-		switch(contentname) {
+	this.showContent = function (contentmsg) {
+		switch(contentmsg.contentname) {
 			case "nav":
 			case "adminnav":
-				this.loadNavigation(content);
+				this.loadNavigation(contentmsg.content);
 				break;
 			default:
-				this.loadTab(content, contentname);
-				if (contentname == "editplant") {
+				content = contentmsg.content;
+				if (contentmsg.contentname == "previewplant") {
+
+					content.html = '<img src="php/PlantImages.php?plantid='+contentmsg.plantid+'"/>';
+				}
+				this.loadTab(content, contentmsg.contentname);
+				if (contentmsg.contentname == "editplant") {
 					editor.EditCallback();
 				}
 				break;
@@ -380,7 +385,20 @@ Lseed.Communication = function() {
 			cmp.removeAll();
 			cmp.add(elem);
 		} else {
-			console.error("Lseed.Communication.clearNavigation: 'navTree' does not exist.");
+			console.error("Lseed.Communication.closeAllTabs: 'contentTabPanel' does not exist.");
+		}
+	};
+	
+	this.closeTab = function(tabname) {
+		var cmp = Ext.getCmp('contentTabPanel');
+		if (cmp) {
+			var tab = this.getTab(tabname);
+			if (tab) {
+				console.error("Lseed.Communication.closeTab: '"+tabname+"' does not exist.");
+			}
+			cmp.remove(tab);
+		} else {
+			console.error("Lseed.Communication.closeTab: 'contentTabPanel' does not exist.");
 		}
 	};
 	
@@ -488,9 +506,10 @@ Lseed.Communication = function() {
 		this.AddCallback("GetPlantList", this.GetPlantListCallback.createDelegate(this));
 		this.AddCallback("GetSeasonList", this.GetSeasonListCallback.createDelegate(this));
 		
+		this.AddCallback("CheckSyntax", editor.HandleSyntaxCheckAnswerForEditor.createDelegate(editor));
+		
 		this.AddCallback("SavePlant", editor.SaveCallback.createDelegate(editor));
 		this.AddCallback("DeletePlant", editor.DeleteCallback.createDelegate(editor));
-		this.AddCallback("ValidatePlant", editor.HandleSyntaxCheckAnswerForEditor.createDelegate(editor));
 		this.AddCallback("ActivatePlant", editor.ActivateCallback.createDelegate(editor));
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, {func: 'IsLoggedIn'});
@@ -505,7 +524,6 @@ Lseed.Editor = function() {
 	};
 	
 	this.Save = function(plant) {
-		
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
 			func: 'SavePlant'
 			,plant: plant.data.Name
@@ -539,6 +557,12 @@ Lseed.Editor = function() {
 		}
 	};
 	
+	this.Preview = function(plant) {
+		communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'previewplant', plantid: plant.data.ID} );
+	};
+	this.PreviewCallback = function() {
+	};
+	
 	this.Edit = function(plant) {
 		communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'editplant'});
 		this.LastEditPlant = plant;
@@ -561,13 +585,9 @@ Lseed.Editor = function() {
 	this.TestCallback = function() {
 	};
 	
-	this.CheckSyntax = function(plant, callback) {
-		if (typeof callback != 'undefined' && callback != null) {
-			this.CheckSyntaxCallback = callback;
-		}
-		
+	this.CheckSyntax = function(plant) {
 		communication.sendMessage(Lseed.MessageCommands.RPC, { 
-			func: 'ValidatePlant'
+			func: 'CheckSyntax'
 			,plant: plant.data.Name
 			,code: plant.data.Code
 		});
@@ -582,7 +602,11 @@ Lseed.Editor = function() {
 				,icon: Ext.MessageBox.Info
 			});
 		} else {
+			// This is a hack for now:
 			var pdEditor = Ext.getCmp("plantdefinitioneditor");
+			if (!pdEditor) {
+				var pdEditor = Ext.getCmp("editplantdefinitioneditor");
+			}
 			if (pdEditor) {
 				communication.stopWaitingForPage();
 				Ext.MessageBox.show({
@@ -646,6 +670,9 @@ Lseed.Plant = Ext.data.Record.create([{
 }, {
 	name: 'Code'
 	,type: 'string'
+}, {
+	name: 'IsValid'
+	,type: 'boolean'
 }, {
 	name: 'IsActive'
 	,type: 'boolean'

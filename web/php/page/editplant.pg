@@ -1,5 +1,5 @@
 {
-	id: 'ContentPanel_createplant'
+	id: 'ContentPanel_editplant'
 	,closable: true
 	,style: 'padding: 5px;'
 	,title: 'Pflanze editieren'
@@ -39,7 +39,7 @@
 			if (pdEditor && pnEditor) {
 				var name = pnEditor.getValue();
 				var code = pdEditor.getValue();
-				editor.CheckSyntax({data:{Code:code, Name:name}}, editor.HandleSyntaxCheckAnswerForEditor); 
+				editor.CheckSyntax({data:{Code:code, Name:name}}); 
 			} else {
 				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
 			}

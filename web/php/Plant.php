@@ -9,18 +9,19 @@
 		public $IsActive;
 		public $m_Database;
 
-		public function __construct($id, $userid, $name, $code, $database) {
+		public function __construct($id, $userid, $name, $code, $valid, $database) {
 			$this->ID = $id;
 			$this->UserID = $userid;
 			$this->Name = $name;
 			$this->Code = $code;
 			$this->IsActive = false;
+			$this->Valid = $valid;
 			$this->m_Database = $database;
 			if (!isset($GLOBALS['ValidatorFile'])) {
-				$GLOBALS['ValidatorFile'] = '../cgi/validate';
-				if ($GLOBALS['WINDOWS']) {
-					$GLOBALS['ValidatorFile'] = '../cgi/validate.exe';
-				}
+				$GLOBALS['ValidatorFile'] = '/home/lseed/.cabal/bin/validate';
+				#if ($GLOBALS['WINDOWS']) {
+				#	$GLOBALS['ValidatorFile'] = '../cgi/validate.exe';
+				#}
 			}
 		}
 
@@ -28,7 +29,7 @@
 			
 			$active = 'false';
 			if ($this->IsActive) { $active = 'true'; } else { $active = 'false'; }
-			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "', IsActive: " . $active . " }";
+			return "{ ID: " . $this->ID . ", Name: '" . $this->Name . "', Code: '" . $this->Code . "', IsValid: " . $this->Valid . ", IsActive: " . $active . " }";
 		}
 
 		public function ToJsonArray() {
@@ -72,11 +73,18 @@
 		}
 		
 		public function Validate() {
-			return $this->ValidateCode();
+			$arr = $this->ValidateCode();
+			return $arr[1];
+		}
+
+		public function IsValid() {
+			$arr =  $this->ValidateCode();
+			return $arr[0];
 		}
 		
 		public function ValidateCode() {
 			$result = "{valid: false, line: 0, column: 0, msg: 'Interner Server Fehler'}";
+			$result_ok = 0;
 			
 			$descriptorspec = array(
 			   0 => array("pipe", "r"),  // STDIN ist eine Pipe, von der das Child liest
@@ -84,7 +92,7 @@
 			   2 => array("pipe", "w")   // STDERR
 			);
 
-			$cwd = realpath("..\\cgi");
+			$cwd = realpath(".");
 
 			$process = proc_open($GLOBALS['ValidatorFile'], $descriptorspec, $pipes, $cwd, array());
 
@@ -106,12 +114,11 @@
 				$return_value = proc_close($process);
 				
 				//echo $return_value;
-				if ($return_value == 0) {
-					$result = $output;
-				}
+				$result = $output;
+				$result_ok = 1;
 			}
 
-			return $result;
+			return array($result_ok, $result);
 		}
 		
 		public function Activate() {

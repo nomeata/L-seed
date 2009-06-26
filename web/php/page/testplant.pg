@@ -1,7 +1,0 @@
-{
-	id: 'ContentPanel_testplant'
-	,closable: true
-	,style: 'padding: 5px;'
-	,title: 'Pflanze testen'
-	,html: 'TODO'
-}

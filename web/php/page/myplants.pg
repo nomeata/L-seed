@@ -26,13 +26,6 @@
 				}
 			}
 		},{
-			id: 'plantlistCheckPlantSyntax'
-			,text: 'Check Syntax'
-			,icon: 'img/icons/accept.png'
-			,cls: 'x-btn-text-icon'
-			,disabled: true
-			,handler: editor.CheckSyntax.createDelegate(editor, ['plantlistgrid'], true)
-		},{
 			id: 'plantlistActivatePlant'
 			,text: 'Activate'
 			,icon: 'img/icons/award.png'
@@ -43,6 +36,19 @@
 				var selected = grid.getSelectionModel().getSelections();
 				if(selected.length > 0) {
 				    editor.Activate(selected[0]);
+				}
+			}
+		},{
+			id: 'plantlistPreviewPlant'
+			,text: 'Preview'
+			,icon: 'img/icons/edit.png'
+			,cls: 'x-btn-text-icon'
+			,disabled: true
+			,handler: function(){
+				var grid = Ext.getCmp("plantlistgrid");
+				var selected = grid.getSelectionModel().getSelections();
+				if(selected.length > 0) {
+				    editor.Preview(selected[0]);
 				}
 			}
 		},{
@@ -86,12 +92,6 @@
 		,columns: [
 			new Ext.grid.RowNumberer()
 			,{
-				id: 'ID'
-				,header: 'ID'
-				,width: 200
-				,sortable: true
-				,dataIndex: 'ID'
-			},{
 				id: 'Name'
 				,header: 'Name'
 				,width: 200
@@ -108,11 +108,31 @@
 					,allowBlank: true
 				}
 			},{
+				id: 'IsValid'
+				,header: 'Valid'
+				,width: 50
+				,sortable: true
+				,dataIndex: 'IsValid'
+				,renderer: function (value, metadata, record, rowindex, colindex, store) {
+					if (value) {
+						return '<img src="img/icons/accept.png"/>';
+					} else {
+						return '<img src="img/icons/cross.png"/>';
+					}
+				}
+			},{
 				id: 'IsActive'
 				,header: 'IsActive'
-				,width: 200
+				,width: 50
 				,sortable: true
 				,dataIndex: 'IsActive'
+				,renderer: function (value, metadata, record, rowindex, colindex, store) {
+					if (value) {
+						return '<img src="img/icons/award.png"/>';
+					} else {
+						return '';
+					}
+				}
 			}
 		]
 		,sm: new Ext.grid.RowSelectionModel({
@@ -120,14 +140,14 @@
 			,listeners: {
 				rowselect: function() {
 					Ext.getCmp("plantlistDeletePlant").enable();
-					Ext.getCmp("plantlistCheckPlantSyntax").enable();
 					Ext.getCmp("plantlistActivatePlant").enable();
 					Ext.getCmp("plantlistEditPlant").enable();
+					Ext.getCmp("plantlistPreviewPlant").enable();
 				}
 				,rowdeselect: function() {
 					Ext.getCmp("plantlistDeletePlant").disable();
-					Ext.getCmp("plantlistCheckPlantSyntax").disable();
 					Ext.getCmp("plantlistActivatePlant").disable();
+					Ext.getCmp("plantlistPreviewPlant").disable();
 					Ext.getCmp("plantlistEditPlant").disable();
 				}
 			}

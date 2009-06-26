@@ -28,12 +28,13 @@
 				$pw = $_POST["pw"];
 				$plantname = $_POST["plant"];
 				$code = $_POST["code"];
-				$response = $controller->HandleRemoteProcedureCall($_POST["func"], $username, $pw, $plantname, $code);
+				$plantid = $_POST["id"];
+				$response = $controller->HandleRemoteProcedureCall($_POST["func"], $username, $pw, $plantname, $code, $plantid);
 				break;
 
 			case "ContentRequest":
 				if ($controller->IsLoggedIn() != "false") {
-					$response = new ContentMessage($_POST["content"]);
+					$response = new ContentMessage($_POST["content"], $_POST["plantid"]);
 				} else {
 					$func = "function() { this.showLoginDialog(); this.showMessage('Sie sind nicht eingeloggt bitte einloggen', 'error'); }";
 					$response = new RemoteProcedureCall($func);
