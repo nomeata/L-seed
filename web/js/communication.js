@@ -106,7 +106,7 @@ Lseed.Communication = function() {
 			default:
 				content = contentmsg.content;
 				if (contentmsg.contentname == "previewplant") {
-
+					content.plantid = contentmsg.plantid;
 					content.html = '<img src="php/PlantImages.php?plantid='+contentmsg.plantid+'"/>';
 				}
 				this.loadTab(content, contentmsg.contentname);

@@ -325,7 +325,9 @@
 			}
 			
 			foreach ($idlist as $id) {
-				$result[] = $this->GetSeasonScoreByID($id);
+				$score = $this->GetSeasonScoreByID($id);
+				$score->User = $this->GetUserByID($score->UserID);
+				$result[] = $score;
 			}
 			
 			return $result;
