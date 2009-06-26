@@ -79,12 +79,6 @@
 		,columns: [
 			new Ext.grid.RowNumberer()
 			,{
-				id: 'ID'
-				,header: 'ID'
-				,width: 200
-				,sortable: true
-				,dataIndex: 'ID'
-			},{
 				id: 'Name'
 				,header: 'Name'
 				,width: 200
