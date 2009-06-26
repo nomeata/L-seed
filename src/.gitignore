@@ -7,3 +7,4 @@ dbclient
 dbscorer
 fastScorer
 tags
+renderAsPNG

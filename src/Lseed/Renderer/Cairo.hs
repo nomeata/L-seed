@@ -10,11 +10,31 @@ import Lseed.Data
 import Lseed.Data.Functions
 import Lseed.Constants
 import Lseed.Geometry
+import Lseed.StipeInfo
 import Text.Printf
 import System.Time
 
 colors :: [ (Double, Double, Double) ]
 colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
+
+pngObserver :: IO Observer
+pngObserver = return $ nullObserver {
+	obFinished = \garden -> do
+		let (w,h) = (400,400)
+		withImageSurface FormatRGB24 w h $ \sur -> do
+			renderWith sur $ do
+				-- Set up coordinates
+				translate 0 (fromIntegral h)
+				scale 1 (-1)
+				scale (fromIntegral w) (fromIntegral w)
+				translate (-0.5) 0
+				scale 2 2
+				translate 0 groundLevel
+				setLineWidth stipeWidth
+
+				render (pi/3) (annotateGarden (pi/3) garden)
+			surfaceWriteToPNG sur "/dev/fd/1"
+	}
 
 cairoObserver :: IO Observer
 cairoObserver = do
@@ -61,8 +81,7 @@ cairoObserver = do
 		{ obGrowingState = \scGen -> do
 			writeIORef currentGardenRef scGen
 			widgetQueueDraw canvas
-		, obFinished = \_ ->
-			mainQuit
+		, obShutdown = mainQuit
 		}
 
 render :: Double -> AnnotatedGarden -> Render ()
@@ -80,7 +99,7 @@ render angle garden = do
 
 	renderGround
 
-	renderInfo angle garden
+	--renderInfo garden
 
 renderPlanted :: AnnotatedPlanted -> Render ()
 renderPlanted planted = preserve $ do
@@ -198,7 +217,7 @@ renderLightedPoly ((x1,y1),(x2,y2),(x3,y3),(x4,y4), intensity) = do
 		setSourceRGB 0 0 intensity
 		fill
 
-renderInfo angle garden = do
+renderInfo garden = do
 	forM_ garden $ \planted -> do
 		let x = plantPosition planted
 		{-

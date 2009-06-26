@@ -7,6 +7,7 @@ import Control.Applicative ((<$>),(<*>),pure)
 import Control.Arrow (second)
 import Data.Monoid
 import System.Time (ClockTime)
+import Data.Monoid
 
 -- | User Tag
 type UserTag = String
@@ -82,7 +83,7 @@ data ScreenContent = ScreenContent
 
 -- | Main loop observers
 data Observer = Observer {
-	-- | Called once, before the main loop starts
+	-- | Called once per season, before the main loop starts
 	  obInit :: IO ()
 	-- | Called once per tick, with the current tick number and the current
 	-- state of the garden
@@ -92,8 +93,10 @@ data Observer = Observer {
 	, obGrowingState :: (ClockTime -> ScreenContent) -> IO ()
 	-- | Called before the main loop quits, with the last state of the garden
 	, obFinished :: GrowingGarden -> IO ()
+	-- | Called once before program termination
+	, obShutdown :: IO ()
 	}
-nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ())
+nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ()) (return ())
 
 -- | Methods to get the initial garden and the updated code when a plant multiplies
 data GardenSource = GardenSource {
@@ -187,3 +190,14 @@ instance Foldable Planted where
 
 instance Traversable Planted where
 	sequenceA planted = (\x -> planted { phenotype = x }) <$> sequenceA (phenotype planted)
+
+instance Monoid Observer where
+	mempty = nullObserver
+	obs1 `mappend` obs2 = nullObserver {
+		obInit = obInit obs1 >> obInit obs2,
+		obState = \d g -> obState obs1 d g >> obState obs2 d g,
+		obGrowingState = \f -> obGrowingState obs1 f >> obGrowingState obs2 f,
+		obFinished = \g -> obFinished obs1 g >> obFinished obs2 g,
+		obShutdown = obShutdown obs1 >> obShutdown obs2
+		}
+	
