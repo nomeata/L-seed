@@ -128,7 +128,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 		  where -- Calculation based on the ray at the mid point
 			mid = (x1 + x2) / 2
 			-- Light intensity
-			width = abs ((x2 - x1) * sin angle)
+			width = abs ((x2 - x1) * sin angle) * lightIntensity
 			(curlines, otherlines) = partition (\(l,_,_) -> lineAtRay mid l)
 							   llines
 			sorted = sortBy (\(l1,_,_) (l2,_,_) -> aboveFirst mid l1 l2)
@@ -136,6 +136,8 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
 			curlines' = snd $ mapAccumL shine width sorted
 			shine intensity (l,i,amount) = (intensity * lightFalloff, 
 						       (l,i,amount + (1-lightFalloff) * intensity))
+
+	lightIntensity = sin angle
 
 	polygons = concatMap go intervals
 	  where go (x1,x2) = if null sorted then [nothingPoly] else lightedPolys
@@ -148,7 +150,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
                                           p2 = unprojectPoint x1 floor
                                           p3 = unprojectPoint x2 floor
                                           p4 = unprojectPoint x2 ceiling
-                                      in (p1,p2,p3,p4,1)
+                                      in (p1,p2,p3,p4, lightIntensity)
 			firstPoly = let p1 = unprojectPoint x1 ceiling
                                         p2 = unprojectPoint x1 (head sorted)
                                         p3 = unprojectPoint x2 (head sorted)
@@ -166,7 +168,7 @@ allKindsOfStuffWithAngle angle lines = (lighted, polygons)
                                              p4 = unprojectPoint x2 l1
 					 in (p1,p2,p3,p4)) sorted (tail sorted)
 			polys' = [firstPoly] ++ polys ++ [lastPoly]
-			lightedPolys = snd $ mapAccumL shine 1 polys'
+			lightedPolys = snd $ mapAccumL shine lightIntensity polys'
 			shine intensity (p1,p2,p3,p4) = ( intensity * lightFalloff
 							, (p1,p2,p3,p4,intensity))
 
