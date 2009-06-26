@@ -1,5 +1,5 @@
 {
-	id: 'ContentPanel_createplant'
+	id: 'ContentPanel_editplant'
 	,closable: true
 	,style: 'padding: 5px;'
 	,title: 'Pflanze editieren'
