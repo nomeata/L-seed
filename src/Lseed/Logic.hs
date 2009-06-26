@@ -79,7 +79,7 @@ growPlanted planted light =
 	in  if remainingLength > eps
             then let sizeOfPlant = plantLength (phenotype planted)
                      lightAvailable = light - costPerLength * sizeOfPlant^2
-		     lowerBound = if sizeOfPlant < smallPlantBoostSize
+		     lowerBound = if sizeOfPlant < smallPlantBoostSize && not (doesBlossom (phenotype planted))
 		                  then (1 - sizeOfPlant / smallPlantBoostSize) * smallPlantBoostLength
 				  else 0
                      allowedGrowths = max lowerBound $
@@ -89,6 +89,9 @@ growPlanted planted light =
 		     growthFraction = growthThisTick / remainingLength 
 		 in \tickDiff -> applyGrowth (tickDiff * growthFraction) planted
 	    else const planted
+
+doesBlossom (Plant { pData = (GrowingSeed _) }) = True
+doesBlossom (Plant { pBranches = ps }) = any doesBlossom ps
 
 -- | Applies Growth at given fraction, leaving the target length in place
 applyGrowth :: Double -> GrowingPlanted -> GrowingPlanted
