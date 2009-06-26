@@ -137,11 +137,8 @@
 					break;
 
 				case "ValidatePlant":
-					if ($plant != null) {
-						$res = $plant->Validate();
-					} else {
-						$res = "{ success: false, msg: \"Keine Pflanze mit dem Namen '".$plantname."' für den Nutzer '".$username."' gefunden.\" }";
-					}
+					$plant = new Plant(0,0,$plantname,$code,0);
+					$res = $plant->Validate();
 					break;
 
 				default:

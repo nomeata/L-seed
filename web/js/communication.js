@@ -595,7 +595,11 @@ Lseed.Editor = function() {
 				,icon: Ext.MessageBox.Info
 			});
 		} else {
+			// This is a hack for now:
 			var pdEditor = Ext.getCmp("plantdefinitioneditor");
+			if (!pdEditor) {
+				var pdEditor = Ext.getCmp("editplantdefinitioneditor");
+			}
 			if (pdEditor) {
 				communication.stopWaitingForPage();
 				Ext.MessageBox.show({
