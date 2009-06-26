@@ -10,8 +10,15 @@ import Text.Printf
 import System.Environment
 import Data.Monoid
 import Data.Maybe
+import System.Random
+import System.Random.Shuffle (shuffle')
 
-getDBGarden conf = spread <$> mapMaybe compileDBCode <$> getCodeToRun conf
+randomize l = shuffle' l (length l) <$> newStdGen
+
+getDBGarden conf = do
+	dbc <- getCodeToRun conf
+	gs <- randomize $ mapMaybe compileDBCode dbc
+	return $ spread gs
   where spread gs = zipWith (\(u,n,g) p ->
  		 Planted ((fromIntegral p + 0.5) / l)
 			 u

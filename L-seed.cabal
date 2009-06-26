@@ -75,7 +75,8 @@ Library
   if flag(Database) 
     Build-Depends:
         HDBC-odbc,
-        HDBC
+        HDBC,
+        random-shuffle == 0.0.2
     Exposed-Modules:
         Lseed.DB
 
