@@ -167,4 +167,4 @@ pFloat = do value <- try (do
 		     )  <|> float
 	    (deg >> return (value / 180 * pi)) <|> return value
 
-deg = reservedOp "\194\176"
+deg = reservedOp "\194\176" <|> reservedOp "\176"
