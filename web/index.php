@@ -54,17 +54,10 @@
 			  font: normal 10px arial, tahoma, sans-serif;
 			}
 
-			#ContentPanel_start h1 {
-				margin-bottom:1em;
-			}
-			#ContentPanel_start p {
-				margin-bottom:1em;
-			}
-
 		</style>
 
 		<script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
-		<script type="text/javascript" src="ext/ext-all-debug.js"></script>
+		<script type="text/javascript" src="ext/ext-all.js"></script>
 		<script type="text/javascript" src="js/md5.js"></script>
 		<script type="text/javascript" src="js/communication.js"></script>
 		<script type="text/javascript" src="js/codepress/codepress.js"></script>
@@ -124,7 +117,7 @@
 							id: 'ContentPanel_start'
 							,style: 'padding: 5px;'
 							,title: 'Start'
-							,html: ' <h1>Willkommen bei L-Seed, dem Spiel zur GPN</h1> <p> Auf dieser Webseite kannst du die Genome für deine Pflanzen speichern, die dann laufend auf dem Beamer angezeigt werden, sowie Statistiken dazu betrachen. Mehr Informationen findest du auf <a href="http://entropia.de/wiki/L-seed">http://entropia.de/wiki/L-seed</a>.  </p> <p> Der <a href="/git">Quellcode</a> (als Git-Repository) zu L-seed ist auch (vermutlich schneller) von diesem Server zu beziehen.  </p> <p> Bei Fragen wendest du dich bitte an Joachim Breitner, <tt>nomeata</tt> im IRC, <tt>nomeata@joachim-breitner.de</tt> im Jabber oder gern auch persönlich, wenn du mir über den Weg läufst.  </p> '
+							,html: 'Willkommen beim L-Seed Manager.'
 						}]
 					},{
 						region: 'south'

@@ -2,11 +2,11 @@
 	id: 'ContentPanel_season'
 	,closable: true
 	,style: 'padding: 5px;'
-	,title: 'Aktuelle Saison'
+	,title: 'Aktuelle Staffel'
 	,layout: 'fit'
 	,items: [{
 		id: "seasonlistgrid"
-		,title: "Meine Pflanzen"
+		,title: "Saisons"
 		,xtype: 'grid'
 		,autoExpandColumn: 'User'
 		,view: new Ext.grid.GroupingView({

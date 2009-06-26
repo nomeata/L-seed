@@ -6,7 +6,7 @@
 	,layout: 'fit'
 	,items: [{
 		id: "plantlistgrid"
-		,title: "Saisons"
+		,title: "Mein Pflanzen"
 		,xtype: 'grid'
 		,autoExpandColumn: 'Code'
 		,view: new Ext.grid.GroupingView({
@@ -41,7 +41,7 @@
 		},{
 			id: 'plantlistPreviewPlant'
 			,text: 'Preview'
-			,icon: 'img/icons/edit.png'
+			,icon: 'img/icons/preview.png'
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){

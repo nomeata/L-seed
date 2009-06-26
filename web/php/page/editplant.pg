@@ -24,6 +24,7 @@
 					,Code: planteditor.getValue()
 				});
 				editor.Save(plant);
+				Ext.getCmp("PreviewPlant").enable();
 			} else {
 				communication.showMessage("Ihre Pflanze benötigt einen Namen.", "error");
 			}
@@ -44,6 +45,14 @@
 				console.error("Lseed.Editor.CheckSyntaxCallback_Callback: 'plantdefinitioneditor' Could not be found.");
 			}
 		}.createDelegate(editor)
+	},{
+		id: 'PreviewPlant'
+		,text: 'Preview'
+		,icon: 'img/icons/preview.png'
+		,cls: 'x-btn-text-icon'
+		,handler: function(){
+			editor.Preview(editor.LastEditPlant);
+		}
 	}]
 	,items: [{
 		id: "editplantdefinitionnamefield"
@@ -64,6 +73,9 @@
 		,anchor:'100% -50'
 		,enableKeyEvents: true
 		,listeners: {
+			keydown: function() {
+				Ext.getCmp("PreviewPlant").disable();
+			}
 		}
 		,value: ''
 	}]

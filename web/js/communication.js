@@ -393,7 +393,7 @@ Lseed.Communication = function() {
 		var cmp = Ext.getCmp('contentTabPanel');
 		if (cmp) {
 			var tab = this.getTab(tabname);
-			if (tab) {
+			if (!tab) {
 				console.error("Lseed.Communication.closeTab: '"+tabname+"' does not exist.");
 			}
 			cmp.remove(tab);
@@ -406,7 +406,7 @@ Lseed.Communication = function() {
 		var cmp = Ext.getCmp("contentTabPanel");
 		if (cmp) {
 			cmp.add(content);
-			this.activateTab(name)
+			this.activateTab(name);
 		} else {
 			console.error("Lseed.Communication.showTab: 'contentTabPanel' does not exist.");
 		}
@@ -482,7 +482,7 @@ Lseed.Communication = function() {
 	// === Season Managerment ===
 	
 	this.GetSeasonList = function() {
-		Ext.MessageBox.wait("Saisons werden geladen.", "Wird geladen...");
+		Ext.MessageBox.wait("Staffeln werden geladen.", "Wird geladen...");
 		
 		this.sendMessage(Lseed.MessageCommands.RPC, { func: 'GetSeasonList' });
 	};
@@ -564,8 +564,14 @@ Lseed.Editor = function() {
 	};
 	
 	this.Edit = function(plant) {
-		communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'editplant'});
 		this.LastEditPlant = plant;
+		var cmp = Ext.getCmp('ContentPanel_editplant');
+		if (cmp) {
+			communication.activateTab('editplant');
+			this.EditCallback();
+		} else {
+			communication.sendMessage(Lseed.MessageCommands.ContentRequest, {content: 'editplant'});
+		}
 	};
 	this.EditCallback = function() {
 		var cmp = Ext.getCmp("editplantdefinitionnamefield");
