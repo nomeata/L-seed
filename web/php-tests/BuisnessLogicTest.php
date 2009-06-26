@@ -1,9 +1,9 @@
 <?php
-	include("../User.php");
-	include("../Plant.php");
-	include("../Controller.php");
-	include("../Season.php");
-	include("../SeasonScore.php");
+	include("../php/User.php");
+	include("../php/Plant.php");
+	include("../php/Controller.php");
+	include("../php/Season.php");
+	include("../php/SeasonScore.php");
 
 	class TestOfBuisnessLogic extends UnitTestCase
 	{
@@ -89,7 +89,7 @@
 			$res = $this->m_Controller->HandleRemoteProcedureCall("Auth", "test", "test", "", "");
 			$res = $this->m_Controller->HandleRemoteProcedureCall("CreatePlant", "", "", "newplant", "RULE a GROW BY 1");
 			
-			$GLOBALS['ValidatorFile'] = '../../cgi/validate';
+			$GLOBALS['ValidatorFile'] = '../cgi/validate';
 			$res = $this->m_Controller->HandleRemoteProcedureCall("ValidatePlant", "test", "", "newplant", "");
 			$this->validateRPCResponse($res, "ValidatePlant", "{\"valid\":true}");
 			
