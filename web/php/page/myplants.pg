@@ -41,7 +41,7 @@
 		},{
 			id: 'plantlistPreviewPlant'
 			,text: 'Preview'
-			,icon: 'img/icons/edit.png'
+			,icon: 'img/icons/preview.png'
 			,cls: 'x-btn-text-icon'
 			,disabled: true
 			,handler: function(){
