@@ -114,8 +114,10 @@
 				$return_value = proc_close($process);
 				
 				//echo $return_value;
-				$result = $output;
-				$result_ok = 1;
+				if ($output != null && count($output) > 0) {
+					$result = $output;
+					$result_ok = 1;
+				}
 			}
 
 			return array($result_ok, $result);

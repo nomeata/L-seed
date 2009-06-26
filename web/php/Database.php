@@ -279,7 +279,7 @@
 				}
 				$stmt->close();
 			} else {
-				die("WHY YOU LITTLE...!");
+				die("What the heck?");
 			}
 			
 			if ($result != null) {
