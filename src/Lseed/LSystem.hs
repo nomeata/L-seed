@@ -86,6 +86,7 @@ conformsTo (Plant {pData = si, pUserTag = ut}) = go
 	getMatchable MatchSubLight  = siSubLight si
 	getMatchable MatchDirection = siDirection si
 	getMatchable MatchAngle     = siAngle si
+	getMatchable MatchDistance  = siDistance si
 
 	doCompare LE = (<=)
 	doCompare Less = (<)

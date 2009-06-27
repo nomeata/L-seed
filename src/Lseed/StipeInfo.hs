@@ -9,8 +9,8 @@ annotateGarden :: Angle -> GrowingGarden -> AnnotatedGarden
 annotateGarden angle  = map (mapPlanted annotatePlant) . lightenGarden angle
 
 annotatePlant :: Plant (GrowthState, Double) -> AnnotatedPlant
-annotatePlant = go 0 0 0
-  where go d o h (Plant (gs, light) len ang ut ps) = Plant (StipeInfo
+annotatePlant = go 0 0 0 0
+  where go d o h dist (Plant (gs, light) len ang ut ps) = Plant (StipeInfo
 		{ siLength    = len
 		, siSubLength = len + sum (map (siSubLength . pData) ps')
 		, siLight     = light
@@ -20,8 +20,9 @@ annotatePlant = go 0 0 0
 		, siGrowth    = gs
 		, siOffset    = o'
 		, siHeight    = h'
+		, siDistance  = dist
 		}) len ang ut ps'
-	  where ps' = map (go d' o' h') ps
+	  where ps' = map (go d' o' h' (dist+len)) ps
 	  	d' = (d+ang)
 		o' = o - len * stipeLength * sin d'
 		h' = h + len * stipeLength * cos d'

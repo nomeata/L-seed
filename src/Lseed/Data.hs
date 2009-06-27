@@ -60,6 +60,7 @@ data StipeInfo = StipeInfo
 	, siDirection :: Angle
 	, siOffset    :: Double -- ^ Sideways position, relative to Plant origin
 	, siHeight    :: Double -- ^ Vertical distance from bottom
+	, siDistance  :: Double -- ^ Distance from root
 	, siGrowth    :: GrowthState
 	}
 	deriving (Show)
@@ -141,6 +142,7 @@ data Matchable
 	| MatchSubLength
 	| MatchDirection
 	| MatchAngle
+	| MatchDistance
 	deriving (Read,Show)
 
 data Cmp

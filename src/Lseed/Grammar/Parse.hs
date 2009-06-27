@@ -11,7 +11,7 @@ import Lseed.Data
 -- The lexer
 lexer       = P.makeTokenParser $ javaStyle
 	{ P.reservedNames = ["RULE", "WHEN", "SET", "Tag", "Light", "Branch", "At",
-			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle",
+			     "Length", "Light", "Sublength", "Sublight", "Direction", "Angle", "Distance",
 			     "BY", "TO", "PRIORITY", "WEIGHT", "Blossom"]
 	}
 
@@ -147,6 +147,7 @@ pMatchable =
 		, ("SUBLIGHT", MatchSubLight)
 		, ("ANGLE", MatchAngle)
 		, ("DIRECTION", MatchDirection)
+		, ("DISTANCE", MatchDistance)
 		]
 
 pCmp = 
