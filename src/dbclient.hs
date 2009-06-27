@@ -55,8 +55,9 @@ main = do
 	  [conf, pngfile, textfile] -> do
 		obs <- cairoObserver
 		let obs' = obs `mappend` scoringObs conf `mappend` pngDailyObserver pngfile
-		let gs = addMessageSource (readFile textfile) $
-		         GardenSource (getDBGarden conf) (getDBUpdate conf)
+		let gs = GardenSource (getDBGarden conf)
+				      (getDBUpdate conf)
+                                      (readFile textfile) 
 		lseedMainLoop True obs' gs 30
 		obShutdown obs'
 	  _ -> do
