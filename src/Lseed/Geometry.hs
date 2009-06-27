@@ -197,5 +197,5 @@ windy angle = mapGarden (mapPlanted go)
 		pBranches = map go (pBranches p)
 	}
         offset = sin (windChangeFrequency * angle)
-	windFactor = 0.2
+	windFactor = 0.015
 	windChangeFrequency = 10
