@@ -206,11 +206,11 @@ windy s = mapGarden (mapPlanted (go 0))
 -- | For a Garden, calculates the maximum size to the left, to the right, and
 -- maximum height
 gardenOffset :: AnnotatedGarden -> (Double, Double, Double)
-gardenOffset = pad . F.foldr max3 (0.5,0.5,0.4) . map (F.foldr max3 (0.5,0.5,0) . go )
+gardenOffset = pad . F.foldr max3 (0.5,0.5,0) . map (F.foldr max3 (0.5,0.5,0) . go )
   where go planted = fmap (\si -> ( siOffset si + siLength si * stipeLength * sin (siDirection si) + plantPosition planted
                                   , siOffset si + siLength si * stipeLength * sin (siDirection si) + plantPosition planted 
 				  , siHeight si + siLength si * stipeLength * cos (siDirection si)
 				  )
 			   ) planted
         max3 (a,b,c) (a',b',c') = (min a a', max b b', max c c')
-	pad (a,b,c) = (a-0.1,b+0.1,c+0.1)
+	pad (a,b,c) = (a-0.02,b+0.02,c+0.1)
