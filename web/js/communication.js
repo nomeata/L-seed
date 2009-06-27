@@ -107,7 +107,8 @@ Lseed.Communication = function() {
 				content = contentmsg.content;
 				if (contentmsg.contentname == "previewplant") {
 					content.plantid = contentmsg.plantid;
-					content.html = '<img src="php/PlantImages.php?plantid='+contentmsg.plantid+'"/>';
+					var dd = new Date().getTime();
+					content.html = '<img src="php/PlantImages.php?plantid='+contentmsg.plantid+'&dd='+dd+'"/>';
 				}
 				this.loadTab(content, contentmsg.contentname);
 				if (contentmsg.contentname == "editplant") {
