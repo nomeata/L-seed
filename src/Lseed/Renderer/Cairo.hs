@@ -349,7 +349,7 @@ renderSky angle = do
 renderGround :: Render ()
 renderGround = do
 	setSourceRGB (140/255) (80/255) (21/255)
-	rectangle 0 0 1 (-groundLevel)
+	rectangle (-1) 0 3 (-groundLevel)
         fill
 
 -- | Wrapper that calls 'save' and 'restore' before and after the argument
