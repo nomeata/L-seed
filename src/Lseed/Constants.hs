@@ -48,7 +48,7 @@ lightFalloff = 0.6
 
 -- | Length of one day, in seconds
 dayLength :: Double
-dayLength = 20
+dayLength = 15
 
 -- | ε
 eps = 1e-9

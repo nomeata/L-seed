@@ -58,7 +58,7 @@ main = do
 		let gs = GardenSource (getDBGarden conf)
 				      (getDBUpdate conf)
                                       (Just <$> readFile textfile) 
-		lseedMainLoop True obs' gs 30
+		lseedMainLoop True obs' gs 40
 		obShutdown obs'
 	  _ -> do
 		putStrLn "L-Seed DB client application."
