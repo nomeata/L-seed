@@ -22,7 +22,9 @@ colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]
 
 pngDailyObserver :: FilePath -> Observer
 pngDailyObserver filename = nullObserver {
-	obState = \_ angle garden -> do
+	obGrowingState = \scGen -> do
+		ScreenContent garden angle timeInfo <-
+			scGen `fmap` getClockTime 
 		let (w,h) = (800,600)
 		withImageSurface FormatRGB24 w h $ \sur -> do
 			renderWith sur $ do
@@ -33,7 +35,8 @@ pngDailyObserver filename = nullObserver {
 				translate 0 groundLevel
 				setLineWidth stipeWidth
 
-				render angle (annotateGarden angle garden)
+				render angle garden
+				renderTimeInfo timeInfo
 				renderStats (fromIntegral h/fromIntegral w) garden
 			surfaceWriteToPNG sur filename
 	}
