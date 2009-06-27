@@ -1,4 +1,4 @@
-while sleep 30;
+while sleep 60;
 do
 GET "http://search.twitter.com/search.atom?q=%23GPN8&rpp=1&since_id=$(cat msg.id)" > msg.atom 
 if xpath -q -e "//entry" msg.atom |grep -q .
