@@ -27,7 +27,14 @@ pngDailyObserver filename = nullObserver {
 		ScreenContent garden angle timeInfo mbMessage <-
 			scGen `fmap` getClockTime 
 		let (w,h) = (800,600)
-	  	let h' = fromIntegral h / fromIntegral w
+		let h' = fromIntegral h / fromIntegral w
+
+		let (xLeft,xRight,xHeight) = gardenOffset garden
+		    scaleY = h'*(1-groundLevel)/xHeight
+		    scaleX = 1/(max 1 xRight - min 0 xLeft)
+		    scaleXY = minimum [1, scaleX, scaleY]
+		    shiftX = min 0 xLeft 
+
 		withImageSurface FormatRGB24 w h $ \sur -> do
 			renderWith sur $ do
 				-- Set up coordinates
@@ -37,7 +44,10 @@ pngDailyObserver filename = nullObserver {
 				translate 0 groundLevel
 				setLineWidth stipeWidth
 
-				render angle garden
+				preserve $ do
+					scale scaleXY scaleXY
+					translate (-shiftX) 0
+					render angle garden
 
 				maybe (return ()) (renderMessage angle h') mbMessage
 				renderTimeInfo timeInfo
