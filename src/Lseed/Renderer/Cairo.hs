@@ -96,10 +96,13 @@ cairoObserver = do
 
 
 				  let (xLeft,xRight,xHeight) = gardenOffset garden
-				      scaleY = 1/xHeight
-				      scaleX = 1/(xRight-xLeft)
-				      scaleXY = min 1 $ min scaleX scaleY
+				      scaleY = h'*(1-groundLevel)/xHeight
+				      scaleX = 1/(max 1 xRight - min 0 xLeft)
+				      scaleXY = minimum [1, scaleX, scaleY]
 				      shiftX = scaleXY * min 0 xLeft 
+
+				  liftIO $ print $ gardenOffset garden
+				  liftIO $ print (h',scaleX, scaleY, scaleXY)
 
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
@@ -109,8 +112,8 @@ cairoObserver = do
 					translate 0 groundLevel
 
 					preserve $ do
-						translate (-shiftX) 0
 						scale scaleXY scaleXY
+						translate shiftX 0
 						render angle (windy s garden)
 					maybe (return ()) (renderMessage angle h') mbMessage
 					renderTimeInfo timeInfo
