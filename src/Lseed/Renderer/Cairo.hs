@@ -20,6 +20,23 @@ import Data.Ord
 colors :: [ (Double, Double, Double) ]
 colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
 
+pngDailyObserver :: FilePath -> Observer
+pngDailyObserver filename = nullObserver {
+	obState = \_ angle garden -> do
+		let (w,h) = (800,400)
+		withImageSurface FormatRGB24 w h $ \sur -> do
+			renderWith sur $ do
+				-- Set up coordinates
+				translate 0 (fromIntegral h)
+				scale 1 (-1)
+				scale (fromIntegral w) (fromIntegral w)
+				translate 0 groundLevel
+				setLineWidth stipeWidth
+
+				render angle (annotateGarden angle garden)
+			surfaceWriteToPNG sur filename
+	}
+
 pngObserver :: IO Observer
 pngObserver = return $ nullObserver {
 	obFinished = \garden -> do

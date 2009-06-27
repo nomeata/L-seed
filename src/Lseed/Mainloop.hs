@@ -47,7 +47,7 @@ lseedMainLoop rt obs gardenSource maxDays = do
 		let growingGarden = growGarden sampleAngle rgen newGarden
 
 
-		obState obs tick garden
+		obState obs tick sampleAngle garden
 		when rt $ do
 			obGrowingState obs $ \later -> 
 				let tickDiff = timeSpanFraction tickLength tickStart later

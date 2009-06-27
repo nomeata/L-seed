@@ -85,9 +85,9 @@ data ScreenContent = ScreenContent
 data Observer = Observer {
 	-- | Called once per season, before the main loop starts
 	  obInit :: IO ()
-	-- | Called once per tick, with the current tick number and the current
-	-- state of the garden
-	, obState :: Integer -> GrowingGarden -> IO ()
+	-- | Called once per tick, with the current tick number corresponding
+	-- light angle and the current state of the garden
+	, obState :: Integer -> Angle -> GrowingGarden -> IO ()
 	-- | Also called once per tick, with a function that calculates the
 	-- information that should be displayed given a point in time
 	, obGrowingState :: (ClockTime -> ScreenContent) -> IO ()
@@ -96,7 +96,7 @@ data Observer = Observer {
 	-- | Called once before program termination
 	, obShutdown :: IO ()
 	}
-nullObserver = Observer (return ()) (\_ _ -> return ()) (\_ -> return ()) (\_ -> return ()) (return ())
+nullObserver = Observer (return ()) (\_ _ _ -> return ()) (\_ -> return ()) (\_ -> return ()) (return ())
 
 -- | Methods to get the initial garden and the updated code when a plant multiplies
 data GardenSource = GardenSource {
