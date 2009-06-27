@@ -38,7 +38,7 @@ pngDailyObserver filename = nullObserver {
 
 				render angle garden
 
-				maybe (return ()) (renderMessage h') mbMessage
+				maybe (return ()) (renderMessage angle h') mbMessage
 				renderTimeInfo timeInfo
 				renderStats h' garden
 			surfaceWriteToPNG sur filename
@@ -100,7 +100,7 @@ cairoObserver = do
 					setLineWidth stipeWidth
 
 					render angle (windy angle garden)
-					maybe (return ()) (renderMessage h') mbMessage
+					maybe (return ()) (renderMessage angle h') mbMessage
 					renderTimeInfo timeInfo
 					renderStats h' garden
 		                  return True
@@ -273,23 +273,28 @@ renderTimeInfo timeStr = preserve $ do
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
 
-renderMessage h text = preserve $ do
+renderMessage angle h text = preserve $ do
 		scale 1 (-1)
 		setSourceRGB 0 0 0
 		translate (0.5) (2.5*groundLevel - h) 
 		setFontSize (groundLevel/2)
 
 		ext <- textExtents text
-		translate (-0.5*textExtentsXadvance ext) 0
-		rectangle 0
+
+		rectangle (-0.25)
 			  (textExtentsYbearing ext + groundLevel/2)
-			  (textExtentsXbearing ext + textExtentsXadvance ext)
+			  (0.5)
 			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
 		setSourceRGB 1 1 1
-		fill
+		fillPreserve
+		clip
+
+		let scroll = (angle + pi/2)/(2*pi)
+		translate (-0.25 - scroll * 0.5) 0
 
 		setSourceRGB 0 0 0
-		showText text
+		let n = ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext)
+		showText $ intercalate " STOP " $ replicate n text
 
 renderStats h garden = do
 	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
@@ -305,7 +310,6 @@ renderStats h garden = do
 
 		setFontSize (groundLevel/2)
 
-		--translate (stipeWidth) (groundLevel/2)
 		forM_ texts $ \text ->  do
 			ext <- textExtents text
 			rectangle 0

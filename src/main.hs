@@ -37,6 +37,6 @@ main = readArgs $ \garden -> do
 	obs <- cairoObserver
 	lseedMainLoop True
 	              obs
-		      ((constGardenSource garden) { getScreenMessage = (return (Just "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"))})
+		      ((constGardenSource garden) { getScreenMessage = (return (Just "bla blubb"))})
 		      30
 	obShutdown obs
