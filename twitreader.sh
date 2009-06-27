@@ -1,6 +1,6 @@
 while sleep 10;
 do
-GET "http://search.twitter.com/search.atom?q=%23Lseed&rpp=1" > msg.atom 
+GET "http://search.twitter.com/search.atom?q=%23GPN8&rpp=1" > msg.atom 
 echo -n " Via Twitter: " \
 $(
 	xpath -q -e '//author/name/text()' msg.atom  |
