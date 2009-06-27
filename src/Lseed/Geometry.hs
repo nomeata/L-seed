@@ -190,12 +190,14 @@ mapLine process init combine garden = runST $ do
 	mapM (mapM (\(d,stRef) -> (,) d <$> readSTRef stRef)) gardenWithPointers
 
 -- | Slightly shifts angles 
-windy angle = mapGarden (mapPlanted go)
-  where go p = p{
-		pAngle = pAngle p +
-			 windFactor * offset * pLength p * cos (siDirection (pData p)),
-		pBranches = map go (pBranches p)
-	}
+windy angle = mapGarden (mapPlanted (go 0))
+  where go d p = let a' = pAngle p + 
+			  windFactor * offset * pLength p * cos (d + pAngle p)
+                     d' = (d+a')
+		 in p { pAngle = a'
+		      , pData = (pData p) { siDirection = d' }
+		      , pBranches = map (go d') (pBranches p)
+		      }
         offset = sin (windChangeFrequency * angle)
 	windFactor = 0.2
 	windChangeFrequency = 10
