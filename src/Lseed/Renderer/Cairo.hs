@@ -293,7 +293,7 @@ renderMessage angle h text = preserve $ do
 		translate (-0.25 - scroll * 0.5) 0
 
 		setSourceRGB 0 0 0
-		let n = ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext)
+		let n = 2 + (ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext))
 		showText $ intercalate " STOP " $ replicate n text
 
 renderStats h garden = do
