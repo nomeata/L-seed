@@ -57,7 +57,7 @@ main = do
 		let obs' = obs `mappend` scoringObs conf `mappend` pngDailyObserver pngfile
 		let gs = GardenSource (getDBGarden conf)
 				      (getDBUpdate conf)
-                                      (readFile textfile) 
+                                      (Just <$> readFile textfile) 
 		lseedMainLoop True obs' gs 30
 		obShutdown obs'
 	  _ -> do

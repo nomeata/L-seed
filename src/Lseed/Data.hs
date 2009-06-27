@@ -79,6 +79,7 @@ data ScreenContent = ScreenContent
 	{ scGarden     :: AnnotatedGarden
 	, scLightAngle :: Double
 	, scTime       :: String
+	, scMessage    :: Maybe String
 	}
 
 -- | Main loop observers
@@ -105,13 +106,10 @@ data GardenSource = GardenSource {
 	-- | Given a plant, returns the genome to be used for a seedling.
 	, getUpdatedCode :: Planted () -> IO GrammarFile
 	-- | Text to display on the screen
-	, getScreenMessage :: IO String
+	, getScreenMessage :: IO (Maybe String)
 	}
 constGardenSource :: Garden () -> GardenSource
-constGardenSource garden = GardenSource (return garden) (return . genome) (return "")
-
-addMessageSource :: (IO String) -> GardenSource -> GardenSource
-addMessageSource sm gs = gs { getScreenMessage = sm }
+constGardenSource garden = GardenSource (return garden) (return . genome) (return Nothing)
 
 -- | A complete grammar file
 type GrammarFile = [ GrammarRule ]

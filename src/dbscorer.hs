@@ -44,7 +44,7 @@ main = do
 	  [conf] -> do
 		lseedMainLoop False
 			      (scoringObs conf)
-			      (GardenSource (getDBGarden conf) (getDBUpdate conf) (return ""))
+			      (GardenSource (getDBGarden conf) (getDBUpdate conf) (return Nothing))
 			      30
 	  _ -> do
 		putStrLn "L-Seed DB client application."

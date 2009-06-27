@@ -54,11 +54,11 @@ lseedMainLoop rt obs gardenSource maxDays = do
 				let tickDiff = timeSpanFraction tickLength tickStart later
 				    dayDiff = (fromIntegral tickOfDay + tickDiff) /
 					      fromIntegral ticksPerDay
-				    timeInfo = formatTimeInfo day dayDiff ++ text
+				    timeInfo = formatTimeInfo day dayDiff
 				    visualizeAngle = lightAngle dayDiff
 				    gardenNow = annotateGarden visualizeAngle $ 
 				                growingGarden tickDiff
-				in ScreenContent gardenNow visualizeAngle timeInfo
+				in ScreenContent gardenNow visualizeAngle timeInfo text
 
 			threadDelay (round (tickLength * 1000 * 1000))
 		nextDay (succ tick, growingGarden 1)

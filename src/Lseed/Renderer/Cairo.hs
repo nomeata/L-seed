@@ -23,7 +23,7 @@ colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]
 pngDailyObserver :: FilePath -> Observer
 pngDailyObserver filename = nullObserver {
 	obGrowingState = \scGen -> do
-		ScreenContent garden angle timeInfo <-
+		ScreenContent garden angle timeInfo mbMessage <-
 			scGen `fmap` getClockTime 
 		let (w,h) = (800,600)
 		withImageSurface FormatRGB24 w h $ \sur -> do
@@ -36,7 +36,7 @@ pngDailyObserver filename = nullObserver {
 				setLineWidth stipeWidth
 
 				render angle garden
-				renderTimeInfo timeInfo
+				renderTimeInfo (timeInfo ++ maybe ("") (" -- "++) mbMessage)
 				renderStats (fromIntegral h/fromIntegral w) garden
 			surfaceWriteToPNG sur filename
 	}
@@ -65,7 +65,7 @@ cairoObserver = do
 	initGUI
 
 	-- global renderer state
-	currentGardenRef <- newIORef (const (ScreenContent [] (pi/2) "No time yet"))
+	currentGardenRef <- newIORef (const (ScreenContent [] (pi/2) "No time yet" Nothing))
 
 	-- widgets
 	canvas <- drawingAreaNew
@@ -83,7 +83,7 @@ cairoObserver = do
 
 	-- The actual drawing function
 	onExpose canvas$ \e -> do scGen <- readIORef currentGardenRef
-				  ScreenContent garden angle timeInfo <-
+				  ScreenContent garden angle timeInfo mbMessage <-
 						scGen `fmap` getClockTime 
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
