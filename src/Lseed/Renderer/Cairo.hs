@@ -109,8 +109,9 @@ cairoObserver = do
 					translate 0 groundLevel
 
 					preserve $ do
-						translate (-shiftX) 0
-						scale scaleY scaleY
+						-- Zoom & Pan
+						-- translate (-shiftX) 0
+						-- scale scaleY scaleY
 						render angle (windy s garden)
 					maybe (return ()) (renderMessage angle h') mbMessage
 					renderTimeInfo timeInfo
