@@ -34,6 +34,7 @@ pngDailyObserver filename = nullObserver {
 				setLineWidth stipeWidth
 
 				render angle (annotateGarden angle garden)
+				renderStats (fromIntegral h/fromIntegral w) garden
 			surfaceWriteToPNG sur filename
 	}
 
