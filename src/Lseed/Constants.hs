@@ -24,7 +24,7 @@ ticksPerDay = 9
 -- 1 means: Can grow one stipeLength during one day, when catching the sunlight
 -- with one branch of (projected) length screenwidth
 growthPerDayAndLight :: Double
-growthPerDayAndLight = 25.0
+growthPerDayAndLight = 35.0
 
 -- | Plants up to this size get an boost in growths
 smallPlantBoostSize :: Double
@@ -44,7 +44,7 @@ seedGrowthCost = 1.0
 
 -- | Branch translucency. Proportion of light that is let through by a plant
 lightFalloff :: Double
-lightFalloff = 0.6
+lightFalloff = 0.7
 
 -- | Length of one day, in seconds
 dayLength :: Double
