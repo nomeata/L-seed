@@ -279,7 +279,8 @@ renderMessage angle h text = preserve $ do
 		translate (0.5) (2.5*groundLevel - h) 
 		setFontSize (groundLevel)
 
-		ext <- textExtents text
+		let bullet = " * "
+		ext <- textExtents (text ++ bullet)
 
 		rectangle (-0.25)
 			  (textExtentsYbearing ext + groundLevel)
@@ -289,13 +290,15 @@ renderMessage angle h text = preserve $ do
 		fillPreserve
 		clip
 
-		let scroll = 3 * (angle + pi/2)/(2*pi)
+		let textWidth = textExtentsXbearing ext + textExtentsXadvance ext
+		    textCount = ceiling $ 0.5/textWidth
+		    scroll = 3 * (angle + pi/2)/(2*pi)
 		    scroll' = scroll - fromIntegral (floor scroll)
-		translate (-0.25 - scroll' * 0.5 ) 0
+		    scrollDist = fromIntegral textCount * textWidth
+		translate (-0.25 - scroll' * scrollDist) 0
 
 		setSourceRGB 0 0 0
-		let n = 2 + (ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext))
-		showText $ intercalate " STOP " $ replicate n text
+		showText $ intercalate bullet $ replicate (2*textCount) text
 
 renderStats h garden = do
 	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
