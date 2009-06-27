@@ -23,7 +23,7 @@ colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]
 pngDailyObserver :: FilePath -> Observer
 pngDailyObserver filename = nullObserver {
 	obState = \_ angle garden -> do
-		let (w,h) = (800,400)
+		let (w,h) = (800,600)
 		withImageSurface FormatRGB24 w h $ \sur -> do
 			renderWith sur $ do
 				-- Set up coordinates
