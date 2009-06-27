@@ -16,6 +16,7 @@ import System.Time
 import qualified Data.Map as M
 import Data.List
 import Data.Ord
+import System.Time
 
 colors :: [ (Double, Double, Double) ]
 colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
@@ -88,18 +89,28 @@ cairoObserver = do
 	onExpose canvas$ \e -> do scGen <- readIORef currentGardenRef
 				  ScreenContent garden angle timeInfo mbMessage <-
 						scGen `fmap` getClockTime 
+				  s <- clockTimeToDouble `fmap` getClockTime
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
 				  let h' = fromIntegral h / fromIntegral w
+
+				  let (xLeft,xRight,xHeight) = gardenOffset garden
+				      scaleY = 1/xHeight
+				      shiftX = if xRight-xLeft-xHeight > 0
+				        then scaleY * (xLeft + (1+sin (s/2))/2 * max 0 (xRight-xLeft-xHeight))
+					else 0
+
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
 					translate 0 (fromIntegral h)
 					scale 1 (-1)
-					scale (fromIntegral w) (fromIntegral (w))
+					scale (fromIntegral w) (fromIntegral w)
 					translate 0 groundLevel
-					setLineWidth stipeWidth
 
-					render angle (windy angle garden)
+					preserve $ do
+						translate (-shiftX) 0
+						scale scaleY scaleY
+						render angle (windy s garden)
 					maybe (return ()) (renderMessage angle h') mbMessage
 					renderTimeInfo timeInfo
 					renderStats h' garden
@@ -344,3 +355,5 @@ renderGround = do
 -- | Wrapper that calls 'save' and 'restore' before and after the argument
 preserve :: Render () -> Render ()
 preserve r = save >> r >> restore
+
+clockTimeToDouble (TOD s p) = fromIntegral s + fromIntegral p/(1000*1000*1000*1000)

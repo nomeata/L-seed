@@ -9,6 +9,7 @@ import Data.List
 import Data.Maybe
 import Data.Ord
 import qualified Data.Map as M
+import qualified Data.Foldable as F
 import Control.Monad hiding (mapM,forM)
 import Data.Traversable (mapM,forM)
 import Prelude hiding (mapM)
@@ -190,7 +191,7 @@ mapLine process init combine garden = runST $ do
 	mapM (mapM (\(d,stRef) -> (,) d <$> readSTRef stRef)) gardenWithPointers
 
 -- | Slightly shifts angles 
-windy angle = mapGarden (mapPlanted (go 0))
+windy s = mapGarden (mapPlanted (go 0))
   where go d p = let a' = pAngle p + 
 			  windFactor * offset * pLength p * cos (d + pAngle p)
                      d' = (d+a')
@@ -198,6 +199,18 @@ windy angle = mapGarden (mapPlanted (go 0))
 		      , pData = (pData p) { siDirection = d' }
 		      , pBranches = map (go d') (pBranches p)
 		      }
-        offset = sin (windChangeFrequency * angle)
+        offset = sin (windChangeFrequency * s)
 	windFactor = 0.015
-	windChangeFrequency = 10
+	windChangeFrequency = 1
+
+-- | For a Garden, calculates the maximum size to the left, to the right, and
+-- maximum height
+gardenOffset :: AnnotatedGarden -> (Double, Double, Double)
+gardenOffset = pad . F.foldr max3 (0.5,0.5,0.2) . map (F.foldr max3 (0.5,0.5,0) . go )
+  where go planted = fmap (\si -> ( siOffset si + siLength si * stipeLength * sin (siDirection si) + plantPosition planted
+                                  , siOffset si + siLength si * stipeLength * sin (siDirection si) + plantPosition planted 
+				  , siHeight si + siLength si * stipeLength * cos (siDirection si)
+				  )
+			   ) planted
+        max3 (a,b,c) (a',b',c') = (min a a', max b b', max c c')
+	pad (a,b,c) = (a-0.1,b+0.1,c+0.1)
