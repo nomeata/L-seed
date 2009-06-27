@@ -13,7 +13,7 @@ stipeLength = 0.05
 blossomSize :: Double
 blossomSize = 0.03
 stipeWidth :: Double
-stipeWidth  = 0.01
+stipeWidth  = 0.005
 
 -- | Light and growths interpolation frequency
 ticksPerDay :: Integer
