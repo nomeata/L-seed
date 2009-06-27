@@ -277,20 +277,21 @@ renderMessage angle h text = preserve $ do
 		scale 1 (-1)
 		setSourceRGB 0 0 0
 		translate (0.5) (2.5*groundLevel - h) 
-		setFontSize (groundLevel/2)
+		setFontSize (groundLevel)
 
 		ext <- textExtents text
 
 		rectangle (-0.25)
-			  (textExtentsYbearing ext + groundLevel/2)
+			  (textExtentsYbearing ext + groundLevel)
 			  (0.5)
-			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+			  (-textExtentsYbearing ext - groundLevel - groundLevel)
 		setSourceRGB 1 1 1
 		fillPreserve
 		clip
 
-		let scroll = (angle + pi/2)/(2*pi)
-		translate (-0.25 - scroll * 0.5) 0
+		let scroll = 3 * (angle + pi/2)/(2*pi)
+		    scroll' = scroll - fromIntegral (floor scroll)
+		translate (-0.25 - scroll' * 0.5 ) 0
 
 		setSourceRGB 0 0 0
 		let n = 2 + (ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext))
