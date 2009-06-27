@@ -26,6 +26,7 @@ pngDailyObserver filename = nullObserver {
 		ScreenContent garden angle timeInfo mbMessage <-
 			scGen `fmap` getClockTime 
 		let (w,h) = (800,600)
+	  	let h' = fromIntegral h / fromIntegral w
 		withImageSurface FormatRGB24 w h $ \sur -> do
 			renderWith sur $ do
 				-- Set up coordinates
@@ -36,8 +37,10 @@ pngDailyObserver filename = nullObserver {
 				setLineWidth stipeWidth
 
 				render angle garden
-				renderTimeInfo (timeInfo ++ maybe ("") (" -- "++) mbMessage)
-				renderStats (fromIntegral h/fromIntegral w) garden
+
+				maybe (return ()) (renderMessage h') mbMessage
+				renderTimeInfo timeInfo
+				renderStats h' garden
 			surfaceWriteToPNG sur filename
 	}
 
@@ -87,6 +90,7 @@ cairoObserver = do
 						scGen `fmap` getClockTime 
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
+				  let h' = fromIntegral h / fromIntegral w
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
 					translate 0 (fromIntegral h)
@@ -96,8 +100,9 @@ cairoObserver = do
 					setLineWidth stipeWidth
 
 					render angle (windy angle garden)
+					maybe (return ()) (renderMessage h') mbMessage
 					renderTimeInfo timeInfo
-					renderStats (fromIntegral h/fromIntegral w) garden
+					renderStats h' garden
 		                  return True
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
@@ -261,13 +266,30 @@ renderInfo garden = do
 			moveTo x (0.5*groundLevel)
 			showText text1
 
-renderTimeInfo timeStr = do
-	preserve $ do
+renderTimeInfo timeStr = preserve $ do
 		scale 1 (-1)
 		setSourceRGB 0 0 0
 		setFontSize (groundLevel/2)
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
+
+renderMessage h text = preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		translate (0.5) (2.5*groundLevel - h) 
+		setFontSize (groundLevel/2)
+
+		ext <- textExtents text
+		translate (-0.5*textExtentsXadvance ext) 0
+		rectangle 0
+			  (textExtentsYbearing ext + groundLevel/2)
+			  (textExtentsXbearing ext + textExtentsXadvance ext)
+			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+		setSourceRGB 1 1 1
+		fill
+
+		setSourceRGB 0 0 0
+		showText text
 
 renderStats h garden = do
 	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
@@ -288,7 +310,7 @@ renderStats h garden = do
 			ext <- textExtents text
 			rectangle 0
 				  (textExtentsYbearing ext + groundLevel/2)
-				  (textExtentsXadvance ext)
+				  (textExtentsXbearing ext + textExtentsXadvance ext)
 				  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
 			setSourceRGB 1 1 1
 			fill
