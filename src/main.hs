@@ -36,3 +36,4 @@ readArgs doit = do
 main = readArgs $ \garden -> do
 	obs <- cairoObserver
 	lseedMainLoop True obs (constGardenSource garden) 30
+	obShutdown obs
