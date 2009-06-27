@@ -10,8 +10,15 @@ import Text.Printf
 import System.Environment
 import Data.Monoid
 import Data.Maybe
+import System.Random
+import System.Random.Shuffle (shuffle')
 
-getDBGarden conf = spread <$> mapMaybe compileDBCode <$> getCodeToRun conf
+randomize l = shuffle' l (length l) <$> newStdGen
+
+getDBGarden conf = do
+	dbc <- getCodeToRun conf
+	gs <- randomize $ mapMaybe compileDBCode dbc
+	return $ spread gs
   where spread gs = zipWith (\(u,n,g) p ->
  		 Planted ((fromIntegral p + 0.5) / l)
 			 u
@@ -42,15 +49,20 @@ scoringObs conf = nullObserver {
 		addFinishedSeasonResults conf garden
 	}
 
+nothingNull "" = Nothing
+nothingNull s  = Just s
+
 main = do
 	args <- getArgs
 	case args of
-	  [conf] -> do
+	  [conf, pngfile, textfile] -> do
 		obs <- cairoObserver
-		forever $ lseedMainLoop True
-			      (obs `mappend` scoringObs conf)
-			      (GardenSource (getDBGarden conf) (getDBUpdate conf))
-			      30
+		let obs' = obs `mappend` scoringObs conf `mappend` pngDailyObserver pngfile
+		let gs = GardenSource (getDBGarden conf)
+				      (getDBUpdate conf)
+                                      (nothingNull <$> readFile textfile) 
+		lseedMainLoop True obs' gs 40
+		obShutdown obs'
 	  _ -> do
 		putStrLn "L-Seed DB client application."
-		putStrLn "Please pass DB configuration file on the command line."
+		putStrLn "Please pass DB configuration file, a PNG file to write, and a text file with messages on the command line."

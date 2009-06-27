@@ -15,7 +15,7 @@
 		,leaf: true
 	},{
 		id: 'season'
-		,text: "Aktuelle Staffel"
+		,text: "Aktuelle Saison"
 		,leaf: true
 	}]
 }

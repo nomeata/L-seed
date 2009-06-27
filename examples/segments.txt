@@ -1,0 +1,4 @@
+RULE Regel
+WHEN TAG = ""
+BRANCH ANGLE = 0°, LENGTH = 0.1
+SET TAG = "done"

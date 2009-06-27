@@ -13,9 +13,36 @@ import Lseed.Geometry
 import Lseed.StipeInfo
 import Text.Printf
 import System.Time
+import qualified Data.Map as M
+import Data.List
+import Data.Ord
 
 colors :: [ (Double, Double, Double) ]
 colors = cycle $ [ (r,g,b) | r <- [0.0,0.4], b <- [0.0, 0.4], g <- [1.0,0.6,0.8]]
+
+pngDailyObserver :: FilePath -> Observer
+pngDailyObserver filename = nullObserver {
+	obGrowingState = \scGen -> do
+		ScreenContent garden angle timeInfo mbMessage <-
+			scGen `fmap` getClockTime 
+		let (w,h) = (800,600)
+	  	let h' = fromIntegral h / fromIntegral w
+		withImageSurface FormatRGB24 w h $ \sur -> do
+			renderWith sur $ do
+				-- Set up coordinates
+				translate 0 (fromIntegral h)
+				scale 1 (-1)
+				scale (fromIntegral w) (fromIntegral w)
+				translate 0 groundLevel
+				setLineWidth stipeWidth
+
+				render angle garden
+
+				maybe (return ()) (renderMessage angle h') mbMessage
+				renderTimeInfo timeInfo
+				renderStats h' garden
+			surfaceWriteToPNG sur filename
+	}
 
 pngObserver :: IO Observer
 pngObserver = return $ nullObserver {
@@ -41,7 +68,7 @@ cairoObserver = do
 	initGUI
 
 	-- global renderer state
-	currentGardenRef <- newIORef (const (ScreenContent [] (pi/2) "No time yet"))
+	currentGardenRef <- newIORef (const (ScreenContent [] (pi/2) "No time yet" Nothing))
 
 	-- widgets
 	canvas <- drawingAreaNew
@@ -59,10 +86,11 @@ cairoObserver = do
 
 	-- The actual drawing function
 	onExpose canvas$ \e -> do scGen <- readIORef currentGardenRef
-				  ScreenContent garden angle timeInfo <-
+				  ScreenContent garden angle timeInfo mbMessage <-
 						scGen `fmap` getClockTime 
 				  dwin <- widgetGetDrawWindow canvas
 				  (w,h) <- drawableGetSize dwin
+				  let h' = fromIntegral h / fromIntegral w
 				  renderWithDrawable dwin $ do
 					-- Set up coordinates
 					translate 0 (fromIntegral h)
@@ -71,8 +99,10 @@ cairoObserver = do
 					translate 0 groundLevel
 					setLineWidth stipeWidth
 
-					render angle garden
+					render angle (windy angle garden)
+					maybe (return ()) (renderMessage angle h') mbMessage
 					renderTimeInfo timeInfo
+					renderStats h' garden
 		                  return True
 
 	timeoutAdd (widgetQueueDraw canvas >> return True) 20
@@ -88,8 +118,8 @@ render :: Double -> AnnotatedGarden -> Render ()
 render angle garden = do
 	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
 	-- by running it here. This needs modification to lightenGarden and mapLine
-	renderSky
-	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
+	renderSky angle
+	--mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
 	--mapM_ renderLine (gardenToLines garden)
@@ -236,18 +266,69 @@ renderInfo garden = do
 			moveTo x (0.5*groundLevel)
 			showText text1
 
-renderTimeInfo timeStr = do
-	preserve $ do
+renderTimeInfo timeStr = preserve $ do
 		scale 1 (-1)
 		setSourceRGB 0 0 0
 		setFontSize (groundLevel/2)
 		moveTo 0 (0.5*groundLevel)
 		showText timeStr
 
-renderSky :: Render ()
-renderSky = do
+renderMessage angle h text = preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		translate (0.5) (2.5*groundLevel - h) 
+		setFontSize (groundLevel/2)
+
+		ext <- textExtents text
+
+		rectangle (-0.25)
+			  (textExtentsYbearing ext + groundLevel/2)
+			  (0.5)
+			  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+		setSourceRGB 1 1 1
+		fillPreserve
+		clip
+
+		let scroll = (angle + pi/2)/(2*pi)
+		translate (-0.25 - scroll * 0.5) 0
+
+		setSourceRGB 0 0 0
+		let n = 2 + (ceiling $ 0.5/(textExtentsXbearing ext + textExtentsXadvance ext))
+		showText $ intercalate " STOP " $ replicate n text
+
+renderStats h garden = do
+	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
+
+	let texts = map (\(n,s) -> printf "%s: %.4f" (take 20 n) s) $
+			reverse $
+			sortBy (comparing snd) $
+		        (M.toList owernerscore)
+	preserve $ do
+		scale 1 (-1)
+		setSourceRGB 0 0 0
+		translate 0 (1.5*groundLevel - h) 
+
+		setFontSize (groundLevel/2)
+
+		forM_ texts $ \text ->  do
+			ext <- textExtents text
+			rectangle 0
+				  (textExtentsYbearing ext + groundLevel/2)
+				  (textExtentsXbearing ext + textExtentsXadvance ext)
+				  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
+			setSourceRGB 1 1 1
+			fill
+
+			setSourceRGB 0 0 0
+			showText text
+
+			translate 0 (groundLevel/2)
+
+
+renderSky :: Angle -> Render ()
+renderSky angle = do
 	-- Clear Background
-	setSourceRGB  0 0 1
+	setSourceRGB  0 0 (sin angle)
 	paint
 
 renderGround :: Render ()
