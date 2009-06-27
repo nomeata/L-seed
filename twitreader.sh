@@ -1,5 +1,5 @@
-#while sleep 60;
-#do
+while sleep 60;
+do
 GET "http://search.twitter.com/search.atom?q=%23GPN8&since_id=$(cat msg.id)" > msg.atom 
 if xpath -q -e "//entry" msg.atom |grep -q .
 then
@@ -18,4 +18,4 @@ then
 else
 	echo -n > msg.txt
 fi
-#done
+done
