@@ -189,3 +189,13 @@ mapLine process init combine garden = runST $ do
 	-- Undo the STRefs
 	mapM (mapM (\(d,stRef) -> (,) d <$> readSTRef stRef)) gardenWithPointers
 
+-- | Slightly shifts angles 
+windy angle = mapGarden (mapPlanted go)
+  where go p = p{
+		pAngle = pAngle p +
+			 windFactor * offset * pLength p * cos (siDirection (pData p)),
+		pBranches = map go (pBranches p)
+	}
+        offset = sin (windChangeFrequency * angle)
+	windFactor = 0.2
+	windChangeFrequency = 10

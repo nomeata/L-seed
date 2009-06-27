@@ -95,7 +95,7 @@ cairoObserver = do
 					translate 0 groundLevel
 					setLineWidth stipeWidth
 
-					render angle garden
+					render angle (windy angle garden)
 					renderTimeInfo timeInfo
 					renderStats (fromIntegral h/fromIntegral w) garden
 		                  return True
