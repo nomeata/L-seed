@@ -97,7 +97,7 @@ cairoObserver = do
 				  let (xLeft,xRight,xHeight) = gardenOffset garden
 				      scaleY = 1/xHeight
 				      shiftX = if xRight-xLeft-xHeight > 0
-				        then scaleY * (xLeft + (1+sin (s/2))/2 * max 0 (xRight-xLeft-xHeight))
+				        then scaleY * (xLeft + (1+sin (s/(xHeight*4)))/2 * max 0 (xRight-xLeft-xHeight))
 					else 0
 
 				  renderWithDrawable dwin $ do
