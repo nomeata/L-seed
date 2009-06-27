@@ -104,9 +104,14 @@ data GardenSource = GardenSource {
 	  getGarden :: IO (Garden ())
 	-- | Given a plant, returns the genome to be used for a seedling.
 	, getUpdatedCode :: Planted () -> IO GrammarFile
+	-- | Text to display on the screen
+	, getScreenMessage :: IO String
 	}
 constGardenSource :: Garden () -> GardenSource
-constGardenSource garden = GardenSource (return garden) (return . genome)
+constGardenSource garden = GardenSource (return garden) (return . genome) (return "")
+
+addMessageSource :: (IO String) -> GardenSource -> GardenSource
+addMessageSource sm gs = gs { getScreenMessage = sm }
 
 -- | A complete grammar file
 type GrammarFile = [ GrammarRule ]
