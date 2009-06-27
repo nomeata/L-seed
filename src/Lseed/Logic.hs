@@ -77,8 +77,8 @@ growPlanted :: GrowingPlanted -> Double -> (Double -> GrowingPlanted)
 growPlanted planted light = 
 	let remainingLength = remainingGrowth id planted
 	in  if remainingLength > eps
-            then let sizeOfPlant = plantLength (phenotype planted)
-                     lightAvailable = light - costPerLength * sizeOfPlant^2
+            then let sizeOfPlant = weightedPlantLength (phenotype planted)
+                     lightAvailable = light - costPerLength * sizeOfPlant
 		     lowerBound = if sizeOfPlant < smallPlantBoostSize && not (doesBlossom (phenotype planted))
 		                  then (1 - sizeOfPlant / smallPlantBoostSize) * smallPlantBoostLength
 				  else 0

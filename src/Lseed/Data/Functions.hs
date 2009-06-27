@@ -8,6 +8,14 @@ plantPieceLengths :: Plant a -> Plant Double
 plantPieceLengths (Plant _ len ang ut ps) =
 	Plant len len ang ut (map plantPieceLengths ps)
 
+plantWeightedPieceLengths :: Double -> Plant a -> Plant Double
+plantWeightedPieceLengths dist (Plant _ len ang ut ps) =
+	Plant ((dist + 0.5*len) * len) len ang ut $
+		map (plantWeightedPieceLengths (dist + len)) ps
+
+weightedPlantLength :: Plant a -> Double
+weightedPlantLength = plantTotalSum . plantWeightedPieceLengths 0
+
 plantLength :: Plant a -> Double
 plantLength = plantTotalSum . plantPieceLengths
 
