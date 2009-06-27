@@ -114,7 +114,7 @@ render angle garden = do
 	-- TODO the following can be optimized to run allKindsOfStuffWithAngle only once.
 	-- by running it here. This needs modification to lightenGarden and mapLine
 	renderSky angle
-	mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
+	--mapM_ renderLightedPoly (lightPolygons angle (gardenToLines garden))
 
 	--mapM_ renderLightedLine (lightenLines angle (gardenToLines garden))
 	--mapM_ renderLine (gardenToLines garden)
