@@ -49,6 +49,9 @@ scoringObs conf = nullObserver {
 		addFinishedSeasonResults conf garden
 	}
 
+nothingNull "" = Nothing
+nothingNull s  = Just s
+
 main = do
 	args <- getArgs
 	case args of
@@ -57,7 +60,7 @@ main = do
 		let obs' = obs `mappend` scoringObs conf `mappend` pngDailyObserver pngfile
 		let gs = GardenSource (getDBGarden conf)
 				      (getDBUpdate conf)
-                                      (Just <$> readFile textfile) 
+                                      (nothingNull <$> readFile textfile) 
 		lseedMainLoop True obs' gs 40
 		obShutdown obs'
 	  _ -> do
