@@ -52,14 +52,13 @@ scoringObs conf = nullObserver {
 main = do
 	args <- getArgs
 	case args of
-	  [conf, pngfile] -> do
+	  [conf, pngfile, textfile] -> do
 		obs <- cairoObserver
 		let obs' = obs `mappend` scoringObs conf `mappend` pngDailyObserver pngfile
-		lseedMainLoop True
-			      obs'
-			      (GardenSource (getDBGarden conf) (getDBUpdate conf))
-			      30
+		let gs = addMessageSource (readFile textfile) $
+		         GardenSource (getDBGarden conf) (getDBUpdate conf)
+		lseedMainLoop True obs' gs 30
 		obShutdown obs'
 	  _ -> do
 		putStrLn "L-Seed DB client application."
-		putStrLn "Please pass DB configuration file and a PNG file to write on the command line."
+		putStrLn "Please pass DB configuration file, a PNG file to write, and a text file with messages on the command line."
