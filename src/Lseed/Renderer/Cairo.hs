@@ -337,17 +337,19 @@ renderStats h garden = do
 
 		forM_ texts $ \text ->  do
 			ext <- textExtents text
-			rectangle 0
-				  (textExtentsYbearing ext + groundLevel/2)
-				  (textExtentsXbearing ext + textExtentsXadvance ext)
-				  (-textExtentsYbearing ext - groundLevel/2 - groundLevel/2)
-			setSourceRGB 1 1 1
-			fill
+			preserve $ do
+				translate 0 (textExtentsYbearing ext)
+				rectangle 0
+					  (textExtentsYbearing ext + groundLevel/2)
+					  (textExtentsXbearing ext + textExtentsXadvance ext)
+					  (textExtentsHeight ext)
+				setSourceRGB 1 1 1
+				fill
 
 			setSourceRGB 0 0 0
 			showText text
 
-			translate 0 (groundLevel/2)
+			translate 0 (textExtentsHeight ext)
 
 
 renderSky :: Angle -> Render ()
