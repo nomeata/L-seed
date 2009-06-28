@@ -335,11 +335,11 @@ renderStats h garden = do
 		
 		textE <- mapM (\t -> (,) t `fmap` textExtents t) texts
 
-		let totalHeight = groundLevel/4 + fromIntegral (length texts) * (1.5*groundLevel/2)
+		let totalHeight = groundLevel/4 + fromIntegral (length texts) * (1.0*groundLevel/2)
 		let totalWidth = maximum $ map (\x -> textExtentsXadvance (snd x)) textE
 
 		rectangle 0
-			  (-1.5*groundLevel/2)
+			  (-1.0*groundLevel/2)
 			  totalWidth
 			  (totalHeight)
 		setSourceRGB 1 1 1
@@ -349,7 +349,7 @@ renderStats h garden = do
 			setSourceRGB 0 0 0
 			moveTo 0 0
 			showText text
-			translate 0 (1.5*groundLevel/2)
+			translate 0 (1.0*groundLevel/2)
 
 
 
