@@ -338,7 +338,7 @@ renderStats h garden = do
 		forM_ texts $ \text ->  do
 			ext <- textExtents text
 			preserve $ do
-				translate 0 (textExtentsYbearing ext)
+				translate 0 (-textExtentsHeight ext)
 				rectangle 0
 					  (textExtentsYbearing ext + groundLevel/2)
 					  (textExtentsXbearing ext + textExtentsXadvance ext)
