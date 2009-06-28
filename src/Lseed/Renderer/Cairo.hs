@@ -329,7 +329,7 @@ renderStats h garden = do
 			reverse $
 			sortBy (comparing snd) $
 		        (M.toList owernerscore)
-	preserve $ do
+	if (not null texts) $ preserve $ do
 		scale 1 (-1)
 		translate 0 (1.5*groundLevel - h) 
 		
