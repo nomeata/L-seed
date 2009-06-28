@@ -324,30 +324,33 @@ renderMessage angle h text = preserve $ do
 renderStats h garden = do
 	let owernerscore = foldr (\p -> M.insertWith (+) (plantOwnerName p) (plantLength (phenotype p))) M.empty garden
 
+	setFontSize (groundLevel/2)
 	let texts = map (\(n,s) -> printf "%s: %.1f" (take 20 n) s) $
 			reverse $
 			sortBy (comparing snd) $
 		        (M.toList owernerscore)
 	preserve $ do
 		scale 1 (-1)
-		setSourceRGB 0 0 0
 		translate 0 (1.5*groundLevel - h) 
+		
+		textE <- mapM (\t -> (,) t `fmap` textExtents t) texts
 
-		setFontSize (groundLevel/2)
+		let totalHeight = groundLevel/4 + fromIntegral (length texts) * (1.5*groundLevel/2)
+		let totalWidth = maximum $ map (\x -> textExtentsXadvance (snd x)) textE
 
-		forM_ texts $ \text ->  do
-			ext <- textExtents text
-			rectangle 0
-				  (textExtentsYbearing ext + groundLevel/2)
-				  (textExtentsXbearing ext + textExtentsXadvance ext)
-				  (-1.5*groundLevel/2)
-			setSourceRGB 1 1 1
-			fill
+		rectangle 0
+			  (-1.5*groundLevel/2)
+			  totalWidth
+			  (totalHeight)
+		setSourceRGB 1 1 1
+		fill
 
+		forM_ texts $ \text -> do
 			setSourceRGB 0 0 0
+			moveTo 0 0
 			showText text
-
 			translate 0 (1.5*groundLevel/2)
+
 
 
 renderSky :: Angle -> Render ()
